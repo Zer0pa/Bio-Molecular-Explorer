@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "ranolazine",
+  "inchikey": "XKLMZUWKNUAPSZ-UHFFFAOYSA-N",
+  "canonical_smiles": "COc1ccccc1OCC(O)CN1CCN(CC(=O)Nc2c(C)cccc2C)CC1",
+  "drug_class_research_label": "anti-anginal / late-INa inhibitor (research label)",
+  "cardiac_research_role": "INaL-dominant multi-current reference; forces SCN5A node toward source_grounded",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 12.0,
+      "block_fraction_at_cmax_unbound": 0.20,
+      "method": "stub",
+      "confidence": 0.5
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": 6.0,
+      "block_fraction_at_cmax_unbound": 0.40,
+      "method": "stub",
+      "confidence": 0.55,
+      "note": "Late INa (INaL) is the dominant target; selectivity over peak INa is part of the story."
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "controlled_QT_prolongation_with_late_INa_protection",
+  "stub_provenance_note": "Ranolazine packet must engage SCN5A/INaL specifically; collapsing to a single-QT story fails."
+}

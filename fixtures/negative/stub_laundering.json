@@ -1,0 +1,7 @@
+{
+  "target_falsifier": "stub_laundering",
+  "backend": "stub",
+  "claim_kind": "mechanism_claim",
+  "mechanism_escalation": true,
+  "note": "Backend=stub but downstream tries to escalate to a mechanism-grade claim; confidence cap + provenance flag must apply"
+}

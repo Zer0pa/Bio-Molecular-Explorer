@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zer0pa-health"
+version = "0.1.0"
+description = "Zer0pa Health falsification-engine pipeline. Research use only."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary research use only" }
+authors = [{ name = "Zer0pa-Architect-Prime", email = "architects@zer0pa.ai" }]
+
+dependencies = [
+  "pydantic>=2.5",
+  "jsonschema>=4.20",
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+  "pyyaml>=6.0",
+  "httpx>=0.26",
+  "typer>=0.9",
+  "networkx>=3.2",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=7.4",
+  "pytest-asyncio>=0.23",
+]
+chem = [
+  "rdkit>=2024.9.1",
+]
+dev = [
+  "ruff>=0.4",
+  "mypy>=1.8",
+]
+
+[project.scripts]
+zer0pa-health = "zer0pa_health.cli:app"
+zer0pa-l1-stub = "zer0pa_health.layers.l1.server:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

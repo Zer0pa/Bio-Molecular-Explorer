@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zer0pa:reasoner-tuple-v1",
+  "title": "ReasonerTuple",
+  "description": "Canonical self-bootstrapping reasoner tuple. PRD section 8. Research use only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tuple_id",
+    "schema_version",
+    "created_at_utc",
+    "run_id",
+    "task_type",
+    "input",
+    "output",
+    "falsifier",
+    "ground_truth",
+    "audit"
+  ],
+  "properties": {
+    "tuple_id": {
+      "type": "string",
+      "pattern": "^tuple:",
+      "description": "Unique tuple identifier in format 'tuple:<date>-<hex>'"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "reasoner_tuple.v1",
+      "description": "Schema version literal"
+    },
+    "created_at_utc": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run:",
+      "description": "Pipeline run identifier"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "evidence_packet",
+        "mechanism_bridge",
+        "falsifier_generation",
+        "conflict_resolution",
+        "audit_summary",
+        "route_selection"
+      ],
+      "description": "Categorisation of the reasoner task"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "entities", "context_pack_refs", "constraints"],
+      "properties": {
+        "question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Specific research task or question"
+        },
+        "entities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["compounds", "genes", "currents", "phenotypes"],
+          "properties": {
+            "compounds": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Named compounds (e.g. dofetilide, verapamil, ranolazine)"
+            },
+            "genes": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Gene identifiers (e.g. KCNH2, SCN5A, KCNQ1, CACNA1C)"
+            },
+            "currents": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Ion current identifiers (e.g. IKr, INa, IKs, ICaL)"
+            },
+            "phenotypes": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Phenotype features (e.g. QTc prolongation, TdP risk)"
+            }
+          }
+        },
+        "context_pack_refs": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "References to KG/audit/source manifests assembled as context"
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authority_order", "forbidden_outputs", "required_caveats"],
+          "properties": {
+            "authority_order": {
+              "type": "array",
+              "items": {"type": "string"},
+              "minItems": 1,
+              "description": "Ordered authority hierarchy: source_anchor first, model_output last",
+              "examples": [
+                [
+                  "source_anchor",
+                  "curated_literature",
+                  "local_benchmark",
+                  "simulation",
+                  "kg_inference",
+                  "model_output"
+                ]
+              ]
+            },
+            "forbidden_outputs": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Output categories that must not appear",
+              "examples": [
+                [
+                  "diagnosis",
+                  "treatment",
+                  "prescribing",
+                  "clinical_certification",
+                  "regulatory_compliance_claim"
+                ]
+              ]
+            },
+            "required_caveats": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Caveats that must be present in every output",
+              "examples": [
+                ["research_only", "multi_current_context", "falsifier_required"]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claims", "abstentions", "kg_edge_proposals", "next_actions"],
+      "properties": {
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claim_id", "text", "confidence", "source_refs", "falsifier_ref", "multi_current_context"],
+            "properties": {
+              "claim_id": {"type": "string"},
+              "text": {"type": "string"},
+              "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "source_refs": {"type": "array", "items": {"type": "string"}},
+              "falsifier_ref": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Mandatory: every claim must reference a falsifier"
+              },
+              "multi_current_context": {
+                "type": "boolean",
+                "description": "True if multi-current cardiac context is applied"
+              }
+            }
+          }
+        },
+        "abstentions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity", "reason", "evidence_gap"],
+            "properties": {
+              "entity": {"type": "string"},
+              "reason": {"type": "string"},
+              "evidence_gap": {"type": "string"}
+            }
+          }
+        },
+        "kg_edge_proposals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["subject", "predicate", "object", "confidence", "source_ref", "claim_ref"],
+            "properties": {
+              "subject": {"type": "string"},
+              "predicate": {"type": "string"},
+              "object": {"type": "string"},
+              "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+              "source_ref": {"type": "string"},
+              "claim_ref": {"type": "string"}
+            }
+          }
+        },
+        "next_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["action", "reason", "priority"],
+            "properties": {
+              "action": {"type": "string"},
+              "reason": {"type": "string"},
+              "priority": {"type": "string", "enum": ["high", "normal", "low"]}
+            }
+          }
+        }
+      }
+    },
+    "falsifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["falsifier_id", "class", "trigger_condition", "status"],
+      "properties": {
+        "falsifier_id": {
+          "type": "string",
+          "description": "Unique falsifier record ID"
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "source_conflict",
+            "multi_current_overreach",
+            "phenotype_mismatch",
+            "audit_gap",
+            "clinical_overclaim",
+            "adapter_regression"
+          ],
+          "description": "Falsifier class (reasoner-level taxonomy)"
+        },
+        "trigger_condition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Explicit condition that triggered or was tested"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "passed", "failed", "inconclusive"],
+          "description": "Current falsifier evaluation status"
+        }
+      }
+    },
+    "ground_truth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_refs"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["available", "pending", "not_available", "not_applicable"]
+        },
+        "type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "source_anchor",
+                "curated_literature",
+                "local_benchmark",
+                "human_adjudication",
+                "simulation_golden"
+              ]
+            },
+            {"type": "null"}
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_hash", "context_hash", "output_hash", "license_flags"],
+      "properties": {
+        "prompt_hash": {
+          "type": "string",
+          "pattern": "^sha256:",
+          "description": "sha256 hash of the prompt/input block"
+        },
+        "context_hash": {
+          "type": "string",
+          "pattern": "^sha256:",
+          "description": "sha256 hash of the context pack refs"
+        },
+        "output_hash": {
+          "type": "string",
+          "pattern": "^sha256:",
+          "description": "sha256 hash of the output block"
+        },
+        "license_flags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "License class flags (e.g. 'A' = research-only)"
+        }
+      }
+    }
+  }
+}

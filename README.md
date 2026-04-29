@@ -16,8 +16,15 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 | `source-briefs/` | Inherited research input — the two technology landscape briefs (April 2026) | External (consumer of synthesis) |
 | `briefing-pack/` | Seven-doc primer for a science / medical thinking agent on the cardiac wedge (RBTE) | Synthesis agent |
 | `synthesis/` | Fresh-eyes reading of the source briefs — what the briefs do not yet see, build ambition, falsification-engine reframe | Synthesis agent |
-| `PRD.md` (to be written) | The PRD that drives the overnight long-horizon execution on a Runpod-bound machine | Medical orchestrator |
-| `phases/` (to be written) | Per-phase artifacts when execution begins | Overnight executor |
+| `PRD.md` | The PRD that drives the overnight long-horizon execution on a Runpod-bound machine | Medical orchestrator |
+| `pyproject.toml` + `src/zer0pa_health/` | CPU-side falsification engine implementation | Overnight executor |
+| `schemas/` | JSON Schemas (envelope, reasoner tuple, …) | Overnight executor |
+| `fixtures/` | Compound seeds (dofetilide/verapamil/ranolazine), negative fixtures, routes, SBML | Overnight executor |
+| `kg/cardiac_seed.jsonl` | Cardiac wedge KG seed (33 nodes, 21 edges) | Overnight executor |
+| `packets/` | Generated cardiac evidence packets + benchmark summary | Overnight executor |
+| `tests/` | Unit + integration + plug-swap + falsification wave (333 tests) | Overnight executor |
+| `runpod.config.yaml` + `docs/runpod-migration.md` | Stub-swap cutover config and procedure | Overnight executor |
+| `runtime/cloud_lab.config.yaml` | Cloud-lab dry-run defaults (disabled, interlocks on) | Overnight executor |
 
 ## Read order for the next agent
 
@@ -27,10 +34,20 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 4. `briefing-pack/README.md` then the six numbered docs (1-scope, 2-charter, 3-inherited, 4-current-thinking, 5-open-questions, 6-evidence-and-data-map) — the cardiac wedge from the parallel RBTE work stream.
 5. `synthesis/01-fresh-eyes-on-pipeline-briefs.md` — synthesis-agent reframe of the briefs; this is the substrate for your own fresh-eyes augmentation.
 
+## Implementation status (overnight execution, 2026-04-30)
+
+- **Tests**: 333 passing (unit + integration + plug-swap + falsification wave + cardiac packet).
+- **Layers**: L1 (REST stubs + canned outputs for the cardiac wedge), L2 (property/formulation with L2.5 back-edge), L2.5 (retrosynthesis with RXNSMILES + atom-map validators), L3 (process + mass balance), L4 (FMU/Ditto sensor twin), L5 (PKPD + cardiac exposure-channel bridge), L6 (LangGraph-shaped router with silent_falsifier_loss preservation).
+- **Cross-cutting**: universal layer envelope (Pydantic + JSON Schema), append-only audit log with hash chain, KG with cardiac seed (33 nodes, 21 edges), 16-class falsifier registry with 13 detectors, falsifier ledger, self-bootstrapping reasoner with PRD-shaped tuples and clinical-overclaim self-policing, cloud-lab dry-run adapters (Strateos/Emerald/Arctoris) with hard interlocks.
+- **Cardiac wedge deliverable**: three packets (dofetilide PASS / verapamil PASS / ranolazine PASS) generated via `scripts/generate_cardiac_packets.py`; balance score signs match the multi-current story (dofetilide +0.17 IKr-pure outward, verapamil −0.24 ICaL compensates, ranolazine −0.11 INaL-dominant). PubMed-baseline lift: ~47-51 points above competent-reader baseline.
+- **Plug-replaceability**: nine tests covering all six layers + L6 router + cross-layer contract version invariant. Pass.
+- **Falsification wave**: every named trigger (invalid SMILES, missing RXNSMILES/atom-map, mass balance, L4 sensor, SBML, hERG-only, clinical-overclaim, stub-laundering, missing falsifier ref, plug regression, NaN ECG, codec-as-mechanism, noise-brittle phenotype, license drift, silent falsifier loss, PubMed no-value-add) caught, audited, routed, and preserved in the ledger. Pass.
+- **Runpod migration**: `runpod.config.yaml` + `docs/runpod-migration.md` define the stub-swap procedure; backend flag flip per adapter is the entire migration.
+
 ## Provenance
 
 - Initial commit: 2026-04-29.
 - Upstream: Brain Phase 8 (Rosalind Bioelectric Translational Engine selection) at `/Users/Zer0pa/orchestration-state/.gpd/phases/08-rosalind-bioelectric-translational-engine/`. Summarised faithfully in `briefing-pack/03-inherited-from-brain.md`; raw artifacts can be requested if the orchestrator needs more depth than the briefing pack carries.
 - Synthesis agent: Claude Opus 4.7 (1M context).
-- Next agent: medical orchestrator (writes `PRD.md`).
-- Following: overnight executor on a Runpod-bound machine.
+- Medical orchestrator: produced `PRD.md`.
+- Overnight executor: Claude Opus 4.7 lead with Sonnet subagents (L1/L2/L2.5/L3/L4/L5/reasoner/cloud-lab).

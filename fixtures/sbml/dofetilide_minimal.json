@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/fixtures/sbml_packet.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "dofetilide_minimal",
+  "description": "Minimal L5SBMLPacket for dofetilide one-compartment PK model stub. 2 species, 1 reaction.",
+  "sbml_version": "L3V2",
+  "species": [
+    {"id": "drug", "name": "Parent compound", "initialAmount": 1.0, "compartment": "central"},
+    {"id": "drug_metabolite", "name": "Primary metabolite", "initialAmount": 0.0, "compartment": "central"}
+  ],
+  "reactions": [
+    {
+      "id": "metabolism",
+      "name": "one_compartment_drug_elimination",
+      "reactants": "drug",
+      "products": "drug_metabolite",
+      "kineticLaw": "ke * drug",
+      "notes": "First-order elimination stub for dofetilide one-compartment model"
+    }
+  ],
+  "parameters": {
+    "ke": 0.14285714,
+    "cl": 10.0,
+    "vd": 70.0,
+    "ka": 1.0,
+    "fu": 0.5,
+    "dose_mg": 0.5
+  },
+  "sbml_xml_hash": null,
+  "stub_provenance_note": "Minimal stub SBML packet for CPU-side build verification. Full SBML XML requires Tellurium/COPASI backend."
+}

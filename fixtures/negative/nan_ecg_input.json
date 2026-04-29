@@ -1,0 +1,9 @@
+{
+  "target_falsifier": "nonfinite_input",
+  "ecg_features_ms": {
+    "median_qt_error_ms": "NaN",
+    "p95_qt_error_ms": "Infinity",
+    "qrs_error_ms": null
+  },
+  "note": "NaN/inf/null ECG morphology numbers; must hard-fail. Mirrors the ZPE-Bio NaN silent-failure precedent."
+}

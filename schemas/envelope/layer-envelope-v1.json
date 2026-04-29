@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zer0pa.health/schemas/envelope/layer-envelope-v1.json",
+  "title": "Zer0pa Health Universal Layer Envelope v1",
+  "description": "Every layer (L1, L2, L2.5, L3, L4, L5, L6) MUST emit an envelope of this shape. Cross-layer code depends only on this envelope plus the per-layer output contract. PRD section 2 (Architecture Invariant).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "research_boundary",
+    "run_id",
+    "layer",
+    "tool_adapter",
+    "input_refs",
+    "output",
+    "confidence",
+    "falsifier",
+    "audit",
+    "back_edges"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "zer0pa.layer-envelope.v1"
+    },
+    "research_boundary": {
+      "type": "string",
+      "const": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification."
+    },
+    "run_id": { "type": "string", "pattern": "^run:[A-Za-z0-9._:-]+$" },
+    "layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6"] },
+    "tool_adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "backend", "engine"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "backend": { "enum": ["stub", "cpu_lite", "runpod_gpu"] },
+        "engine": { "type": "string", "minLength": 1 }
+      }
+    },
+    "input_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "output": {
+      "type": "object",
+      "description": "Per-layer-contract-constrained output. Validation against per-layer schema is performed separately."
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "band", "basis"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "band": { "enum": ["low", "medium", "high"] },
+        "basis": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "falsifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "items"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "blocked", "inconclusive"] },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["falsifier_id", "falsifier_class", "trigger_condition", "status", "evidence"],
+            "properties": {
+              "falsifier_id": { "type": "string", "pattern": "^falsifier:[A-Za-z0-9._:-]+$" },
+              "falsifier_class": { "type": "string", "minLength": 1 },
+              "trigger_condition": { "type": "string", "minLength": 1 },
+              "status": { "enum": ["pass", "fail", "blocked", "inconclusive"] },
+              "evidence": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audit_record_id", "input_hash", "output_hash", "source_manifest_refs"],
+      "properties": {
+        "audit_record_id": { "type": "string", "pattern": "^audit:[A-Za-z0-9._:-]+$" },
+        "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "output_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "source_manifest_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "back_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target_layer", "reason", "proposed_constraint"],
+        "properties": {
+          "target_layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "proposed_constraint": { "type": "object" },
+          "triggered_by_falsifier_id": { "type": "string" }
+        }
+      }
+    }
+  }
+}

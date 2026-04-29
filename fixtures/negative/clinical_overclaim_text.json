@@ -1,0 +1,5 @@
+{
+  "target_falsifier": "clinical_overclaim",
+  "text": "Based on the multi-current evidence, this drug is FDA approved for acute angina and we recommend the dose of 1000 mg. The compound is non-proarrhythmic and clinically deployable.",
+  "note": "Three independent overclaim phrases; should hard-block export"
+}

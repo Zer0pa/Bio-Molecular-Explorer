@@ -1,0 +1,1 @@
+{"target_falsifier": "invalid_molecular_input", "smiles": "C C O", "note": "whitespace inside SMILES; trip RDKit/regex validator"}

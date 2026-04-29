@@ -1,0 +1,29 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "n_packets": 3,
+  "verdicts": {
+    "dofetilide": "pass",
+    "verapamil": "pass",
+    "ranolazine": "pass"
+  },
+  "scores": {
+    "dofetilide": {
+      "engine": 96.25,
+      "baseline": 49.0,
+      "lift": 47.25,
+      "passed_pubmed_gate": true
+    },
+    "verapamil": {
+      "engine": 100.0,
+      "baseline": 49.0,
+      "lift": 51.0,
+      "passed_pubmed_gate": true
+    },
+    "ranolazine": {
+      "engine": 96.25,
+      "baseline": 49.0,
+      "lift": 47.25,
+      "passed_pubmed_gate": true
+    }
+  }
+}

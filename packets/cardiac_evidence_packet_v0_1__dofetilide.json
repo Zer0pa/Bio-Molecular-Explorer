@@ -1,0 +1,158 @@
+{
+  "packet_id": "packet:cardiac:dofetilide:20260429-a72d6909",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "schema_version": "cardiac_evidence_packet.v0.1",
+  "run_id": "run:20260429-0115c752",
+  "compound": {
+    "name": "dofetilide",
+    "inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+    "canonical_smiles": "CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",
+    "research_label": "Class III antiarrhythmic (research label; not a clinical recommendation)",
+    "cardiac_research_role": "IKr/hERG-pure positive-control reference for multi-current evidence packets"
+  },
+  "source_manifest_refs": [
+    "source:FDA_E14_S7B",
+    "source:FDA_CiPA"
+  ],
+  "channel_panel": {
+    "KCNH2_hERG_IKr": {
+      "gene": "KCNH2",
+      "channel": "hERG",
+      "current": "IKr",
+      "ic50_uM": 0.005,
+      "block_fraction_at_cmax_unbound": 0.65,
+      "method": "stub",
+      "confidence": 0.6,
+      "explicit_absence": null
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "gene": "SCN5A",
+      "channel": "Nav1.5",
+      "current": "INaL",
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "gene": "KCNQ1",
+      "channel": "Kv7.1",
+      "current": "IKs",
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "gene": "CACNA1C",
+      "channel": "CaV1.2",
+      "current": "ICaL",
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "multi_current_interpretation": "Multi-current balance score (research indicator): 0.167. Higher = more outward block (APD-prolongation indicator); lower = more inward block (APD-shortening / counterbalancing). Research only — not a clinical or regulatory verdict.",
+  "ecg_morphology_bridge": {
+    "cmax_unbound_uM": 0.001,
+    "multi_current_balance_score": 0.16666666666666666,
+    "expected_morphology_signal": "QT_prolongation_research_only",
+    "morphology_gate_result": {
+      "QT": {
+        "median": 1.95,
+        "p95": 2.3649999999999998,
+        "n": 8,
+        "passed": true
+      }
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "claim:20260429-d2e8946c",
+      "text": "Research observation (boundary: research use only): canned multi-current panel for dofetilide shows IKr/hERG block in the absence of substantial INa, IKs, or ICaL block per the explicit-absence record. The repolarization-balance research indicator leans outward-blocked, consistent with a positive-control IKr profile. Mechanism claims are conditional on Runpod-real simulation.",
+      "multi_current_context": true,
+      "source_refs": [
+        "source:FDA_E14_S7B",
+        "source:FDA_CiPA"
+      ],
+      "falsifier_refs": [
+        "falsifier:hERG_only_overreach:20260429-b93d3add",
+        "falsifier:clinical_overclaim:20260429-b5f6e4f8",
+        "falsifier:codec_as_mechanism:20260429-2ee9de24",
+        "falsifier:morphology_non_preservation:20260429-113bcd47"
+      ],
+      "audit_refs": [
+        "audit:20260429-770839e1"
+      ],
+      "confidence_band": "medium"
+    }
+  ],
+  "contradictions": [],
+  "falsifiers": [
+    {
+      "falsifier_class": "hERG_only_overreach",
+      "falsifier_id": "falsifier:hERG_only_overreach:20260429-b93d3add",
+      "trigger_condition": "KCNH2/hERG treated as standalone risk conclusion without SCN5A/KCNQ1/CACNA1C context or explicit absence",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "clinical_overclaim",
+      "falsifier_id": "falsifier:clinical_overclaim:20260429-b5f6e4f8",
+      "trigger_condition": "Output implies diagnosis, treatment, prescribing, deployment, compliance, or certification",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "codec_as_mechanism",
+      "falsifier_id": "falsifier:codec_as_mechanism:20260429-2ee9de24",
+      "trigger_condition": "Replay/codec metric (PRD, SNR, RMSE) is used as biological mechanism evidence",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "noise_brittle_phenotype",
+      "falsifier_id": "falsifier:noise_brittle_phenotype:assembler-stub",
+      "trigger_condition": "Phenotype claim does not survive calibrated noise (NSTDB-style)",
+      "status": "inconclusive",
+      "evidence": [
+        "assembler stub did not run noise stress"
+      ]
+    },
+    {
+      "falsifier_class": "missing_falsifier_ref",
+      "falsifier_id": "falsifier:missing_falsifier_ref:20260429-563536ec",
+      "trigger_condition": "Claim/packet/tuple is asserted without referencing at least one falsifier",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "morphology_non_preservation",
+      "falsifier_id": "falsifier:morphology_non_preservation:20260429-113bcd47",
+      "trigger_condition": "QT/QRS/PR/ST/T fiducial error exceeds gate (median 5 ms / 95th-pct 15 ms for QT)",
+      "status": "pass",
+      "evidence": []
+    }
+  ],
+  "audit_refs": [
+    "audit:20260429-770839e1"
+  ],
+  "engine_value_add": {
+    "rerunnable_source_manifest": true,
+    "machine_valid_graph": true,
+    "explicit_contradiction_table": true,
+    "falsifier_ledger_present": true,
+    "local_morphology_linkage": true,
+    "audit_trail_present": true,
+    "next_experiment_backedges": [
+      "request_l1_full_panel_with_real_FEP",
+      "request_NSTDB_noise_stress_run",
+      "request_PTB_XL_plus_morphology_validation"
+    ]
+  },
+  "verdict": "pass"
+}

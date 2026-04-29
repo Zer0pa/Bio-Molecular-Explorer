@@ -1,0 +1,219 @@
+# Runpod migration config (PRD section 10).
+#
+# Research use only. Not for diagnosis, treatment, cure claims, prescribing,
+# clinical deployment, regulatory compliance, or drug-safety certification.
+#
+# This file is the single source of truth for the stub-swap cutover. The CPU
+# side stays identical; flipping `backend: stub` -> `backend: runpod_gpu`
+# per adapter, plus pointing `endpoint` at the real Runpod URL, is the entire
+# migration. There is no architectural rewrite.
+
+contract_version: zer0pa.runpod-migration.v1
+
+defaults:
+  backend: stub        # stub | cpu_lite | runpod_gpu
+  container:
+    base_image: nvcr.io/nvidia/pytorch:25.07-py3
+    cuda: "12.4"
+    driver_min: "550.0"
+    pinned_commit: "REPLACE_AT_CUTOVER"
+  health_endpoint: /health
+  capabilities_endpoint: /capabilities
+  request_timeout_s: 300
+
+# Per-layer Runpod adapter binding. The CPU build runs with backend=stub.
+# At cutover, set backend=runpod_gpu and provide a real `endpoint` URL.
+layers:
+  l1:
+    docking:
+      adapter_id: adapter:l1:diffdock_v2
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      gpu_sku_recommended: A100_80GB
+      cost_estimate_usd_per_call: 0.05
+      pre_cutover_state: l1_pose_rest_stub_with_canned_outputs
+    structure:
+      adapter_id: adapter:l1:boltz_2
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      gpu_sku_recommended: H100_80GB
+      cost_estimate_usd_per_call: 0.10
+      pre_cutover_state: l1_structure_rest_stub_with_canned_outputs
+    md:
+      adapter_id: adapter:l1:openmm
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      gpu_sku_recommended: A100_80GB
+      cost_estimate_usd_per_call: 0.30
+      pre_cutover_state: l1_md_stub_with_convergence_fields
+    fep:
+      adapter_id: adapter:l1:openfe_rbfe
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      gpu_sku_recommended: H100_80GB
+      cost_estimate_usd_per_call: 6.00       # ~3h GPU at A100 spot $2/h
+      pre_cutover_state: l1_fep_stub_with_uncertainty_fields
+    confidence:
+      adapter_id: adapter:l1:protenix_confidence
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.10
+      pre_cutover_state: l1_confidence_decomposition_schema_only
+
+  l2:
+    deepxde_dissolution:
+      adapter_id: adapter:l2:deepxde_runpod
+      backend: stub
+      endpoint: null
+      gpu_sku_min: T4_16GB
+      cost_estimate_usd_per_call: 0.02
+      pre_cutover_state: l2_deepxde_stub_with_weibull_profile
+
+  reasoner:
+    txgemma_27b:
+      adapter_id: adapter:reasoner:txgemma_27b
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_80GB
+      gpu_sku_recommended: H100_80GB
+      cost_estimate_usd_per_call: 0.20
+      pre_cutover_state: stub_reasoner_self_policed_no_clinical_overclaim
+      license_check_required: gemma_2_terms_then_health_ai_developer_foundations
+
+# Cutover procedure (PRD section 10, step-by-step). Each step is idempotent.
+cutover:
+  steps:
+    - id: 1
+      name: provision_runpod
+      description: |
+        Provision a Runpod GPU pod with the pinned container, CUDA, driver,
+        package versions, and the git commit hash from this repo. Capture the
+        container hash in audit/runs/<run_id>/runpod_provisioning.jsonl.
+      check: container_hash_recorded_in_audit
+    - id: 2
+      name: flip_backend_flags
+      description: |
+        For each layer adapter that is moving to GPU, set backend=runpod_gpu
+        and endpoint=<runpod-url>. Leave the rest at stub for any adapter that
+        does not need GPU.
+      check: layer_envelope_tool_adapter_backend_set_to_runpod_gpu
+    - id: 3
+      name: health_and_capabilities_probe
+      description: |
+        Hit /health and /capabilities for every remote adapter; verify
+        contract_version, research_boundary, schema match.
+      check: every_adapter_returns_200_with_canonical_research_boundary
+    - id: 4
+      name: re_run_golden_seeds
+      description: |
+        Re-run dofetilide / verapamil / ranolazine through the full pipeline
+        with the new GPU adapters; collect packet diffs vs CPU-stub packets.
+      check: packet_envelope_schema_unchanged
+    - id: 5
+      name: validate_downstream_compatibility
+      description: |
+        Run plug-replaceability tests with the new adapter as B (CPU stub as A).
+        Schema must match; any falsifier change must be represented as
+        output/confidence/falsifier delta — not a contract break.
+      check: tests_plug_swap_pass
+    - id: 6
+      name: confirm_real_artifacts_replace_stubs
+      description: |
+        Verify that pose/binding/MD/FEP outputs include real convergence,
+        uncertainty, and structure-basis fields (not stub markers).
+      check: stub_provenance_flag_absent_in_envelopes
+    - id: 7
+      name: compare_scientific_deltas
+      description: |
+        Compare the cardiac balance score, channel-panel ic50 distributions,
+        and morphology gate results between CPU-stub and GPU-real packets.
+        Material differences must be represented as confidence/falsifier
+        deltas — not narrated as "real is right, stub was wrong" without
+        an audit-record explanation.
+      check: scientific_delta_audited
+    - id: 8
+      name: write_audit_records
+      description: |
+        Append container hash, GPU SKU, driver/CUDA, model versions, cost,
+        and runtime to audit/runs/<run_id>/{runs.jsonl, model_tools.jsonl,
+        artifacts.jsonl}. Falsifier state must survive the cutover; no
+        falsifier item may be silently dropped.
+      check: audit_hash_chain_extended_no_drop
+
+acceptance_gates:
+  - id: GATE_NO_DOWNSTREAM_INTERFACE_CHANGE
+    description: No L2-L6 code may need to change as a result of the cutover.
+  - id: GATE_FALSIFIER_STATE_PRESERVED
+    description: Every CPU-stub falsifier item must remain present in GPU envelopes (or be re-emitted by the GPU adapter).
+  - id: GATE_RESEARCH_BOUNDARY_VERBATIM
+    description: Every GPU envelope carries the canonical RESEARCH_BOUNDARY string.
+  - id: GATE_AUDIT_HASH_CHAIN_VALIDATES_PRE_AND_POST
+    description: AuditValidator must pass on both the pre-cutover and post-cutover slices of the audit log.
+  - id: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+    description: tests/plug_swap/* must pass with backend=runpod_gpu.
+
+what_stays_parked_until_runpod:
+  - id: parked_l1_real_diffdock_v2
+    contract_id: contracts.l1.L1DockingOutput
+    fixture: fixtures/canned/l1/dock_dofetilide.json
+    audit_shape: model_tools.jsonl with adapter_id=adapter:l1:diffdock_v2
+    falsifier: stub_laundering ON until backend=runpod_gpu
+    runpod_or_credential_steps:
+      - provision A100/H100 + DiffDock V2 container
+      - mount mmCIF/PDB references via private HF dataset
+      - flip backend
+    acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+  - id: parked_l1_real_openfe_rbfe
+    contract_id: contracts.l1.L1FEPOutput
+    fixture: fixtures/canned/l1/fep_dofetilide_vs_verapamil.json
+    audit_shape: model_tools.jsonl with adapter_id=adapter:l1:openfe_rbfe
+    falsifier: stub_laundering ON until backend=runpod_gpu
+    runpod_or_credential_steps:
+      - provision A100 with OpenFE 1.7
+      - perform 3 hour run per ligand pair
+      - capture bootstrap uncertainty
+    acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+  - id: parked_l1_real_openmm_md
+    contract_id: contracts.l1.L1MDOutput
+    fixture: fixtures/canned/l1/md_dofetilide.json
+    audit_shape: model_tools.jsonl with adapter_id=adapter:l1:openmm
+    falsifier: stub_laundering ON until backend=runpod_gpu
+    runpod_or_credential_steps:
+      - provision A100 with OpenMM 8.5
+      - run 10 ns equilibration
+      - capture rmsd, convergence
+    acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+  - id: parked_l2_deepxde_pinn
+    contract_id: contracts.l2.L2DissolutionOutput
+    fixture: fixtures/canned/l2/dissolution_ir_tablet.json
+    audit_shape: model_tools.jsonl with adapter_id=adapter:l2:deepxde_runpod
+    falsifier: stub_laundering ON until backend=runpod_gpu
+    runpod_or_credential_steps:
+      - provision T4 16GB with DeepXDE + PyTorch
+      - solve Fick's PDE on dissolution data
+    acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+  - id: parked_reasoner_txgemma_27b
+    contract_id: src.zer0pa_health.reasoner.adapter.ReasonerAdapter
+    fixture: fixtures/canned/reasoner/seed_reasoner_input.json
+    audit_shape: model_tools.jsonl with adapter_id=adapter:reasoner:txgemma_27b
+    falsifier: license_drift PENDING until Gemma 2 / HAI-DF terms checked
+    runpod_or_credential_steps:
+      - verify Gemma 2 terms on ai.google.dev/gemma/terms
+      - verify Health AI Developer Foundations terms
+      - provision A100 80GB or H100 80GB
+      - load TxGemma 27B weights
+    acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
+
+cost_envelope_estimate_usd:
+  per_compound_full_pipeline_runpod: 8.00
+  cardiac_wedge_three_compounds: 24.00
+  benchmark_held_out_set_six_compounds: 48.00
+  notes: |
+    Stub mode: $0. CPU-only build is free. Cost is GPU-time only at cutover.
+    Numbers are approximate at $2/A100-hr spot pricing as of 2026-04. Re-quote
+    at cutover and write the actual cost to audit/artifacts.jsonl.

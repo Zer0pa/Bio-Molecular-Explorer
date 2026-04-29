@@ -1,0 +1,1 @@
+{"target_falsifier": "mass_balance_failure", "inputs_kg": 10.0, "outputs_kg": 12.0, "tolerance": 1e-3, "note": "20% residual; should hard-fail"}

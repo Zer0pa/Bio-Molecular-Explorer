@@ -1,0 +1,6 @@
+{
+  "target_falsifier": "hERG_only_overreach",
+  "panel_genes_present": ["KCNH2"],
+  "explicit_absence": [],
+  "note": "Only KCNH2 in panel, no SCN5A/KCNQ1/CACNA1C and no explicit-absence record"
+}

@@ -1,0 +1,6 @@
+{
+  "target_falsifier": "silent_falsifier_loss",
+  "upstream_falsifier_classes": ["hERG_only_overreach", "stub_laundering"],
+  "current_falsifier_classes": [],
+  "note": "Two upstream falsifiers were dropped from the current envelope; must hard-fail"
+}

@@ -1,0 +1,158 @@
+{
+  "packet_id": "packet:cardiac:ranolazine:20260429-2f0932f3",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "schema_version": "cardiac_evidence_packet.v0.1",
+  "run_id": "run:20260429-7701f168",
+  "compound": {
+    "name": "ranolazine",
+    "inchikey": "XKLMZUWKNUAPSZ-UHFFFAOYSA-N",
+    "canonical_smiles": "COc1ccccc1OCC(O)CN1CCN(CC(=O)Nc2c(C)cccc2C)CC1",
+    "research_label": "anti-anginal / late-INa inhibitor (research label)",
+    "cardiac_research_role": "INaL-dominant multi-current reference; forces SCN5A node toward source_grounded"
+  },
+  "source_manifest_refs": [
+    "source:FDA_E14_S7B",
+    "source:FDA_CiPA"
+  ],
+  "channel_panel": {
+    "KCNH2_hERG_IKr": {
+      "gene": "KCNH2",
+      "channel": "hERG",
+      "current": "IKr",
+      "ic50_uM": 12.0,
+      "block_fraction_at_cmax_unbound": 0.2,
+      "method": "stub",
+      "confidence": 0.5,
+      "explicit_absence": null
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "gene": "SCN5A",
+      "channel": "Nav1.5",
+      "current": "INaL",
+      "ic50_uM": 6.0,
+      "block_fraction_at_cmax_unbound": 0.4,
+      "method": "stub",
+      "confidence": 0.55,
+      "explicit_absence": null
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "gene": "KCNQ1",
+      "channel": "Kv7.1",
+      "current": "IKs",
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "gene": "CACNA1C",
+      "channel": "CaV1.2",
+      "current": "ICaL",
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "multi_current_interpretation": "Multi-current balance score (research indicator): -0.107. Higher = more outward block (APD-prolongation indicator); lower = more inward block (APD-shortening / counterbalancing). Research only — not a clinical or regulatory verdict.",
+  "ecg_morphology_bridge": {
+    "cmax_unbound_uM": 2.0,
+    "multi_current_balance_score": -0.10714285714285715,
+    "expected_morphology_signal": "controlled_QT_prolongation_with_late_INa_protection",
+    "morphology_gate_result": {
+      "QT": {
+        "median": 2.05,
+        "p95": 2.4299999999999997,
+        "n": 8,
+        "passed": true
+      }
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "claim:20260429-5bcd85d1",
+      "text": "Research observation (boundary: research use only): canned multi-current panel for ranolazine shows late-INa (INaL) block as the dominant target with modest IKr block. This forces the SCN5A/Nav1.5 mechanism node toward source-grounded status; the single-QT-paragraph collapse is therefore inadequate for this compound.",
+      "multi_current_context": true,
+      "source_refs": [
+        "source:FDA_E14_S7B",
+        "source:FDA_CiPA"
+      ],
+      "falsifier_refs": [
+        "falsifier:hERG_only_overreach:20260429-1fed4b82",
+        "falsifier:clinical_overclaim:20260429-cc8831d4",
+        "falsifier:codec_as_mechanism:20260429-9c5c82bf",
+        "falsifier:morphology_non_preservation:20260429-e80f292b"
+      ],
+      "audit_refs": [
+        "audit:20260429-2ec484c6"
+      ],
+      "confidence_band": "medium"
+    }
+  ],
+  "contradictions": [],
+  "falsifiers": [
+    {
+      "falsifier_class": "hERG_only_overreach",
+      "falsifier_id": "falsifier:hERG_only_overreach:20260429-1fed4b82",
+      "trigger_condition": "KCNH2/hERG treated as standalone risk conclusion without SCN5A/KCNQ1/CACNA1C context or explicit absence",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "clinical_overclaim",
+      "falsifier_id": "falsifier:clinical_overclaim:20260429-cc8831d4",
+      "trigger_condition": "Output implies diagnosis, treatment, prescribing, deployment, compliance, or certification",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "codec_as_mechanism",
+      "falsifier_id": "falsifier:codec_as_mechanism:20260429-9c5c82bf",
+      "trigger_condition": "Replay/codec metric (PRD, SNR, RMSE) is used as biological mechanism evidence",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "noise_brittle_phenotype",
+      "falsifier_id": "falsifier:noise_brittle_phenotype:assembler-stub",
+      "trigger_condition": "Phenotype claim does not survive calibrated noise (NSTDB-style)",
+      "status": "inconclusive",
+      "evidence": [
+        "assembler stub did not run noise stress"
+      ]
+    },
+    {
+      "falsifier_class": "missing_falsifier_ref",
+      "falsifier_id": "falsifier:missing_falsifier_ref:20260429-55d234d2",
+      "trigger_condition": "Claim/packet/tuple is asserted without referencing at least one falsifier",
+      "status": "pass",
+      "evidence": []
+    },
+    {
+      "falsifier_class": "morphology_non_preservation",
+      "falsifier_id": "falsifier:morphology_non_preservation:20260429-e80f292b",
+      "trigger_condition": "QT/QRS/PR/ST/T fiducial error exceeds gate (median 5 ms / 95th-pct 15 ms for QT)",
+      "status": "pass",
+      "evidence": []
+    }
+  ],
+  "audit_refs": [
+    "audit:20260429-2ec484c6"
+  ],
+  "engine_value_add": {
+    "rerunnable_source_manifest": true,
+    "machine_valid_graph": true,
+    "explicit_contradiction_table": true,
+    "falsifier_ledger_present": true,
+    "local_morphology_linkage": true,
+    "audit_trail_present": true,
+    "next_experiment_backedges": [
+      "request_l1_full_panel_with_real_FEP",
+      "request_NSTDB_noise_stress_run",
+      "request_PTB_XL_plus_morphology_validation"
+    ]
+  },
+  "verdict": "pass"
+}

@@ -1,0 +1,7 @@
+{
+  "target_falsifier": "l4_sensor_failure",
+  "sensors": [
+    {"sensor_id": "PAT-T-01", "sensor_class": "PAT_temperature", "value": null, "unit": "C", "timestamp_utc": "2026-04-30T00:00:00Z", "in_range": false, "expected_range": [20.0, 60.0]},
+    {"sensor_id": "PAT-P-02", "sensor_class": "PAT_pressure", "value": 999.0, "unit": "bar", "timestamp_utc": "2026-04-30T00:00:00Z", "in_range": false, "expected_range": [1.0, 5.0]}
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "target_falsifier": "sbml_schema_failure",
+  "sbml_packet": {"sbml_version": "L3V2", "species": [], "reactions": [], "parameters": {}},
+  "note": "SBML packet with no species or reactions; minimum is 1 species and 1 reaction"
+}

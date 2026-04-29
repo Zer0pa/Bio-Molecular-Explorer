@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "verapamil",
+  "inchikey": "SGTNSNPWRIOYBX-UHFFFAOYSA-N",
+  "canonical_smiles": "COc1ccc(CC(C)(C#N)CCCN(C)CCc2ccc(OC)c(OC)c2)cc1OC",
+  "drug_class_research_label": "L-type calcium-channel blocker / Class IV antiarrhythmic (research label)",
+  "cardiac_research_role": "Canonical hERG-only-overreach refuter: blocks IKr but ICaL block counterbalances",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 0.5,
+      "block_fraction_at_cmax_unbound": 0.35,
+      "method": "stub",
+      "confidence": 0.55,
+      "source_refs": ["source:FDA_CiPA"]
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": 0.0,
+      "method": "stub",
+      "confidence": 0.3,
+      "explicit_absence": "no_significant_INaL_block_expected_research_note_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": 0.10,
+      "block_fraction_at_cmax_unbound": 0.55,
+      "method": "stub",
+      "confidence": 0.6,
+      "source_refs": ["source:FDA_CiPA"]
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "low_TdP_risk_despite_hERG_block",
+  "stub_provenance_note": "Verapamil packet must NOT collapse to hERG-only-high-risk; multi-current balance is the test."
+}

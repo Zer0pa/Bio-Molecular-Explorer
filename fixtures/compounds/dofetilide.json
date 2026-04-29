@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "dofetilide",
+  "inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+  "canonical_smiles": "CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",
+  "drug_class_research_label": "Class III antiarrhythmic (research label; not a clinical recommendation)",
+  "cardiac_research_role": "IKr/hERG-pure positive-control reference for multi-current evidence packets",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 0.005,
+      "block_fraction_at_cmax_unbound": 0.65,
+      "method": "stub",
+      "confidence": 0.6,
+      "source_refs": ["source:FDA_E14_S7B", "source:FDA_CiPA"]
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "QT_prolongation_research_only",
+  "stub_provenance_note": "Values are stub canned outputs for CPU-side build; mechanism escalation requires Runpod-real simulation."
+}

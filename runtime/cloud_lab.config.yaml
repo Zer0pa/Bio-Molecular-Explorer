@@ -1,0 +1,47 @@
+# Cloud-Lab Configuration (PRD section 9)
+# =========================================
+# This file is the human-editable runtime configuration for cloud-lab adapters.
+# Default: ALL interlocks ON, disabled, dry-run mode.
+#
+# To enable real submissions:
+#   1. Set enabled: true
+#   2. Set mode: real
+#   3. Set allow_network_submit: true
+#   4. Set max_budget_usd to your approved budget ceiling (must be > 0)
+#   5. Set vendor to: strateos | emerald | arctoris
+#   6. Provide a valid user approval token at submit() call time.
+#
+# NEVER change blocked_classes without explicit PRD revision approval.
+# Blocked classes are hard-coded in interlocks.py as a second layer of defence.
+
+cloud_lab:
+  # Master switch — false means no lab calls are attempted, even in dry-run mode.
+  enabled: false
+
+  # Execution mode: "dry_run" | "real"
+  # In dry_run mode all methods return stub responses; submit() always raises.
+  mode: dry_run
+
+  # Hard network gate — must be explicitly set to true for real submissions.
+  allow_network_submit: false
+
+  # Budget ceiling in USD. 0.0 means no spending permitted (default).
+  max_budget_usd: 0.0
+
+  # Token gate — requires a non-empty user approval token before any submit path.
+  require_user_approval_token: true
+
+  # Active vendor stub. Options: strateos | emerald | arctoris | none
+  vendor: none
+
+  # Blocked protocol classes (PRD section 9 — do not remove without PRD revision).
+  # These are checked by interlocks.py via case-insensitive substring match.
+  blocked_classes:
+    - clinical
+    - human_diagnosis
+    - treatment
+    - prescribing
+    - regulated_safety_certification
+    - PHI
+    - controlled_or_hazardous_material
+    - autonomous_wet_lab_execution

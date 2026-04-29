@@ -1,0 +1,37 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "stub_provenance_note": "Stub canned route for ranolazine (XKLMZUWKNUAPSZ-UHFFFAOYSA-N). RXNSMILES and atom-mapping are plausible-shape but NOT from a real retrosynthesis search. Step confidences are within the stub band [0.4, 0.7]. Do not use for actual synthesis planning.",
+  "target_canonical_smiles": "COc1ccccc1OCC(O)CN1CCN(CC(=O)Nc2c(C)cccc2C)CC1",
+  "target_inchikey": "XKLMZUWKNUAPSZ-UHFFFAOYSA-N",
+  "total_steps": 2,
+  "starting_materials_inchikeys": ["CSTAPFWSSZJYJE-UHFFFAOYSA-N", "ISWRGOKTTBVCFA-UHFFFAOYSA-N"],
+  "starting_material_cost_usd": 52.0,
+  "steps": [
+    {
+      "step_index": 0,
+      "description": "Stub step 1: N-acylation — piperazine intermediate coupled with 2,6-dimethylaniline-derived acyl chloride",
+      "rxnsmiles": "O=C(Cl)Cc1c(C)cccc1C.C1CN(CCO1)CCO>>O=C(CN1CCOCCN1)Nc1c(C)cccc1C",
+      "atom_mapped_rxnsmiles": "[O:1]=[C:2]([Cl:3])[CH2:4][c:5]1[c:6]([CH3:7])[cH:8][cH:9][cH:10][c:11]1[CH3:12].[C:13]1[CH2:14][N:15]([CH2:16][CH2:17][O:18]1)[CH2:19][CH2:20][OH:21]>>[O:1]=[C:2]([CH2:4][c:5]1[c:6]([CH3:7])[cH:8][cH:9][cH:10][c:11]1[CH3:12])[N:15]1[CH2:13][CH2:14][N:22]([CH2:16][CH2:17][O:18]1)[CH2:19][CH2:20][OH:21]",
+      "template_smarts": "[NH:1].[C:2](=[O:3])[Cl:4]>>[N:1][C:2](=[O:3])",
+      "step_confidence": 0.57,
+      "conditions": {
+        "solvent": "DCM_stub",
+        "base": "Et3N_stub",
+        "temperature_C": "0_to_25"
+      }
+    },
+    {
+      "step_index": 1,
+      "description": "Stub step 2: Epoxide ring opening — guaiacol glycidyl ether with piperazine amide intermediate",
+      "rxnsmiles": "COc1ccccc1OCC2CO2.O=C(CN1CCNCC1)Nc1c(C)cccc1C>>COc1ccccc1OCC(O)CN1CCN(CC(=O)Nc2c(C)cccc2C)CC1",
+      "atom_mapped_rxnsmiles": "[CH3:1][O:2][c:3]1[cH:4][cH:5][cH:6][cH:7][c:8]1[O:9][CH2:10][C:11]2[CH2:12][O:13]2.[O:14]=[C:15]([CH2:16][N:17]1[CH2:18][CH2:19][NH:20][CH2:21][CH2:22]1)[NH:23][c:24]1[c:25]([CH3:26])[cH:27][cH:28][cH:29][c:30]1[CH3:31]>>[CH3:1][O:2][c:3]1[cH:4][cH:5][cH:6][cH:7][c:8]1[O:9][CH2:10][C:11]([OH:32])[CH2:33][N:17]1[CH2:18][CH2:19][N:20]([CH2:16][C:15](=[O:14])[NH:23][c:24]2[c:25]([CH3:26])[cH:27][cH:28][cH:29][c:30]2[CH3:31])[CH2:21][CH2:22]1",
+      "template_smarts": "[NH:1].[C:2]1[CH2:3][O:4]1>>[N:1][C:2][OH:5]",
+      "step_confidence": 0.62,
+      "conditions": {
+        "solvent": "iPrOH_stub",
+        "base": "none_stub",
+        "temperature_C": "70"
+      }
+    }
+  ]
+}

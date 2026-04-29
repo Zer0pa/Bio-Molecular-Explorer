@@ -1,0 +1,6 @@
+{
+  "target_falsifier": "plug_regression",
+  "schema_a_dump": {"smiles": "C", "score": 0.5, "valid": true, "liability_flags": []},
+  "schema_b_dump": {"smiles": "C", "score_v2": 0.5, "valid": true, "flag_list": []},
+  "note": "Adapter B renamed score->score_v2 and liability_flags->flag_list; downstream consumers break."
+}

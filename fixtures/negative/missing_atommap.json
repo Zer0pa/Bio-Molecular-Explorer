@@ -1,0 +1,1 @@
+{"target_falsifier": "missing_rxnsmiles_atommap", "rxnsmiles": "CC(=O)Cl.Nc1ccccc1>>CC(=O)Nc1ccccc1", "atom_mapped_rxnsmiles": null, "mapping_required": true, "note": "rxnsmiles present but atom-map indices absent when required"}

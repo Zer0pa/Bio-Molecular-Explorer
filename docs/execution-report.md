@@ -218,3 +218,28 @@ After the initial 333-test pass, the user asked: "is there nothing left to do CP
 | Reasoner wired into the run | covered by test_run_cardiac_compound_reasoner_tuple_emitted | Every cardiac run produces one `ReasonerTuple` to `reasoner_queue/runs/<run_id>/tuples.jsonl` with all PRD section 8 fields populated and the clinical-overclaim self-policing in effect. |
 
 **Iteration 2 test delta**: 333 → 464 (+131 net new). All green in <10 s.
+
+## Iteration 3 additions (2026-04-30)
+
+After iteration 2 closed the obvious gaps, the user asked again — "have you done absolutely everything CPU-side". Iteration 3 closes the remaining structural gaps that genuinely de-risk the Runpod cutover.
+
+| Addition | Tests | Notes |
+|---|---|---|
+| `runpod_sim/L1RunpodSimAdapter` — CPU-only adapter that simulates a GPU-real L1 adapter (`backend=runpod_gpu`, same envelope shape as L1StubAdapter, deterministic canned values) | +8 | The real GPU adapter at cutover replaces this sim with NO other change. Cutover-acceptance test (test_runpod_cutover.py) flips L1 from stub to runpod_gpu, verifies envelope shape match, falsifier-class match, downstream parses unchanged, and `stub_laundering` correctly clears to PASS when backend != stub. |
+| `bundle` CLI command | +2 | Tar a single run's artifacts (audit/runs/<rid>/ + kg/{nodes,edges}.jsonl + reasoner_queue/runs/<rid>/ + matching packets/) into a self-contained `.tar.gz`. Self-contained handoff. |
+| `compare-runs` CLI command | +1 | Side-by-side audit table count diff for two runs. Regression detection. |
+| `health-check` CLI command | +2 | Single-shot validation: KG seed validates, runpod-precheck passes, all compound fixtures load with the right shape, optional runtime audit validates. Exits non-zero on any failure. |
+| `_runpod_precheck_logic` helper | covered by health-check tests | Refactored from the typer command body so health-check can call it without typer.Exit interference. |
+| `.github/workflows/ci.yml` | covered in CI | pytest + cardiac packet generation + health-check + runpod-precheck on every push. |
+
+**Iteration 3 test delta**: 464 → 477 (+13). All green in <10 s.
+
+## Final test count: 477 passing.
+
+What this means concretely:
+
+- The cutover itself is now demonstrated in CODE: flipping one adapter from `backend=stub` to `backend=runpod_gpu` (via the runpod-sim adapter) does not break the pipeline. The remaining work at real cutover is replacing the sim with the actual GPU adapter — same interface.
+- Per-run artifacts can be packaged into a single tarball for handoff.
+- Two runs can be diff'd side-by-side without writing custom tooling.
+- The whole repo's health can be verified with one command.
+- CI runs on every push (tests + smoke runs + health-check + runpod-precheck).

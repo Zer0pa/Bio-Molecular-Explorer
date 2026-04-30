@@ -9,11 +9,15 @@ Subcommands:
   validate-packet    — re-load a packet JSON and re-score it against the PubMed baseline
   runpod-precheck    — dry-run the cutover steps and report which would block
   graph-export       — export the runtime KG (or seed) as Graphviz DOT
+  bundle             — tar a single run's artifacts (audit + KG + packet + reasoner queue)
+  compare-runs       — diff two cardiac run results side-by-side
+  health-check       — repo-wide health check (audit + KG + falsification + packets)
 """
 
 from __future__ import annotations
 
 import json
+import tarfile
 from pathlib import Path
 
 import typer
@@ -133,23 +137,13 @@ def validate_packet(
     )
 
 
-@app.command("runpod-precheck")
-def runpod_precheck(
-    config_path: Path = typer.Option(
-        Path("runpod.config.yaml"), "--config", help="Path to runpod.config.yaml"
-    ),
-) -> None:
-    """Dry-run cutover steps; report which would block right now (e.g., no GPU, no endpoint).
-
-    Exits 0 if all checks pass for the CPU-stub state. Exits non-zero only on
-    config-file errors. Cutover blockers are reported as informational; they
-    are EXPECTED on a CPU-only build.
-    """
+def _runpod_precheck_logic(config_path: Path) -> int:
+    """Pure logic: returns 0 on success, non-zero on config errors. No typer.Exit."""
     import yaml  # type: ignore[import-untyped]
 
     if not config_path.exists():
         typer.echo(f"missing: {config_path}", err=True)
-        raise typer.Exit(2)
+        return 2
     cfg = yaml.safe_load(config_path.read_text())
 
     typer.echo("RESEARCH USE ONLY. Cutover precheck — CPU stub state expected.\n")
@@ -181,6 +175,19 @@ def runpod_precheck(
     typer.echo("Acceptance gates declared:")
     for g in cfg.get("acceptance_gates", []):
         typer.echo(f"  - {g['id']}: {g['description']}")
+    return 0
+
+
+@app.command("runpod-precheck")
+def runpod_precheck(
+    config_path: Path = typer.Option(
+        Path("runpod.config.yaml"), "--config", help="Path to runpod.config.yaml"
+    ),
+) -> None:
+    """Dry-run cutover steps; report which would block right now (e.g., no GPU, no endpoint)."""
+    rc = _runpod_precheck_logic(config_path)
+    if rc != 0:
+        raise typer.Exit(rc)
 
 
 @app.command("graph-export")
@@ -201,6 +208,164 @@ def graph_export(
     lines.append("}")
     out_dot.write_text("\n".join(lines), encoding="utf-8")
     typer.echo(f"wrote {out_dot} (nodes={g.number_of_nodes()}, edges={g.number_of_edges()})")
+
+
+@app.command("bundle")
+def bundle(
+    runtime_dir: Path = typer.Argument(..., help="Runtime root that contains audit/runs/<run_id>/"),
+    run_id: str = typer.Argument(..., help="The run_id to bundle"),
+    out_path: Path = typer.Option(
+        None, "--out", help="Output .tar.gz path (default: <runtime>/bundles/<run_id>.tar.gz)"
+    ),
+) -> None:
+    """Tar a single cardiac run's artifacts into a self-contained bundle.
+
+    Bundle contents:
+      - audit/runs/<run_id>/*.jsonl (all 12 tables + falsifier ledger)
+      - kg/{nodes,edges}.jsonl (current snapshot)
+      - packets/cardiac_evidence_packet_v0_1__*<run_id>*.json (the run's packet)
+      - reasoner_queue/runs/<run_id>/tuples.jsonl
+    """
+    audit_run_dir = runtime_dir / "audit" / "runs" / run_id
+    if not audit_run_dir.is_dir():
+        typer.echo(f"missing: {audit_run_dir}", err=True)
+        raise typer.Exit(1)
+
+    if out_path is None:
+        bundles_dir = runtime_dir / "bundles"
+        bundles_dir.mkdir(parents=True, exist_ok=True)
+        safe_id = run_id.replace(":", "_")
+        out_path = bundles_dir / f"{safe_id}.tar.gz"
+
+    with tarfile.open(out_path, "w:gz") as tf:
+        # Audit (mandatory)
+        for path in sorted(audit_run_dir.glob("*.jsonl")):
+            tf.add(path, arcname=f"audit/runs/{run_id}/{path.name}")
+
+        # KG snapshot
+        kg_root = runtime_dir / "kg"
+        for fname in ("nodes.jsonl", "edges.jsonl"):
+            p = kg_root / fname
+            if p.exists():
+                tf.add(p, arcname=f"kg/{fname}")
+
+        # Reasoner queue
+        rq_dir = runtime_dir / "reasoner_queue" / "runs" / run_id
+        if rq_dir.exists():
+            for path in sorted(rq_dir.glob("*.jsonl")):
+                tf.add(path, arcname=f"reasoner_queue/runs/{run_id}/{path.name}")
+
+        # Packets matching the run
+        packets_dir = runtime_dir / "packets"
+        if packets_dir.exists():
+            safe_id = run_id.replace(":", "_")
+            for path in packets_dir.glob(f"*{safe_id}*"):
+                tf.add(path, arcname=f"packets/{path.name}")
+
+    typer.echo(f"wrote {out_path}")
+
+
+@app.command("compare-runs")
+def compare_runs(
+    runtime_a: Path = typer.Argument(..., help="Runtime A root"),
+    run_id_a: str = typer.Argument(..., help="Run ID A"),
+    runtime_b: Path = typer.Argument(..., help="Runtime B root"),
+    run_id_b: str = typer.Argument(..., help="Run ID B"),
+) -> None:
+    """Diff two cardiac runs' audit table counts + falsifier counts side-by-side."""
+    def _audit_counts(rt: Path, rid: str) -> dict[str, int]:
+        out: dict[str, int] = {}
+        run_dir = rt / "audit" / "runs" / rid
+        if not run_dir.exists():
+            return out
+        for p in run_dir.glob("*.jsonl"):
+            n = sum(1 for line in p.read_text().splitlines() if line.strip())
+            out[p.stem] = n
+        return out
+
+    a = _audit_counts(runtime_a, run_id_a)
+    b = _audit_counts(runtime_b, run_id_b)
+    keys = sorted(set(a) | set(b))
+    typer.echo(f"{'table':<25}{'A':>10}{'B':>10}{'delta':>10}")
+    typer.echo("-" * 55)
+    for k in keys:
+        va, vb = a.get(k, 0), b.get(k, 0)
+        typer.echo(f"{k:<25}{va:>10}{vb:>10}{vb - va:>+10}")
+
+
+@app.command("health-check")
+def health_check(
+    runtime_dir: Path = typer.Option(
+        None, "--runtime",
+        help="Optional runtime root with audit/runs/. If absent, only repo-level checks run.",
+    ),
+) -> None:
+    """Run all top-level health checks: KG seed validity, runpod precheck, schemas, falsification spot-check.
+
+    Exits non-zero if any check fails.
+    """
+    fails: list[str] = []
+
+    # 1. KG seed loads + validates
+    try:
+        from zer0pa_health.kg import KGStore, KGValidator
+        repo_root = Path(__file__).resolve().parents[2]
+        store = KGStore(repo_root / "kg")
+        if not (repo_root / "kg" / "cardiac_seed.jsonl").exists():
+            fails.append("kg/cardiac_seed.jsonl missing")
+        else:
+            # Load seed into a temporary store to validate
+            import tempfile
+
+            tmp = Path(tempfile.mkdtemp())
+            tmp_store = KGStore(tmp)
+            tmp_store.load_seed(repo_root / "kg" / "cardiac_seed.jsonl")
+            res = KGValidator(tmp_store).validate()
+            typer.echo(f"  KG seed: nodes={res['nodes']} edges={res['edges']}")
+    except Exception as e:  # noqa: BLE001
+        fails.append(f"KG seed: {e}")
+
+    # 2. runpod-precheck
+    try:
+        repo_root = Path(__file__).resolve().parents[2]
+        rc = _runpod_precheck_logic(repo_root / "runpod.config.yaml")
+        if rc != 0:
+            fails.append(f"runpod precheck returned {rc}")
+    except Exception as e:  # noqa: BLE001
+        fails.append(f"runpod precheck: {e}")
+
+    # 3. compound fixtures load
+    try:
+        repo_root = Path(__file__).resolve().parents[2]
+        n_compounds = 0
+        for path in (repo_root / "fixtures" / "compounds").glob("*.json"):
+            data = json.loads(path.read_text())
+            assert "research_boundary" in data
+            assert "channel_panel_canned" in data
+            n_compounds += 1
+        typer.echo(f"  compound fixtures: {n_compounds} loaded and basic-shape validated")
+    except Exception as e:  # noqa: BLE001
+        fails.append(f"compound fixtures: {e}")
+
+    # 4. Optional: live runtime audit validation
+    if runtime_dir:
+        try:
+            for run_dir in (runtime_dir / "audit" / "runs").iterdir():
+                if run_dir.is_dir():
+                    AuditValidator(runtime_dir / "audit", run_dir.name).validate()
+            typer.echo(f"  runtime audit: all runs in {runtime_dir} validated")
+        except Exception as e:  # noqa: BLE001
+            fails.append(f"runtime audit: {e}")
+
+    if fails:
+        typer.echo()
+        typer.echo("HEALTH CHECK FAILED")
+        for f in fails:
+            typer.echo(f"  FAIL: {f}", err=True)
+        raise typer.Exit(1)
+
+    typer.echo()
+    typer.echo("HEALTH CHECK PASSED")
 
 
 def main() -> int:

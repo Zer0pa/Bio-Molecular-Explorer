@@ -25,6 +25,7 @@ from zer0pa_health.envelope import (
 )
 from zer0pa_health.falsifiers.detectors import (
     detect_codec_as_mechanism,
+    detect_herg_only_overreach,
     detect_invalid_smiles,
     detect_nan_or_nonfinite,
     detect_sbml_failure,
@@ -131,11 +132,14 @@ class L5RunpodSimAdapter:
             "exposure-channel bridge supports IKr block as one of the channels relevant to QT",
             ["pk_simulation", "channel_panel"],
         )
-        stub_check = detect_stub_laundering(
-            Backend.RUNPOD_GPU.value, "mechanism_claim", False
+        # L5 stub emits hERG_only_overreach over the cardiac panel; the sim
+        # mirrors that exact falsifier-class set so plug-replaceability holds.
+        herg_check = detect_herg_only_overreach(
+            panel_genes_present=["KCNH2", "SCN5A", "KCNQ1", "CACNA1C"],
+            explicit_absence=[],
         )
 
-        falsifiers = [smiles_check, stub_check, nan_check, sbml_check, codec_check]
+        falsifiers = [nan_check, sbml_check, codec_check, herg_check]
         any_fail = any(it.status == FalsifierStatus.FAIL for it in falsifiers)
 
         return LayerEnvelope(

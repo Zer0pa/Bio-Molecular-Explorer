@@ -244,7 +244,26 @@ After iteration 2 closed the obvious gaps, the user asked again — "have you do
 
 **Iteration 4 test delta**: 477 → 493 (+16). All green in <10 s.
 
-## Final test count: 493 passing.
+## Iteration 5 additions (2026-04-30)
+
+| Addition | Tests | Notes |
+|---|---|---|
+| `runpod_sim/TxGemmaRunpodSimAdapter` | +6 | CPU-side simulation of TxGemma 27B on Runpod. Same `ReasonerAdapter` Protocol as `StubReasonerBackend`. license_class="E" (Gemma 2 + Health AI Developer Foundations terms must be verified before commercial deployment). Self-policed: never emits clinical-overclaim phrases. |
+| `orchestration/RunpodSimDispatcher` | +5 | Parsl-shaped GPU dispatcher simulation. Same `DispatchInterface` Protocol as `NoOpDispatcher`. Implements queued → running → done state progression so tests look like real GPU dispatch. |
+| `zer0pa-health cutover-dryrun` CLI | +3 | End-to-end Runpod cutover dry-run. Flips L1/L2/L5 from Stub to RunpodSim, verifies envelope shape stable, falsifier classes preserved, backend flag flipped to runpod_gpu. Writes journal to `audit/cutover_dryrun.jsonl`. |
+
+**Iteration 5 test delta**: 493 → 507 (+14). All green in <5 s.
+
+## Final test count: 507 passing.
+
+The cutover surface is now fully covered on the CPU side:
+- L1 (DiffDock V2 / Boltz-2 / OpenFE) → L1RunpodSimAdapter
+- L2 (DeepXDE PINN) → L2RunpodSimAdapter
+- L5 (PK-Sim / QSP) → L5RunpodSimAdapter
+- Reasoner (TxGemma 27B) → TxGemmaRunpodSimAdapter
+- Dispatch (Parsl + Runpod) → RunpodSimDispatcher
+
+The `cutover-dryrun` CLI command exercises all layer flips in one shot and writes a journal entry per layer. At real cutover, replacing the sim adapters with the actual GPU adapters is the only change — the rest of the pipeline does not move.
 
 What this means concretely:
 

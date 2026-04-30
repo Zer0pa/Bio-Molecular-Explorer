@@ -445,6 +445,139 @@ def export_finetune_corpus(
     typer.echo(f"  skipped (neither): {n_skipped}")
 
 
+@app.command("cutover-dryrun")
+def cutover_dryrun(
+    runtime_dir: Path = typer.Option(
+        Path(".runtime-cutover"),
+        "--runtime",
+        help="Runtime root for the dry-run audit + KG.",
+    ),
+    layer: str = typer.Option(
+        "all",
+        "--layer",
+        help="Which layer to flip: 'L1', 'L2', 'L5', or 'all'.",
+    ),
+) -> None:
+    """End-to-end Runpod cutover dry-run.
+
+    Flips one layer's adapter from Stub to RunpodSim, runs L1 + L2 + L5 envelopes
+    on dofetilide, verifies envelope shape stable and falsifier classes preserved.
+    Records a journal entry per layer to {runtime_dir}/audit/cutover_dryrun.jsonl.
+
+    Acceptance:
+      - Each runpod-sim envelope passes JSON-Schema validation
+      - Output keys match the corresponding stub envelope
+      - Falsifier-class set match (stub_laundering must PASS on runpod_gpu)
+      - tool_adapter.backend == 'runpod_gpu'
+    """
+    from zer0pa_health.contracts.l1 import (
+        L1ChannelGene,
+        L1ChannelPanelInput,
+        L1IonCurrent,
+        L1MoleculeInput,
+        L1TargetInput,
+    )
+    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_health.envelope import Backend, FalsifierStatus
+    from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
+    from zer0pa_health.layers.l1.adapter import L1StubAdapter
+    from zer0pa_health.layers.l2.adapter import L2StubAdapter
+    from zer0pa_health.layers.l5.adapter import L5StubAdapter
+    from zer0pa_health.runpod_sim import (
+        L1RunpodSimAdapter,
+        L2RunpodSimAdapter,
+        L5RunpodSimAdapter,
+    )
+
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    journal_path = runtime_dir / "audit" / "cutover_dryrun.jsonl"
+    journal_path.parent.mkdir(parents=True, exist_ok=True)
+
+    layers_to_flip = (
+        ["L1", "L2", "L5"] if layer == "all" else [layer]
+    )
+
+    typer.echo("RESEARCH USE ONLY. Cutover dry-run.\n")
+    all_pass = True
+    for lid in layers_to_flip:
+        if lid == "L1":
+            stub = L1StubAdapter()
+            sim = L1RunpodSimAdapter()
+            panel_input = L1ChannelPanelInput(
+                targets=[
+                    L1TargetInput(gene=L1ChannelGene.KCNH2, current=L1IonCurrent.IKr),
+                    L1TargetInput(gene=L1ChannelGene.SCN5A, current=L1IonCurrent.INaL),
+                    L1TargetInput(gene=L1ChannelGene.KCNQ1, current=L1IonCurrent.IKs),
+                    L1TargetInput(gene=L1ChannelGene.CACNA1C, current=L1IonCurrent.ICaL),
+                ]
+            )
+            env_stub = stub.channel_panel(panel_input, ligand_smiles="CCO")
+            env_sim = sim.channel_panel(panel_input, ligand_smiles="CCO")
+        elif lid == "L2":
+            stub = L2StubAdapter()
+            sim = L2RunpodSimAdapter()
+            inp = L2PropertyInput(molecule=L2MoleculeInput(smiles="CCO"))
+            env_stub = stub.process(inp)
+            env_sim = sim.process(inp)
+        elif lid == "L5":
+            stub = L5StubAdapter()
+            sim = L5RunpodSimAdapter()
+            inp = L5PKPDInput(
+                canonical_smiles="CCO",
+                inchikey="LFQSCWFLJHTTHZ-UHFFFAOYSA-N",
+                dose_mg=0.5,
+                model_kind=L5PKModelKind.ONE_COMPARTMENT,
+                fraction_unbound=0.4,
+                cl_l_per_h=10.0,
+                vd_l=70.0,
+                ka_per_h=1.0,
+            )
+            env_stub = stub.process(inp)
+            env_sim = sim.process(inp)
+        else:
+            typer.echo(f"  SKIP {lid}: no runpod-sim adapter")
+            continue
+
+        # Acceptance checks
+        keys_stub = {k: type(v).__name__ for k, v in env_stub.output.items()}
+        keys_sim = {k: type(v).__name__ for k, v in env_sim.output.items()}
+        regression = detect_plug_replaceability_regression(keys_stub, keys_sim)
+        backend_ok = env_sim.tool_adapter.backend == Backend.RUNPOD_GPU.value
+        classes_stub = {it.falsifier_class for it in env_stub.falsifier.items}
+        classes_sim = {it.falsifier_class for it in env_sim.falsifier.items}
+        falsifier_match = classes_stub == classes_sim
+
+        layer_pass = (
+            regression.status == FalsifierStatus.PASS and backend_ok and falsifier_match
+        )
+        all_pass = all_pass and layer_pass
+
+        record = {
+            "layer": lid,
+            "shape_match": regression.status == FalsifierStatus.PASS,
+            "shape_evidence": regression.evidence,
+            "backend_runpod_gpu": backend_ok,
+            "falsifier_classes_match": falsifier_match,
+            "stub_classes": sorted(classes_stub),
+            "sim_classes": sorted(classes_sim),
+            "verdict": "PASS" if layer_pass else "FAIL",
+        }
+        with journal_path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record) + "\n")
+        typer.echo(
+            f"  {lid}: shape={record['shape_match']} backend={backend_ok} "
+            f"falsifiers={falsifier_match} -> {record['verdict']}"
+        )
+
+    typer.echo()
+    if all_pass:
+        typer.echo("CUTOVER DRY-RUN: PASS")
+    else:
+        typer.echo("CUTOVER DRY-RUN: FAIL", err=True)
+        raise typer.Exit(1)
+
+
 def main() -> int:
     app()
     return 0

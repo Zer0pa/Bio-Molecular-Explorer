@@ -15,6 +15,7 @@ from zer0pa_health.orchestration.state_graph import (
 )
 from zer0pa_health.orchestration.flow import Flow, FlowResult, FlowStep
 from zer0pa_health.orchestration.dispatch import DispatchInterface, NoOpDispatcher
+from zer0pa_health.orchestration.runpod_dispatcher import RunpodSimDispatcher
 from zer0pa_health.orchestration.router import L6Router
 
 __all__ = [
@@ -28,5 +29,6 @@ __all__ = [
     "FlowStep",
     "DispatchInterface",
     "NoOpDispatcher",
+    "RunpodSimDispatcher",
     "L6Router",
 ]

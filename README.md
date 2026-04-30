@@ -34,15 +34,18 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 4. `briefing-pack/README.md` then the six numbered docs (1-scope, 2-charter, 3-inherited, 4-current-thinking, 5-open-questions, 6-evidence-and-data-map) — the cardiac wedge from the parallel RBTE work stream.
 5. `synthesis/01-fresh-eyes-on-pipeline-briefs.md` — synthesis-agent reframe of the briefs; this is the substrate for your own fresh-eyes augmentation.
 
-## Implementation status (overnight execution, 2026-04-30)
+## Implementation status (overnight execution, 2026-04-30, 5 iterations)
 
-- **Tests**: 333 passing (unit + integration + plug-swap + falsification wave + cardiac packet).
+- **Tests**: 507 passing (unit + integration + plug-swap + falsification wave + cardiac packet + Runpod cutover acceptance + L6 router backedge re-execution + reasoner sim + dispatcher sim).
 - **Layers**: L1 (REST stubs + canned outputs for the cardiac wedge), L2 (property/formulation with L2.5 back-edge), L2.5 (retrosynthesis with RXNSMILES + atom-map validators), L3 (process + mass balance), L4 (FMU/Ditto sensor twin), L5 (PKPD + cardiac exposure-channel bridge), L6 (LangGraph-shaped router with silent_falsifier_loss preservation).
 - **Cross-cutting**: universal layer envelope (Pydantic + JSON Schema), append-only audit log with hash chain, KG with cardiac seed (33 nodes, 21 edges), 16-class falsifier registry with 13 detectors, falsifier ledger, self-bootstrapping reasoner with PRD-shaped tuples and clinical-overclaim self-policing, cloud-lab dry-run adapters (Strateos/Emerald/Arctoris) with hard interlocks.
 - **Cardiac wedge deliverable**: three packets (dofetilide PASS / verapamil PASS / ranolazine PASS) generated via `scripts/generate_cardiac_packets.py`; balance score signs match the multi-current story (dofetilide +0.17 IKr-pure outward, verapamil −0.24 ICaL compensates, ranolazine −0.11 INaL-dominant). PubMed-baseline lift: ~47-51 points above competent-reader baseline.
 - **Plug-replaceability**: nine tests covering all six layers + L6 router + cross-layer contract version invariant. Pass.
 - **Falsification wave**: every named trigger (invalid SMILES, missing RXNSMILES/atom-map, mass balance, L4 sensor, SBML, hERG-only, clinical-overclaim, stub-laundering, missing falsifier ref, plug regression, NaN ECG, codec-as-mechanism, noise-brittle phenotype, license drift, silent falsifier loss, PubMed no-value-add) caught, audited, routed, and preserved in the ledger. Pass.
 - **Runpod migration**: `runpod.config.yaml` + `docs/runpod-migration.md` define the stub-swap procedure; backend flag flip per adapter is the entire migration.
+- **Cutover demonstrated in code**: L1, L2, L5 GPU-bound layers, the TxGemma reasoner, and the Parsl-shaped dispatcher all have CPU-side `*RunpodSimAdapter` / `RunpodSimDispatcher` implementations that satisfy the same Protocols as the real GPU adapters will. `zer0pa-health cutover-dryrun` flips all layers in one command and verifies envelope shape + falsifier classes + backend flag are stable.
+- **L6 closed-loop routing**: the router doesn't just walk forward — it re-executes upstream layers when a back-edge is propagated, capped per-layer (budget=2) and globally (max=12), with `is_reexecution` flag on the step record.
+- **CLI**: `zer0pa-health {run-cardiac, validate-audit, validate-kg, validate-packet, runpod-precheck, graph-export, bundle, compare-runs, health-check, export-finetune-corpus, cutover-dryrun}` are all wired and tested.
 
 ## Provenance
 

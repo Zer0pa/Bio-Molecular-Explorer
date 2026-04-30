@@ -314,3 +314,31 @@ What this means concretely:
 - Two runs can be diff'd side-by-side without writing custom tooling.
 - The whole repo's health can be verified with one command.
 - CI runs on every push (tests + smoke runs + health-check + runpod-precheck).
+
+## Iteration 7 (2026-04-30) — Pathway 1 final tightening + remote-review readiness
+
+Closes the remaining CPU-side gaps after iteration 6 and ensures the GitHub repo is fully primed for remote team review.
+
+| Addition | Tests | Notes |
+|---|---|---|
+| `tests/plug_swap/test_pathway1_plug_replaceability.py` | +8 | Stub vs Toy across all 6 P1 layers + cross-layer contract_version invariant. |
+| Contract gap fix: `P1OptimizedLead.generation_method` field | n/a | Surfaced by the plug-swap test (Handoff subagent had flagged it). Field now carries through P1.Generate → P1.Optimize → P1.Handoff. |
+| Reasoner tuple emission in `pathway1_run.py` | covered by integration test | One `ReasonerTuple` per P1 run via `StubReasonerBackend`; written to `reasoner_queue/runs/<rid>/tuples.jsonl`. PRD section 8 wiring complete. |
+| Full P1 → L1 → `CardiacEvidencePacket` integration | +3 | Pathway 1 run synthesizes a compound fixture from leading P1.Handoff packet at runtime + assembles a cardiac evidence packet. KCNH2 smoke: engine 96.25 / baseline 49 / lift +47.25 (passes PRD §7 +10 minimum). |
+| `runpod.config.yaml` extended with Pathway 1 layer entries | n/a | New sections for p1_target (open_targets / ttd / gpt_rosalind external_api), p1_structure (openfold3 / boltz_2_joint), p1_generate (reinvent4 / diffsbdd), p1_screen (chemprop_v2 / boltz_2_affinity / gnina_1_3), p1_optimize (botorch cpu_lite), p1_handoff (composer). License classes per adapter. |
+| `docs/CONVENTIONS.md` §15 — Pathway 1 conventions | n/a | Naming, EXTERNAL_API backend, cardiac bridge, P1→cardiac integration, falsifier discipline, KG extension, fixtures, P1.Optimize=cpu_lite, reasoner integration, CLI. |
+| `README.md` updated to final state | n/a | 728 tests; both pipelines documented; Pathway 1 stack listed. |
+| CLI verification with Pathway 1 runtime artifacts | covered | bundle, health-check, graph-export, runpod-precheck all work with P1 runs. |
+
+**Iteration 7 test delta**: 717 → 728 (+11). All green in <14 s.
+
+## Final test count: 728 passing.
+
+The pipeline now has both ends, fully integrated:
+
+- **Pathway 1 (front-end)**: target identification → structure prediction → molecule generation → in silico screening → hit-to-lead refinement → CRO-ready handoff dossier.
+- **Cardiac wedge (existing back-end)**: candidate molecule → multi-current channel panel → PKPD bridge → cardiac evidence packet → PubMed-baseline benchmark.
+
+A single command (`zer0pa-health run-pathway1 KCNH2`) walks the entire pipeline: P1.Target → P1.Structure → P1.Generate → P1.Screen → P1.Optimize → P1.Handoff → existing L1 channel-panel → CardiacEvidencePacket assembled → engine score 96.25 vs baseline 49 → packet written to disk. All 12 audit tables populate; KG combined seed validates K1-K5; reasoner tuple emitted; falsifier ledger preserved.
+
+**Remote-review readiness**: README, CONVENTIONS, DECISIONS, PRD.md, PATHWAY1_PRD.md, execution-report.md, runpod.config.yaml, runpod-migration.md all current and consistent. CI workflow (`.github/workflows/ci.yml`) runs the full suite on every push. Repo synced at https://github.com/Zer0pa/Health.

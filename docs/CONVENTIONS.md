@@ -211,4 +211,54 @@ IC50 values in stub fixtures are literature estimates, not assay results. All mu
 
 ---
 
-*Last updated: 2026-04-30 by Sonnet subagent-2 (CPU-side gap closure)*
+## 15. Pathway 1 Conventions (R&D / Drug Discovery front-end)
+
+Pathway 1 is the upstream front-end of the Health pipeline. It produces ranked drug candidates that hand off into the existing cardiac wedge.
+
+### Naming and namespace
+
+Semantic layer names: `P1.Target`, `P1.Structure`, `P1.Generate`, `P1.Screen`, `P1.Optimize`, `P1.Handoff` (D-020). Numeric (`P1.L1`, etc.) would collide with the existing pipeline's L1-L6 cardiac semantics. The values are added to the `LayerName` enum in `envelope.py`.
+
+Directory: `src/zer0pa_health/pathway1/` with `contracts/` and `layers/{target,structure,generate,screen,optimize,handoff}/`. Each layer has `adapter.py` (StubAdapter) + `toy_adapter.py` (ToyAdapter for plug-swap). GPU-bound layers (Structure, Generate, Screen) additionally have a runpod_sim adapter for cutover acceptance.
+
+### Backend.EXTERNAL_API
+
+A new backend value `external_api` covers tools that are remote API calls — neither stub nor GPU-bound — with latency, cost, and license terms (Class C/D): GPT-Rosalind, Open Targets, TTD, GWAS Catalog, PubTator, ChEMBL, BindingDB, ZINC-22 (D-021).
+
+### Cardiac bridge
+
+`P1HandoffPacket` carries an optional `l1_channel_panel_input` block matching the existing `L1ChannelPanelInput` shape (D-022). When `target_gene` ∈ `{KCNH2, SCN5A, KCNQ1, CACNA1C}`, the field is populated with all four cardiac genes mapped to their canonical currents (KCNH2→IKr, SCN5A→INaL, KCNQ1→IKs, CACNA1C→ICaL). Non-cardiac targets get `null`.
+
+### Pathway 1 → CardiacEvidencePacket bridge
+
+The end-to-end Pathway 1 run (`runs/pathway1_run.py`) synthesizes a compound fixture from the leading `P1.Handoff` packet at runtime and feeds it into the existing `CardiacPacketAssembler`. The resulting `CardiacEvidencePacket` is written to `packets/pathway1/cardiac_evidence_packet_p1__<gene>__<run_id>.json`. Smoke result for KCNH2: engine 96.25 / baseline 49.0 / lift +47.25.
+
+### Pathway 1 falsifier discipline
+
+13 new R&D-specific falsifier classes (D-027) extend the existing 16 (cardiac/RBTE). Sanitization (D-023): AlphaFold AF IDs, TDC-leaked InChIKeys, and Enamine catalogue SMILES are sha256-prefix-hashed in evidence; never echoed verbatim.
+
+### Pathway 1 KG schema extension
+
+`NodeType` adds `Target / Hit / Lead / GenerativeProposal / Disease / BindingPocket`; `EdgeType` adds `ENCODES_TARGET / HAS_DISEASE_ASSOCIATION / HAS_BINDING_POCKET` (D-024). Combined cardiac+P1 seed: 50 nodes, 35 edges; K1–K5 hold.
+
+### Pathway 1 fixture conventions
+
+Per `schemas/fixtures/pathway1/target.schema.json` and `hit.schema.json`. Six target fixtures (4 cardiac + 2 non-cardiac), 12 hit fixtures (3 per cardiac target), 18 P1 negative fixtures. Every fixture carries `research_boundary` verbatim and a `stub_provenance_note`.
+
+### P1.Optimize backend
+
+`backend=cpu_lite`, NOT `stub` (D-025). BoTorch + Ax + REINVENT 4 RL on CPU; real cutover keeps `cpu_lite`.
+
+### Pathway 1 reasoner integration
+
+Each Pathway 1 run emits one `ReasonerTuple` per leading P1 packet to `reasoner_queue/runs/<rid>/tuples.jsonl` via the existing `StubReasonerBackend`.
+
+### Pathway 1 CLI
+
+- `zer0pa-health run-pathway1 [target|all]` — end-to-end Pathway 1 run.
+- `zer0pa-health cutover-dryrun --layer p1` — exercises P1.Structure / P1.Generate / P1.Screen Stub→RunpodSim flips.
+- `zer0pa-health cutover-dryrun --layer all+p1` — exercises both halves of the pipeline at once.
+
+---
+
+*Last updated: 2026-04-30 (iteration 7) — Pathway 1 conventions added.*

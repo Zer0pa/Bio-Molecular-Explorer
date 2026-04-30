@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "confidence_tier_overclaim",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-CACNA1C-CLAIM-001",
+    "smiles": "CCOC(=O)C1=C(C)NC(=C1c1cccc(Cl)c1)C",
+    "confidence_tier": "A",
+    "distinct_models_count": 2,
+    "models_used": ["Boltz2_stub", "Chemprop_stub"],
+    "gnina_used": false
+  },
+  "note": "Triggers confidence_tier_overclaim (hard_fail): Tier A requires >= 3 independent model predictions (Boltz-2, Chemprop, GNINA minimum). Only 2 models used; GNINA pose refinement absent. Tier must be downgraded to B. Handoff blocked at Tier A."
+}

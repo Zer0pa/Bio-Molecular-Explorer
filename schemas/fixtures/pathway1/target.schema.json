@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zer0pa.ai/schemas/fixtures/pathway1/target.schema.json",
+  "title": "Zer0pa Health Pathway 1 Target Fixture",
+  "description": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "type": "object",
+  "required": [
+    "research_boundary",
+    "target_id",
+    "gene_symbol",
+    "protein_name",
+    "disease_associations",
+    "genetic_evidence_score",
+    "druggability_score",
+    "novelty_flag",
+    "structure_refs",
+    "source_manifest_refs",
+    "stub_provenance_note"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "research_boundary": {
+      "type": "string",
+      "const": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification."
+    },
+    "target_id": {
+      "type": "string",
+      "pattern": "^uniprot:[A-Z0-9_]+$",
+      "description": "UniProt accession in the form uniprot:XXXXXX"
+    },
+    "gene_symbol": {
+      "type": "string",
+      "minLength": 1
+    },
+    "protein_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disease_associations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "EFO, Orphanet, or OMIM disease identifiers"
+    },
+    "genetic_evidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "druggability_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "novelty_flag": {
+      "type": "boolean"
+    },
+    "structure_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_manifest_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stub_provenance_note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kg_gene_node_ref": {
+      "type": "string",
+      "description": "Optional reference to the Gene node in the KG (e.g. gene:KCNH2)"
+    },
+    "evidence_pillars": {
+      "type": "object",
+      "description": "Optional structured evidence breakdown from Open Targets / GWAS / TTD",
+      "properties": {
+        "genetic_evidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "literature_hit_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pocket_volume_angstrom3": {
+          "oneOf": [
+            {"type": "number"},
+            {"type": "null"}
+          ]
+        },
+        "ttd_entry_present": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

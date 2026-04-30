@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "alphafold_d_leakage",
+  "trigger_inputs": {
+    "target_id": "uniprot:Q12809",
+    "structure_source": "alphafold_db",
+    "raw_af_id_attempted": "AF-Q12809-F1",
+    "af_id_sha256_prefix": "a3f9c8b2d1e47f05",
+    "plddt_mean": 88.4,
+    "structure_basis": "AlphaFold DB pre-computed (non-commercial Class D)"
+  },
+  "note": "Triggers alphafold_d_leakage: P1.Structure attempted to use AlphaFold DB pre-computed structure (Class D, non-commercial). The raw AF-{UniProt}-F{n} identifier is redacted to sha256 prefix. Production pipeline must use OpenFold3 (Apache 2.0) instead."
+}

@@ -362,3 +362,373 @@ def detect_license_drift(
             ],
         )
     return _item(FalsifierClass.LICENSE_DRIFT, FalsifierStatus.PASS)
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Pathway 1 (R&D / Drug Discovery) — 13 detectors per PATHWAY1_PRD.md §3
+# ──────────────────────────────────────────────────────────────────────────
+
+
+def detect_target_validation_overreach(
+    genetic_evidence_score: float,
+    literature_hit_count: int,
+    pocket_volume_angstrom3: float | None,
+    ttd_entry_present: bool,
+    *,
+    genetic_threshold: float = 0.3,
+    literature_threshold: int = 5,
+    pocket_threshold_a3: float = 300.0,
+) -> EnvelopeFalsifierItem:
+    """FAIL if fewer than 2 of 3 evidence pillars are satisfied.
+
+    Pillars: (1) genetic_evidence_score >= threshold, (2) literature_hit_count >= threshold,
+    (3) pocket_volume >= threshold OR ttd_entry_present.
+    """
+    pillars = {
+        "genetic": genetic_evidence_score >= genetic_threshold,
+        "literature": literature_hit_count >= literature_threshold,
+        "structural": (
+            (pocket_volume_angstrom3 is not None and pocket_volume_angstrom3 >= pocket_threshold_a3)
+            or ttd_entry_present
+        ),
+    }
+    satisfied = sum(pillars.values())
+    if satisfied < 2:
+        missing = [name for name, ok in pillars.items() if not ok]
+        return _item(
+            FalsifierClass.TARGET_VALIDATION_OVERREACH,
+            FalsifierStatus.FAIL,
+            [
+                f"satisfied_pillars={satisfied}/3",
+                f"missing={missing}",
+                f"genetic_evidence_score={genetic_evidence_score}",
+                f"literature_hit_count={literature_hit_count}",
+                f"ttd_entry_present={ttd_entry_present}",
+            ],
+        )
+    return _item(FalsifierClass.TARGET_VALIDATION_OVERREACH, FalsifierStatus.PASS)
+
+
+def detect_hit_from_noise(
+    smiles: str,
+    sa_score: float,
+    pains_flags: list[str],
+    aggregator_flag: bool,
+    *,
+    sa_threshold: float = 6.0,
+) -> EnvelopeFalsifierItem:
+    """FAIL if PAINS pattern matched OR aggregator flag set OR SA score too high."""
+    if pains_flags:
+        return _item(
+            FalsifierClass.HIT_FROM_NOISE,
+            FalsifierStatus.FAIL,
+            [f"pains_flags={pains_flags[:5]}", f"sa_score={sa_score}"],
+        )
+    if aggregator_flag:
+        return _item(
+            FalsifierClass.HIT_FROM_NOISE,
+            FalsifierStatus.FAIL,
+            ["aggregator_classification=True", f"sa_score={sa_score}"],
+        )
+    if sa_score > sa_threshold:
+        return _item(
+            FalsifierClass.HIT_FROM_NOISE,
+            FalsifierStatus.FAIL,
+            [f"sa_score={sa_score}>{sa_threshold}"],
+        )
+    return _item(FalsifierClass.HIT_FROM_NOISE, FalsifierStatus.PASS)
+
+
+def detect_lead_without_physchem_feasibility(
+    predicted_pic50: float,
+    esol_logs: float,
+    lipinski_violations: int,
+    herg_ic50_um: float,
+    oral_bioavailability: float,
+    *,
+    pic50_threshold: float = 7.0,
+) -> EnvelopeFalsifierItem:
+    """FAIL if pIC50 >= threshold AND any disqualifying ADMET flag is set."""
+    if predicted_pic50 < pic50_threshold:
+        return _item(FalsifierClass.LEAD_WITHOUT_PHYSCHEM_FEASIBILITY, FalsifierStatus.PASS)
+    issues: list[str] = []
+    if esol_logs < -4.0:
+        issues.append(f"ESOL={esol_logs}<-4.0")
+    if lipinski_violations >= 2:
+        issues.append(f"lipinski_violations={lipinski_violations}>=2")
+    if herg_ic50_um < 10.0:
+        issues.append(f"hERG_IC50_uM={herg_ic50_um}<10.0")
+    if oral_bioavailability < 0.3:
+        issues.append(f"oral_bioavailability={oral_bioavailability}<0.3")
+    if issues:
+        return _item(
+            FalsifierClass.LEAD_WITHOUT_PHYSCHEM_FEASIBILITY,
+            FalsifierStatus.FAIL,
+            [f"pIC50={predicted_pic50}>={pic50_threshold}", *issues],
+        )
+    return _item(FalsifierClass.LEAD_WITHOUT_PHYSCHEM_FEASIBILITY, FalsifierStatus.PASS)
+
+
+def detect_novelty_without_tractability(
+    max_chembl_tanimoto: float,
+    sa_score: float,
+    askcos_step_count: int | None,
+    *,
+    novelty_tanimoto_threshold: float = 0.4,
+    sa_threshold: float = 4.5,
+    max_steps: int = 8,
+) -> EnvelopeFalsifierItem:
+    """FAIL if scaffold is novel (low Tanimoto to ChEMBL) AND tractability fails."""
+    is_novel = max_chembl_tanimoto < novelty_tanimoto_threshold
+    if not is_novel:
+        return _item(FalsifierClass.NOVELTY_WITHOUT_TRACTABILITY, FalsifierStatus.PASS)
+    issues: list[str] = []
+    if sa_score > sa_threshold:
+        issues.append(f"sa_score={sa_score}>{sa_threshold}")
+    if askcos_step_count is None:
+        issues.append("askcos_step_count=None (route not generated)")
+    elif askcos_step_count > max_steps:
+        issues.append(f"askcos_step_count={askcos_step_count}>{max_steps}")
+    if issues:
+        return _item(
+            FalsifierClass.NOVELTY_WITHOUT_TRACTABILITY,
+            FalsifierStatus.FAIL,
+            [f"max_chembl_tanimoto={max_chembl_tanimoto}<{novelty_tanimoto_threshold}", *issues],
+        )
+    return _item(FalsifierClass.NOVELTY_WITHOUT_TRACTABILITY, FalsifierStatus.PASS)
+
+
+def detect_ip_chemspace_drift(
+    candidate_smiles: str,
+    best_zinc22_tanimoto: float,
+    zinc22_catalogue_id: str | None,
+    purchase_agreement_ref: str | None,
+    *,
+    tanimoto_threshold: float = 0.95,
+) -> EnvelopeFalsifierItem:
+    """FAIL if candidate is near-exact match to a catalogued commercial molecule
+    without a documented purchase agreement.
+
+    Sanitization: never echoes the matched commercial SMILES; logs catalogue_id and
+    Tanimoto only.
+    """
+    if best_zinc22_tanimoto >= tanimoto_threshold and purchase_agreement_ref is None:
+        return _item(
+            FalsifierClass.IP_CHEMSPACE_DRIFT,
+            FalsifierStatus.FAIL,
+            [
+                f"catalogue_id={zinc22_catalogue_id}",
+                f"tanimoto={best_zinc22_tanimoto:.4f}>={tanimoto_threshold}",
+                "purchase_agreement_ref=None",
+            ],
+        )
+    return _item(FalsifierClass.IP_CHEMSPACE_DRIFT, FalsifierStatus.PASS)
+
+
+def detect_alphafold_d_leakage(
+    structure_source_tag: str,
+    uniprot_af_id: str | None,
+    openfold3_run_id: str | None,
+) -> EnvelopeFalsifierItem:
+    """FAIL if AlphaFold DB pre-computed structure is used without OpenFold3 recompute provenance.
+
+    Sanitization: AF IDs are sha256-prefix-hashed in evidence; never echoed verbatim.
+    """
+    import hashlib
+    import re
+
+    af_pattern = re.compile(r"^AF-[A-Z0-9]+-F\d+$")
+    is_af_db = (
+        structure_source_tag == "alphafold_db_precomputed"
+        or (uniprot_af_id is not None and af_pattern.match(uniprot_af_id) is not None)
+    )
+    if is_af_db and openfold3_run_id is None:
+        evidence = ["structure_source_alphafold_db_precomputed", "openfold3_run_id=None"]
+        if uniprot_af_id:
+            digest = hashlib.sha256(uniprot_af_id.encode("utf-8")).hexdigest()[:16]
+            evidence.append(f"af_id_sha256_prefix={digest}")
+        return _item(FalsifierClass.ALPHAFOLD_D_LEAKAGE, FalsifierStatus.FAIL, evidence)
+    return _item(FalsifierClass.ALPHAFOLD_D_LEAKAGE, FalsifierStatus.PASS)
+
+
+def detect_benchmark_leakage(
+    train_inchikeys: set[str],
+    test_inchikeys: set[str],
+) -> EnvelopeFalsifierItem:
+    """FAIL if training set intersects a held-out test split (TDC ADMET, etc.).
+
+    Sanitization: leaked InChIKeys are sha256-prefix-hashed; never echoed verbatim.
+    """
+    import hashlib
+
+    leaked = sorted(train_inchikeys & test_inchikeys)
+    if leaked:
+        evidence = [f"leakage_count={len(leaked)}"]
+        for ik in leaked[:5]:
+            digest = hashlib.sha256(ik.encode("utf-8")).hexdigest()[:16]
+            evidence.append(f"leaked_inchikey_sha256_prefix={digest}")
+        return _item(FalsifierClass.BENCHMARK_LEAKAGE, FalsifierStatus.FAIL, evidence)
+    return _item(FalsifierClass.BENCHMARK_LEAKAGE, FalsifierStatus.PASS)
+
+
+_ALLOWED_ORGANIC_ATOMS = frozenset({"C", "N", "O", "S", "P", "F", "Cl", "Br", "I", "H"})
+
+
+def detect_pretrained_hallucination(
+    smiles: str,
+    generation_method: str,
+    *,
+    allowed_atoms: frozenset[str] | None = None,
+) -> EnvelopeFalsifierItem:
+    """FAIL on chemically impossible SMILES (broken brackets/parens, non-organic atoms,
+    obvious valence breaks)."""
+    if not isinstance(smiles, str) or not smiles:
+        return _item(
+            FalsifierClass.PRETRAINED_HALLUCINATION,
+            FalsifierStatus.FAIL,
+            ["empty SMILES"],
+        )
+    if smiles.count("(") != smiles.count(")") or smiles.count("[") != smiles.count("]"):
+        return _item(
+            FalsifierClass.PRETRAINED_HALLUCINATION,
+            FalsifierStatus.FAIL,
+            [
+                f"unbalanced bracket/paren in SMILES",
+                f"generation_method={generation_method}",
+            ],
+        )
+    allowed = allowed_atoms or _ALLOWED_ORGANIC_ATOMS
+    # Bracketed atoms: extract inside [ ... ]
+    import re
+
+    bracketed = re.findall(r"\[([A-Z][a-z]?)", smiles)
+    for atom in bracketed:
+        if atom not in allowed:
+            return _item(
+                FalsifierClass.PRETRAINED_HALLUCINATION,
+                FalsifierStatus.FAIL,
+                [
+                    f"non_organic_atom={atom!r}",
+                    f"allowed_whitelist={sorted(allowed)}",
+                    f"generation_method={generation_method}",
+                ],
+            )
+    # Heuristic valence break: same atom with 5 explicit bonds in a ring closure pattern
+    # e.g., C(C)(C)(C)(C)C — five branches off carbon
+    if re.search(r"C\(C\)\(C\)\(C\)\(C\)", smiles):
+        return _item(
+            FalsifierClass.PRETRAINED_HALLUCINATION,
+            FalsifierStatus.FAIL,
+            [
+                "valence_break_heuristic: 5+ explicit bonds on carbon",
+                f"generation_method={generation_method}",
+            ],
+        )
+    return _item(FalsifierClass.PRETRAINED_HALLUCINATION, FalsifierStatus.PASS)
+
+
+def detect_gpt_rosalind_unavailable(
+    api_http_status: int | None,
+    fallback_used: str | None,
+    timeout_occurred: bool = False,
+) -> EnvelopeFalsifierItem:
+    """soft_fail (FAIL status) if GPT-Rosalind API is unreachable or non-2xx."""
+    if api_http_status is None or timeout_occurred:
+        return _item(
+            FalsifierClass.GPT_ROSALIND_UNAVAILABLE,
+            FalsifierStatus.FAIL,
+            [
+                "api_http_status=None_or_timeout",
+                f"timeout_occurred={timeout_occurred}",
+                f"fallback_used={fallback_used or 'none'}",
+            ],
+        )
+    if api_http_status not in (200, 201):
+        return _item(
+            FalsifierClass.GPT_ROSALIND_UNAVAILABLE,
+            FalsifierStatus.FAIL,
+            [
+                f"api_http_status={api_http_status}",
+                f"fallback_used={fallback_used or 'none'}",
+            ],
+        )
+    return _item(FalsifierClass.GPT_ROSALIND_UNAVAILABLE, FalsifierStatus.PASS)
+
+
+def detect_structure_confidence_below_threshold(
+    binding_site_mean_plddt: float,
+    *,
+    plddt_threshold: float = 70.0,
+    structure_source: str = "openfold3",
+) -> EnvelopeFalsifierItem:
+    """confidence_cap (FAIL status) if binding-site mean pLDDT below threshold."""
+    if binding_site_mean_plddt < plddt_threshold:
+        return _item(
+            FalsifierClass.STRUCTURE_CONFIDENCE_BELOW_THRESHOLD,
+            FalsifierStatus.FAIL,
+            [
+                f"binding_site_mean_plddt={binding_site_mean_plddt}<{plddt_threshold}",
+                f"structure_source={structure_source}",
+            ],
+        )
+    return _item(FalsifierClass.STRUCTURE_CONFIDENCE_BELOW_THRESHOLD, FalsifierStatus.PASS)
+
+
+def detect_selectivity_not_assessed(
+    primary_pic50: float,
+    off_target_prediction_count: int,
+    *,
+    pic50_threshold: float = 7.0,
+    min_off_target_count: int = 3,
+) -> EnvelopeFalsifierItem:
+    """soft_fail (FAIL status) if potent compound has insufficient off-target screening."""
+    if primary_pic50 >= pic50_threshold and off_target_prediction_count < min_off_target_count:
+        return _item(
+            FalsifierClass.SELECTIVITY_NOT_ASSESSED,
+            FalsifierStatus.FAIL,
+            [
+                f"primary_pic50={primary_pic50}>={pic50_threshold}",
+                f"off_target_prediction_count={off_target_prediction_count}<{min_off_target_count}",
+            ],
+        )
+    return _item(FalsifierClass.SELECTIVITY_NOT_ASSESSED, FalsifierStatus.PASS)
+
+
+def detect_synthesis_route_absent(
+    sa_score: float,
+    askcos_route_steps: list | None,
+    *,
+    sa_threshold: float = 4.0,
+) -> EnvelopeFalsifierItem:
+    """FAIL if SA score indicates synthesizable but no ASKCOS route was generated/attached."""
+    if sa_score <= sa_threshold and (askcos_route_steps is None or len(askcos_route_steps) == 0):
+        return _item(
+            FalsifierClass.SYNTHESIS_ROUTE_ABSENT,
+            FalsifierStatus.FAIL,
+            [
+                f"sa_score={sa_score}<={sa_threshold}",
+                f"askcos_route_steps={'None' if askcos_route_steps is None else 'empty'}",
+            ],
+        )
+    return _item(FalsifierClass.SYNTHESIS_ROUTE_ABSENT, FalsifierStatus.PASS)
+
+
+def detect_confidence_tier_overclaim(
+    assigned_tier: str,
+    distinct_model_count: int,
+) -> EnvelopeFalsifierItem:
+    """FAIL on Tier A with < 3 models, or Tier B with < 2 models."""
+    tier = assigned_tier.upper()
+    if tier == "A" and distinct_model_count < 3:
+        return _item(
+            FalsifierClass.CONFIDENCE_TIER_OVERCLAIM,
+            FalsifierStatus.FAIL,
+            [f"assigned_tier=A but distinct_model_count={distinct_model_count}<3"],
+        )
+    if tier == "B" and distinct_model_count < 2:
+        return _item(
+            FalsifierClass.CONFIDENCE_TIER_OVERCLAIM,
+            FalsifierStatus.FAIL,
+            [f"assigned_tier=B but distinct_model_count={distinct_model_count}<2"],
+        )
+    return _item(FalsifierClass.CONFIDENCE_TIER_OVERCLAIM, FalsifierStatus.PASS)

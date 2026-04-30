@@ -1,0 +1,14 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "stub_laundering",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-STUB-001",
+    "smiles": "Cc1ccc(NC(=O)c2cccc(F)c2)cc1",
+    "predicted_pIC50": 8.0,
+    "confidence_tier": "A",
+    "backend": "stub",
+    "stub_provenance_note": "stub values passed through to final handoff as if real",
+    "audit_refs": ["stub:p1_screen:canned"]
+  },
+  "note": "Triggers stub_laundering: stub adapter output (backend=stub) was not replaced at cutover, yet confidence_tier = A was claimed. Stub values cannot justify Tier A or final handoff. The plug-replaceability invariant requires a non-stub backend before promotion."
+}

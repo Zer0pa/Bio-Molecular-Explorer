@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/hit.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "hit_id": "P1-HIT-SCN5A-001",
+  "target_id": "uniprot:Q14524",
+  "smiles": "CC1(C)CC(Nc2cccc(C(=O)N3CCCCC3)c2)CC1",
+  "predicted_pIC50": 6.9,
+  "admet_panel": {
+    "logP": 3.7,
+    "tpsa": 55.8,
+    "BBB_penetration_prob": 0.63,
+    "hERG_IC50_uM": 38.5,
+    "hepatotox_flag": false,
+    "oral_bioavailability_prob": 0.74,
+    "esol_logS": -4.1,
+    "lipinski_violations": 0
+  },
+  "selectivity_score": 0.72,
+  "synthetic_accessibility": 3.1,
+  "generation_method": "DiffSBDD",
+  "confidence_tier": "C",
+  "stub_provenance_note": "Stub canned hit for SCN5A (Nav1.5/INa). High hERG_IC50_uM (38.5 uM) indicates acceptable safety margin at this stage. ADMET from Chemprop v2 stub; pIC50 from Boltz-2 stub. Real values require Runpod GPU adapters."
+}

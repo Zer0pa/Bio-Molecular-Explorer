@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/hit.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "hit_id": "P1-HIT-KCNQ1-002",
+  "target_id": "uniprot:P51787",
+  "smiles": "Clc1ccc(C2CC2Nc2ccc(C(=O)N3CCCC3)cc2)cc1",
+  "predicted_pIC50": 7.6,
+  "admet_panel": {
+    "logP": 3.2,
+    "tpsa": 57.9,
+    "BBB_penetration_prob": 0.49,
+    "hERG_IC50_uM": 18.2,
+    "hepatotox_flag": false,
+    "oral_bioavailability_prob": 0.71,
+    "esol_logS": -3.9,
+    "lipinski_violations": 0
+  },
+  "selectivity_score": 0.63,
+  "synthetic_accessibility": 3.8,
+  "generation_method": "DiffSBDD",
+  "confidence_tier": "B",
+  "stub_provenance_note": "Stub canned hit for KCNQ1. Moderate hERG_IC50_uM (18.2 uM) requires multi-current context review at handoff. ADMET from Chemprop v2 stub; pIC50 from Boltz-2 stub. Real values require Runpod GPU adapters."
+}

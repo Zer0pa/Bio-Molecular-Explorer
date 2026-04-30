@@ -1,0 +1,15 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "benchmark_leakage",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-BENCHLEAK-001",
+    "smiles": "CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",
+    "leaked_inchikeys_sha256_prefixes": [
+      "IXTMWRCNAAVVAI_sha256_6a3f2b",
+      "SGTNSNPWRIOYBX_sha256_9d1e4c"
+    ],
+    "overlap_with_held_out_benchmark": true,
+    "tdc_split_source": "TDC_ADMET_benchmark_v2"
+  },
+  "note": "Triggers benchmark_leakage: generated hits contain structures overlapping with TDC ADMET benchmark held-out test set. Raw InChIKeys are sha256-prefix-redacted. Model performance on these molecules is contaminated; must not be reported as generalization evidence."
+}

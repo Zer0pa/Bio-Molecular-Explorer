@@ -1,0 +1,19 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "lead_without_physchem_feasibility",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-LIPOBREACH-001",
+    "smiles": "CCCCCCCCCc1ccc(NC(=O)c2ccc(CC3CCCC3)cc2)cc1",
+    "predicted_pIC50": 7.5,
+    "admet_panel": {
+      "logP": 7.8,
+      "tpsa": 35.2,
+      "BBB_penetration_prob": 0.91,
+      "hERG_IC50_uM": 3.1,
+      "hepatotox_flag": true,
+      "lipinski_violations": 1
+    },
+    "synthetic_accessibility": 2.1
+  },
+  "note": "Triggers lead_without_physchem_feasibility: logP = 7.8 grossly exceeds Lipinski/Veber oral-bioavailability range (logP <= 5). hepatotox_flag = true. hERG_IC50_uM = 3.1 uM. Molecule violates multiple physicochemical feasibility criteria; cannot advance to handoff."
+}

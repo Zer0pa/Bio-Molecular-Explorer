@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "selectivity_not_assessed",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-SCN5A-SEL-001",
+    "smiles": "CC(C)c1ccc(NC(=O)Nc2ccc(Cl)cc2)cc1",
+    "predicted_pIC50": 7.2,
+    "selectivity_score": null,
+    "off_target_panel_screened": false,
+    "confidence_tier": "B"
+  },
+  "note": "Triggers selectivity_not_assessed (soft_fail): selectivity_score = null and off_target_panel_screened = false. Molecule has not been evaluated against the ChEMBL off-target panel. Tier B confidence cannot be justified without selectivity data. Pipeline continues but output is flagged."
+}

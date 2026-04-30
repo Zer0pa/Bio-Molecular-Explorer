@@ -1,0 +1,14 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "synthesis_route_absent",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNQ1-NOROUTE-001",
+    "smiles": "O=C(Nc1ccc(N2CCNCC2)cc1)c1ccc(OCC2CCCO2)cc1",
+    "synthetic_accessibility": 5.8,
+    "suggested_route": null,
+    "estimated_synthesis_steps": null,
+    "askcos_route_found": false,
+    "confidence_tier": "A"
+  },
+  "note": "Triggers synthesis_route_absent (hard_fail): confidence_tier = A claimed but suggested_route = null and ASKCOS found no viable retrosynthetic route. SA score = 5.8 exceeds acceptable range (<=4.0) for Tier A. CRO handoff blocked without a verified synthesis route."
+}

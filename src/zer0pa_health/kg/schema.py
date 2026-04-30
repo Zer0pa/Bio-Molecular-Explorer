@@ -32,6 +32,13 @@ class NodeType(str, Enum):
     EPISODE = "Episode"
     REASONER_TUPLE = "ReasonerTuple"
     ACCEPTANCE_GATE = "AcceptanceGate"
+    # Pathway 1 — R&D / Drug Discovery extensions (PATHWAY1_PRD.md §2)
+    TARGET = "Target"
+    HIT = "Hit"
+    LEAD = "Lead"
+    GENERATIVE_PROPOSAL = "GenerativeProposal"
+    DISEASE = "Disease"
+    BINDING_POCKET = "BindingPocket"
 
 
 class EdgeType(str, Enum):
@@ -52,6 +59,10 @@ class EdgeType(str, Enum):
     TRIGGERS_BACKEDGE = "TRIGGERS_BACKEDGE"
     DERIVES_TUPLE = "DERIVES_TUPLE"
     SUPERSEDES = "SUPERSEDES"
+    # Pathway 1 extensions
+    ENCODES_TARGET = "ENCODES_TARGET"
+    HAS_DISEASE_ASSOCIATION = "HAS_DISEASE_ASSOCIATION"
+    HAS_BINDING_POCKET = "HAS_BINDING_POCKET"
 
 
 class ClaimStatus(str, Enum):

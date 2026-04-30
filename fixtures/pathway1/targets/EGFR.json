@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/target.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_id": "uniprot:P00533",
+  "gene_symbol": "EGFR",
+  "protein_name": "Epidermal growth factor receptor (EGFR / ErbB-1 / HER1)",
+  "disease_associations": [
+    "EFO:0000311",
+    "EFO:0000178",
+    "EFO:0002617"
+  ],
+  "genetic_evidence_score": 0.95,
+  "druggability_score": 0.97,
+  "novelty_flag": false,
+  "structure_refs": [
+    "pdb:2ITY",
+    "pdb:4HJO",
+    "pdb:7T6Q"
+  ],
+  "source_manifest_refs": [
+    "OpenTargets_v25_06",
+    "TTD_2026",
+    "GWAS_Catalog_EBI",
+    "ChEMBL_36",
+    "UniProt_SwissProt"
+  ],
+  "evidence_pillars": {
+    "genetic_evidence_score": 0.95,
+    "literature_hit_count": 92147,
+    "pocket_volume_angstrom3": 1420.0,
+    "ttd_entry_present": true
+  },
+  "stub_provenance_note": "Non-cardiac general-pipeline framing fixture. Values are stub canned outputs drawn from Open Targets v25.06, TTD 2026, GWAS Catalog, ChEMBL 36, and UniProt Swiss-Prot; real API integration pending cutover. No l1_channel_panel_input; routes to future general-target wedge."
+}

@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "hit_from_noise",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-PAINS-001",
+    "smiles": "O=C(/C=C/c1ccccc1)c1ccc(N)cc1",
+    "predicted_pIC50": 7.9,
+    "pains_alert": true,
+    "pains_rule_matched": "ene_one_A",
+    "generation_method": "REINVENT4_RL"
+  },
+  "note": "Triggers hit_from_noise: molecule matches PAINS pattern (alpha-beta unsaturated ketone). High predicted pIC50 is artifactual — assay interference confounds the signal. Must be rejected before handoff."
+}

@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "synthesis_route_absent",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-NOPANEL-001",
+    "target_gene": "KCNH2",
+    "smiles": "Cc1ccc(NC(=O)c2ccc(CN3CCCC3)cc2)cc1",
+    "is_cardiac_target": true,
+    "l1_channel_panel_input": null,
+    "confidence_tier": "B"
+  },
+  "note": "Triggers synthesis_route_absent (and would trigger missing_falsifier_ref): cardiac target KCNH2 handoff packet has l1_channel_panel_input = null. For cardiac targets, l1_channel_panel_input is required by the Pathway 1 bridge spec. The absence blocks CRO handoff."
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/target.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_id": "uniprot:P56817",
+  "gene_symbol": "BACE1",
+  "protein_name": "Beta-secretase 1 (BACE-1 / Memapsin-2 / ASP2)",
+  "disease_associations": [
+    "EFO:0000249",
+    "EFO:0009346"
+  ],
+  "genetic_evidence_score": 0.71,
+  "druggability_score": 0.74,
+  "novelty_flag": true,
+  "structure_refs": [
+    "pdb:2B8V",
+    "pdb:4FSL"
+  ],
+  "source_manifest_refs": [
+    "OpenTargets_v25_06",
+    "TTD_2026",
+    "GWAS_Catalog_EBI",
+    "ChEMBL_36",
+    "UniProt_SwissProt"
+  ],
+  "evidence_pillars": {
+    "genetic_evidence_score": 0.71,
+    "literature_hit_count": 18423,
+    "pocket_volume_angstrom3": 1105.0,
+    "ttd_entry_present": true
+  },
+  "stub_provenance_note": "Non-cardiac general-pipeline framing fixture. novelty_flag=true reflects investigational positioning in the Zer0pa pipeline. Values are stub canned outputs drawn from Open Targets v25.06, TTD 2026, GWAS Catalog, ChEMBL 36, and UniProt Swiss-Prot; real API integration pending cutover. No l1_channel_panel_input; routes to future general-target wedge."
+}

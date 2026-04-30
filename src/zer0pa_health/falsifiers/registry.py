@@ -33,6 +33,21 @@ class FalsifierClass(str, Enum):
     LICENSE_DRIFT = "license_drift"
     MISSING_FALSIFIER_REF = "missing_falsifier_ref"
 
+    # Pathway 1 — R&D / Drug Discovery extensions (PATHWAY1_PRD.md §3)
+    TARGET_VALIDATION_OVERREACH = "target_validation_overreach"
+    HIT_FROM_NOISE = "hit_from_noise"
+    LEAD_WITHOUT_PHYSCHEM_FEASIBILITY = "lead_without_physchem_feasibility"
+    NOVELTY_WITHOUT_TRACTABILITY = "novelty_without_tractability"
+    IP_CHEMSPACE_DRIFT = "ip_chemspace_drift"
+    ALPHAFOLD_D_LEAKAGE = "alphafold_d_leakage"
+    BENCHMARK_LEAKAGE = "benchmark_leakage"
+    PRETRAINED_HALLUCINATION = "pretrained_hallucination"
+    GPT_ROSALIND_UNAVAILABLE = "gpt_rosalind_unavailable"
+    STRUCTURE_CONFIDENCE_BELOW_THRESHOLD = "structure_confidence_below_threshold"
+    SELECTIVITY_NOT_ASSESSED = "selectivity_not_assessed"
+    SYNTHESIS_ROUTE_ABSENT = "synthesis_route_absent"
+    CONFIDENCE_TIER_OVERCLAIM = "confidence_tier_overclaim"
+
 
 class FalsifierDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -170,6 +185,134 @@ REGISTRY: dict[FalsifierClass, FalsifierDefinition] = {
         trigger_condition="Claim/packet/tuple is asserted without referencing at least one falsifier",
         backedge_target="hard_fail_CI",
         severity="hard_fail",
+    ),
+    # ── Pathway 1 — R&D / Drug Discovery falsifiers ──────────────────────────
+    FalsifierClass.TARGET_VALIDATION_OVERREACH: FalsifierDefinition(
+        falsifier_class=FalsifierClass.TARGET_VALIDATION_OVERREACH,
+        layer_scope=["P1.Target"],
+        trigger_condition=(
+            "Target promoted as druggable without all 3 evidence pillars: genetic "
+            "(Open Targets/GWAS), literature (PubTator hits), structural (pocket volume or TTD entry)"
+        ),
+        backedge_target="P1_Target_request_expanded_evidence_panel",
+        severity="hard_fail",
+        notes="Single-source targets fail; all three pillars must be present or explicitly absent with justification.",
+    ),
+    FalsifierClass.HIT_FROM_NOISE: FalsifierDefinition(
+        falsifier_class=FalsifierClass.HIT_FROM_NOISE,
+        layer_scope=["P1.Generate", "P1.Screen"],
+        trigger_condition="Candidate matches PAINS pattern, SA score > 6.0, or known aggregator scaffold",
+        backedge_target="P1_Generate_exclude_scaffold_and_regenerate",
+        severity="hard_fail",
+        notes="PAINS and aggregators inflate apparent hit rates; block before any affinity score is acted on.",
+    ),
+    FalsifierClass.LEAD_WITHOUT_PHYSCHEM_FEASIBILITY: FalsifierDefinition(
+        falsifier_class=FalsifierClass.LEAD_WITHOUT_PHYSCHEM_FEASIBILITY,
+        layer_scope=["P1.Screen", "P1.Optimize"],
+        trigger_condition=(
+            "predicted_pIC50 >= 7.0 but ESOL < -4 OR Lipinski violations >= 2 OR hERG IC50 < 10 µM "
+            "OR oral_bioavailability < 0.3"
+        ),
+        backedge_target="P1_Optimize_penalize_scaffold_and_trigger_optimization",
+        severity="soft_fail",
+        notes="Affinity alone does not make a lead. Soft-fail to allow refinement; hard-block at handoff.",
+    ),
+    FalsifierClass.NOVELTY_WITHOUT_TRACTABILITY: FalsifierDefinition(
+        falsifier_class=FalsifierClass.NOVELTY_WITHOUT_TRACTABILITY,
+        layer_scope=["P1.Generate", "P1.Screen"],
+        trigger_condition=(
+            "max_chembl_tanimoto < 0.4 (novel) AND (sa_score > 4.5 OR askcos_step_count is None OR > 8)"
+        ),
+        backedge_target="P1_Generate_reweight_generator_toward_synthesizable_space",
+        severity="hard_fail",
+        notes="Novelty without synthesizability is chemical fiction.",
+    ),
+    FalsifierClass.IP_CHEMSPACE_DRIFT: FalsifierDefinition(
+        falsifier_class=FalsifierClass.IP_CHEMSPACE_DRIFT,
+        layer_scope=["P1.Generate", "P1.Optimize", "P1.Handoff"],
+        trigger_condition=(
+            "Candidate has Tanimoto >= 0.95 to a ZINC-22/Enamine REAL Space catalogued molecule, "
+            "without a documented purchase agreement reference"
+        ),
+        backedge_target="block_export_and_write_audit_incident",
+        severity="block_export",
+        notes="Enamine REAL is free for screening; commercial deliverables require purchase agreement.",
+    ),
+    FalsifierClass.ALPHAFOLD_D_LEAKAGE: FalsifierDefinition(
+        falsifier_class=FalsifierClass.ALPHAFOLD_D_LEAKAGE,
+        layer_scope=["P1.Structure", "P1.Generate", "P1.Screen", "P1.Optimize", "P1.Handoff"],
+        trigger_condition=(
+            "Envelope contains structure_source_tag='alphafold_db_precomputed' OR uniprot_af_id "
+            "matches AF-{UniProt}-F{n} pattern without an OpenFold3 recompute provenance ref"
+        ),
+        backedge_target="block_export_and_write_audit_incident",
+        severity="block_export",
+        notes="AlphaFold DB is Class D non-commercial; production must use OpenFold3 recompute.",
+    ),
+    FalsifierClass.BENCHMARK_LEAKAGE: FalsifierDefinition(
+        falsifier_class=FalsifierClass.BENCHMARK_LEAKAGE,
+        layer_scope=["P1.Screen", "P1.Optimize"],
+        trigger_condition=(
+            "Training-set InChIKeys intersect with TDC ADMET (or any pre-registered) test-split InChIKeys"
+        ),
+        backedge_target="P1_Screen_retrain_with_clean_split_and_revalidate",
+        severity="hard_fail",
+        notes="Test-split leakage inflates ADMET accuracy and invalidates downstream confidence.",
+    ),
+    FalsifierClass.PRETRAINED_HALLUCINATION: FalsifierDefinition(
+        falsifier_class=FalsifierClass.PRETRAINED_HALLUCINATION,
+        layer_scope=["P1.Generate"],
+        trigger_condition=(
+            "Generated SMILES fails sanitization, has non-organic atoms outside whitelist, or "
+            "contains valence-impossible patterns"
+        ),
+        backedge_target="P1_Generate_discard_molecule_and_resample",
+        severity="hard_fail",
+        notes="Generative models can produce chemically impossible structures under distribution shift.",
+    ),
+    FalsifierClass.GPT_ROSALIND_UNAVAILABLE: FalsifierDefinition(
+        falsifier_class=FalsifierClass.GPT_ROSALIND_UNAVAILABLE,
+        layer_scope=["P1.Target"],
+        trigger_condition=(
+            "GPT-Rosalind API returns non-200 status (rate-limit/region-lock/gated) or times out"
+        ),
+        backedge_target="P1_Target_fallback_to_biogpt_and_flag_incomplete_reasoning",
+        severity="soft_fail",
+        notes="Class C research preview; degrade to BioGPT/BioBERT fallback with confidence cap.",
+    ),
+    FalsifierClass.STRUCTURE_CONFIDENCE_BELOW_THRESHOLD: FalsifierDefinition(
+        falsifier_class=FalsifierClass.STRUCTURE_CONFIDENCE_BELOW_THRESHOLD,
+        layer_scope=["P1.Structure"],
+        trigger_condition="Mean pLDDT over binding-site residues < 70.0",
+        backedge_target="P1_Structure_request_experimental_structure_or_ensemble_sampling",
+        severity="confidence_cap",
+        notes="pLDDT 70 is the canonical confidence threshold; binding-site-local stricter than global.",
+    ),
+    FalsifierClass.SELECTIVITY_NOT_ASSESSED: FalsifierDefinition(
+        falsifier_class=FalsifierClass.SELECTIVITY_NOT_ASSESSED,
+        layer_scope=["P1.Screen", "P1.Optimize"],
+        trigger_condition=(
+            "Candidate exits L4 with primary pIC50 >= 7.0 but fewer than 3 off-target predictions logged"
+        ),
+        backedge_target="P1_Screen_run_selectivity_panel_before_L5_promotion",
+        severity="soft_fail",
+        notes="A potent compound without selectivity data is undeliverable to a CRO.",
+    ),
+    FalsifierClass.SYNTHESIS_ROUTE_ABSENT: FalsifierDefinition(
+        falsifier_class=FalsifierClass.SYNTHESIS_ROUTE_ABSENT,
+        layer_scope=["P1.Optimize", "P1.Handoff"],
+        trigger_condition="SA score <= 4.0 (synthesizable) but no ASKCOS route generated/attached",
+        backedge_target="P1_Handoff_run_askcos_before_export",
+        severity="hard_fail",
+        notes="CRO handoff requires an ASKCOS multi-step route, not just an SA score.",
+    ),
+    FalsifierClass.CONFIDENCE_TIER_OVERCLAIM: FalsifierDefinition(
+        falsifier_class=FalsifierClass.CONFIDENCE_TIER_OVERCLAIM,
+        layer_scope=["P1.Handoff"],
+        trigger_condition="Tier A claimed but distinct_model_count < 3, or Tier B with count < 2",
+        backedge_target="P1_Handoff_downgrade_confidence_tier_or_run_missing_models",
+        severity="hard_fail",
+        notes="Tier A is a verifiable claim about ensemble agreement; falsifiable error if overclaimed.",
     ),
 }
 

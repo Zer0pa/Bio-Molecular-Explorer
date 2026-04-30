@@ -28,7 +28,7 @@
       "const": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification."
     },
     "run_id": { "type": "string", "pattern": "^run:[A-Za-z0-9._:-]+$" },
-    "layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6"] },
+    "layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6", "P1.Target", "P1.Structure", "P1.Generate", "P1.Screen", "P1.Optimize", "P1.Handoff"] },
     "tool_adapter": {
       "type": "object",
       "additionalProperties": false,
@@ -36,7 +36,7 @@
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "version": { "type": "string", "minLength": 1 },
-        "backend": { "enum": ["stub", "cpu_lite", "runpod_gpu"] },
+        "backend": { "enum": ["stub", "cpu_lite", "runpod_gpu", "external_api"] },
         "engine": { "type": "string", "minLength": 1 }
       }
     },
@@ -99,7 +99,7 @@
         "additionalProperties": false,
         "required": ["target_layer", "reason", "proposed_constraint"],
         "properties": {
-          "target_layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6"] },
+          "target_layer": { "enum": ["L1", "L2", "L2.5", "L3", "L4", "L5", "L6", "P1.Target", "P1.Structure", "P1.Generate", "P1.Screen", "P1.Optimize", "P1.Handoff"] },
           "reason": { "type": "string", "minLength": 1 },
           "proposed_constraint": { "type": "object" },
           "triggered_by_falsifier_id": { "type": "string" }

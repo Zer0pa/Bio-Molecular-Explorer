@@ -1,0 +1,16 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "target_validation_overreach",
+  "trigger_inputs": {
+    "target_id": "uniprot:Q14524",
+    "gene_symbol": "SCN5A",
+    "genetic_evidence_score": 0.22,
+    "disease_associations": ["EFO:0000999"],
+    "open_targets_genetic_score": 0.04,
+    "gwas_p_value_threshold_met": false,
+    "conclusion_stated": "SCN5A is the primary causal gene for the indicated phenotype",
+    "mendelian_randomization_performed": false,
+    "source_manifest_refs": ["source:PubMed_single_study_2021"]
+  },
+  "note": "Triggers target_validation_overreach (hard_fail): causal disease-target claim made from a single low-quality study (genetic_evidence_score = 0.22). Mendelian randomization not performed. Open Targets genetic score = 0.04 (below minimum threshold). Conclusion overstates causal evidence."
+}

@@ -1,0 +1,17 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "novelty_without_tractability",
+  "trigger_inputs": {
+    "target_id": "uniprot:P56817",
+    "gene_symbol": "BACE1",
+    "novelty_flag": true,
+    "structure_refs": [],
+    "druggability_score": 0.74,
+    "structural_data_available": false,
+    "known_binder_count_chembl": 3,
+    "hit_proposed": true,
+    "generation_method": "DiffSBDD",
+    "structure_basis": "predicted_no_experimental_ref"
+  },
+  "note": "Triggers novelty_without_tractability (hard_fail): novelty_flag = true and structure_refs = [] (no experimental structure). DiffSBDD generation attempted on a predicted-only structure with no experimental validation and only 3 known binders in ChEMBL. Novelty claim without structural tractability evidence."
+}

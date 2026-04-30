@@ -1,0 +1,12 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "confidence_tier_overclaim",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-OVERCLAIM-001",
+    "smiles": "Cc1ccc(NC(=O)c2ccc(CN3CCN(C)CC3)cc2)cc1",
+    "confidence_tier": "A",
+    "distinct_models_count": 1,
+    "generation_method": "REINVENT4_RL"
+  },
+  "note": "Triggers confidence_tier_overclaim: confidence_tier = A claimed but distinct_models_count = 1. Tier A requires at least 3 independent model predictions (Boltz-2, Chemprop, GNINA minimum). Single-model prediction cannot justify Tier A; must be downgraded to C."
+}

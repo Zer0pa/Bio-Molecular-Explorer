@@ -1,0 +1,14 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "gpt_rosalind_unavailable",
+  "trigger_inputs": {
+    "layer": "P1.Target",
+    "reasoner_backend": "gpt_rosalind",
+    "api_status": "service_unavailable",
+    "http_status_code": 503,
+    "fallback_attempted": true,
+    "fallback_engine": "StubReasonerBackend",
+    "gpt_rosalind_used": false
+  },
+  "note": "Triggers gpt_rosalind_unavailable (soft_fail): GPT-Rosalind API returned 503. Fallen back to StubReasonerBackend (canned outputs). P1.Target can continue with stub fallback, but hypothesis synthesis quality is degraded. Severity: soft_fail — pipeline proceeds; output flagged."
+}

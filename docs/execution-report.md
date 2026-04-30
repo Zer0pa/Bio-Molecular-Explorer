@@ -254,7 +254,46 @@ After iteration 2 closed the obvious gaps, the user asked again — "have you do
 
 **Iteration 5 test delta**: 493 → 507 (+14). All green in <5 s.
 
-## Final test count: 507 passing.
+## Iteration 6 (2026-04-30) — Pathway 1 (R&D / Drug Discovery front-end)
+
+The user provided `briefing-pack/Pathway1_RD_DrugDiscovery_PRD_Research.md` (591 lines) as the input research for the upstream front-end. This iteration derives an executable PRD (`PATHWAY1_PRD.md`), implements the full front-end, and integrates it with the existing cardiac wedge.
+
+### What was built
+
+| Addition | Tests | Notes |
+|---|---|---|
+| `PATHWAY1_PRD.md` (274 lines) | n/a | Executable PRD; locks contracts, falsifier extensions, build sequence, acceptance gates. |
+| `LayerName` extended (P1.Target / P1.Structure / P1.Generate / P1.Screen / P1.Optimize / P1.Handoff) + `Backend.EXTERNAL_API` enum value | n/a | Semantic naming; new backend for GPT-Rosalind / Open Targets / TTD / GWAS / PubTator / ChEMBL / ZINC-22. |
+| `NodeType` extended (Target/Hit/Lead/GenerativeProposal/Disease/BindingPocket); `EdgeType` extended (ENCODES_TARGET/HAS_DISEASE_ASSOCIATION/HAS_BINDING_POCKET) | n/a | KG schema extension; K1-K5 still hold. |
+| Falsifier registry +13 R&D classes + 13 detectors | covered by P1 wave | target_validation_overreach, hit_from_noise, lead_without_physchem_feasibility, novelty_without_tractability, ip_chemspace_drift, alphafold_d_leakage, benchmark_leakage, pretrained_hallucination, gpt_rosalind_unavailable, structure_confidence_below_threshold, selectivity_not_assessed, synthesis_route_absent, confidence_tier_overclaim. |
+| Falsification wave Pathway 1 (`tests/falsification/test_falsification_wave_pathway1.py`) | +16 | All 13 new triggers caught/audited/routed/preserved + sanitization checks (AF IDs, leaked InChIKeys, Enamine SMILES never echoed verbatim). |
+| Pathway 1 contracts (P1Target/P1Structure/P1Generate/P1Screen/P1Optimize/P1Handoff) | covered by adapter tests | Pydantic + JSON Schema; cardiac bridge via P1L1ChannelPanelInput. |
+| 6 target fixtures (KCNH2/SCN5A/KCNQ1/CACNA1C/EGFR/BACE1) + JSON Schema | covered by fixtures suite | 4 cardiac for the bridge, 2 non-cardiac for general framing. |
+| 12 hit fixtures (3 per cardiac target) + JSON Schema | covered | Stub canned values; provenance noted. |
+| 18 P1 negative fixtures | covered | One per new R&D-specific class; semantic-alias filenames where appropriate. |
+| KG seed extension `kg/pathway1_seed.jsonl` (+17 nodes / +13 edges) | covered | Combined cardiac+P1 KG: 50 nodes, 35 edges. K1-K5 hold. |
+| Pathway 1 fixtures + KG tests | +57 | schema validation per fixture, boundary string per file, KG load + validate. |
+| P1.Target StubAdapter + ToyAdapter | +17 | Different sort key (genetic_evidence vs druggability) for plug-swap diversity. |
+| P1.Structure StubAdapter + ToyAdapter + RunpodSimAdapter | +24 | AlphaFold-D leakage detector exercised. |
+| P1.Generate StubAdapter + ToyAdapter + RunpodSimAdapter | +29 | 20-SMILES deterministic pool + injection hooks for hallucination/IP-drift triggers. |
+| P1.Screen StubAdapter + ToyAdapter + RunpodSimAdapter | +20 | Per-hit ADMET + selectivity + hit_from_noise drop logic. |
+| P1.Optimize StubAdapter + ToyAdapter | +17 | backend=cpu_lite (BoTorch + Ax + REINVENT 4 RL on CPU); no GPU adapter needed. |
+| P1.Handoff StubAdapter + ToyAdapter + cardiac bridge | +12 | Cardiac targets get `l1_channel_panel_input` populated; non-cardiac get null. |
+| `runs/pathway1_run.py` end-to-end runner | +13 | Walks all 6 P1 layers + cardiac L1 bridge; writes all 12 audit tables; emits handoff packets. |
+| CLI extensions (`run-pathway1`, `cutover-dryrun --layer p1` and `--layer all+p1`) | +6 | run-pathway1 KCNH2 → 20 packets, L1 bridge fired, 379 audit rows; cutover-dryrun --layer p1 PASS for P1.Structure/Generate/Screen. |
+| `docs/DECISIONS.md` D-020 through D-027 | n/a | Documents semantic naming, EXTERNAL_API backend, P1HandoffPacket bridge, sanitization, KG extension, cpu_lite for P1.Optimize, AiiDA deferral, falsifier extension. |
+
+### Iteration 6 test delta: 507 → 717 (+210). All green in <17 s.
+
+Real falsifiers fired during the deterministic stub run: `novelty_without_tractability` triggered ~3 times for KCNH2 (system honoring the falsifier discipline on candidates with low Tanimoto-to-ChEMBL but high SA score / no ASKCOS route).
+
+## Final test count: 717 passing.
+
+The pipeline now has both ends:
+- **Pathway 1 (front-end, this iteration)**: target identification → structure prediction → molecule generation → in silico screening → hit-to-lead refinement → CRO-ready handoff dossier.
+- **Cardiac wedge (existing back-end)**: candidate molecule → multi-current channel panel → PKPD bridge → cardiac evidence packet → PubMed-baseline benchmark.
+
+The front-end's outputs feed the back-end's inputs via the canonical envelope shape and the `l1_channel_panel_input` bridge. Plug-replaceability holds across both halves: every layer has a primary stub, a toy stub, and (where GPU-bound) a runpod-sim adapter. The `cutover-dryrun --layer all+p1` command exercises the full stub→runpod_gpu flip across L1, L2, L5, P1.Structure, P1.Generate, P1.Screen in one shot.
 
 The cutover surface is now fully covered on the CPU side:
 - L1 (DiffDock V2 / Boltz-2 / OpenFE) → L1RunpodSimAdapter
@@ -262,6 +301,9 @@ The cutover surface is now fully covered on the CPU side:
 - L5 (PK-Sim / QSP) → L5RunpodSimAdapter
 - Reasoner (TxGemma 27B) → TxGemmaRunpodSimAdapter
 - Dispatch (Parsl + Runpod) → RunpodSimDispatcher
+- P1.Structure (OpenFold3 / Boltz-2) → P1StructureRunpodSimAdapter
+- P1.Generate (REINVENT 4 / DiffSBDD) → P1GenerateRunpodSimAdapter
+- P1.Screen (Boltz-2 / GNINA / Chemprop v2) → P1ScreenRunpodSimAdapter
 
 The `cutover-dryrun` CLI command exercises all layer flips in one shot and writes a journal entry per layer. At real cutover, replacing the sim adapters with the actual GPU adapters is the only change — the rest of the pipeline does not move.
 

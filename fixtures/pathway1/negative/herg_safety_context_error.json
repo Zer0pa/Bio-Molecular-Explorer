@@ -1,0 +1,18 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "hERG_only_overreach",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-HERG-ONLY-001",
+    "smiles": "O=C(Nc1ccc(F)cc1)c1ccc(N2CCN(C)CC2)cc1",
+    "admet_panel": {
+      "logP": 2.7,
+      "tpsa": 61.0,
+      "BBB_penetration_prob": 0.42,
+      "hERG_IC50_uM": 48.0,
+      "hepatotox_flag": false
+    },
+    "safety_conclusion": "hERG IC50 > 30 uM; molecule does not inhibit hERG; cardiac safety conclusion follows",
+    "multi_current_context_provided": false
+  },
+  "note": "Triggers hERG_only_overreach: safety_conclusion drawn from hERG IC50 alone without multi-current framing (ICaL, INaL). A high hERG IC50 does not constitute a complete cardiac safety assessment. Multi-current context is required."
+}

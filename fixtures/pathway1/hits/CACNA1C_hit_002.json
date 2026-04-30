@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/hit.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "hit_id": "P1-HIT-CACNA1C-002",
+  "target_id": "uniprot:Q13936",
+  "smiles": "COc1cc2c(cc1OC)N(C(C)=O)CCc1cc(OC)c(OC)cc1CC2",
+  "predicted_pIC50": 8.3,
+  "admet_panel": {
+    "logP": 3.1,
+    "tpsa": 79.2,
+    "BBB_penetration_prob": 0.41,
+    "hERG_IC50_uM": 8.9,
+    "hepatotox_flag": false,
+    "oral_bioavailability_prob": 0.58,
+    "esol_logS": -4.0,
+    "lipinski_violations": 0
+  },
+  "selectivity_score": 0.61,
+  "synthetic_accessibility": 4.2,
+  "generation_method": "REINVENT4_RL",
+  "confidence_tier": "B",
+  "stub_provenance_note": "Stub canned hit for CACNA1C. Tetrahydroisoquinoline-like scaffold. Note hERG_IC50_uM = 8.9 uM is within cautionary range for multi-current assessment. ADMET from Chemprop v2 stub; pIC50 from Boltz-2 stub. Real values require Runpod GPU adapters."
+}

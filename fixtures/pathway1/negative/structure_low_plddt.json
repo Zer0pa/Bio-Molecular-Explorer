@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "structure_confidence_below_threshold",
+  "trigger_inputs": {
+    "target_id": "uniprot:P51787",
+    "structure_source": "OpenFold3",
+    "plddt_mean": 42.1,
+    "plddt_threshold": 70.0,
+    "binding_pocket_plddt": 38.7,
+    "structure_basis": "predicted_no_template"
+  },
+  "note": "Triggers structure_confidence_below_threshold: pLDDT mean = 42.1 < threshold 70.0. Binding pocket pLDDT = 38.7 — high structural uncertainty. Confidence is capped; SBDD results from this structure carry reduced reliability. Structure must be replaced with a template-based prediction or experimental PDB entry before advancing."
+}

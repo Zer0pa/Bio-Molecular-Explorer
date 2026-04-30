@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/target.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_id": "uniprot:Q13936",
+  "gene_symbol": "CACNA1C",
+  "protein_name": "Voltage-dependent L-type calcium channel subunit alpha-1C (CaV1.2)",
+  "disease_associations": [
+    "EFO:0004143",
+    "EFO:0000289",
+    "Orphanet:523787"
+  ],
+  "genetic_evidence_score": 0.82,
+  "druggability_score": 0.91,
+  "novelty_flag": false,
+  "structure_refs": [
+    "pdb:6JPB",
+    "pdb:7UHG"
+  ],
+  "source_manifest_refs": [
+    "OpenTargets_v25_06",
+    "TTD_2026",
+    "GWAS_Catalog_EBI",
+    "ChEMBL_36",
+    "UniProt_SwissProt"
+  ],
+  "kg_gene_node_ref": "gene:CACNA1C",
+  "evidence_pillars": {
+    "genetic_evidence_score": 0.82,
+    "literature_hit_count": 2108,
+    "pocket_volume_angstrom3": 1820.0,
+    "ttd_entry_present": true
+  },
+  "stub_provenance_note": "Values are stub canned outputs drawn from Open Targets v25.06, TTD 2026, GWAS Catalog, ChEMBL 36, and UniProt Swiss-Prot; real API integration pending cutover."
+}

@@ -45,6 +45,7 @@ app = typer.Typer(
 
 _SEED_COMPOUNDS = ["dofetilide", "verapamil", "ranolazine"]
 _HELD_OUT = ["quinidine", "moxifloxacin", "diltiazem", "sotalol", "mexiletine", "lidocaine"]
+_PATHWAY1_CARDIAC_TARGETS = ["KCNH2", "SCN5A", "KCNQ1", "CACNA1C"]
 
 
 @app.command("run-cardiac")
@@ -91,6 +92,63 @@ def run_cardiac(
     typer.echo()
     for r in results:
         typer.echo(f"  {r.compound:<14} run_id={r.run_id} packet={r.packet_path.name}")
+
+
+@app.command("run-pathway1")
+def run_pathway1(
+    target: str = typer.Argument(
+        "KCNH2",
+        help="Cardiac target gene (KCNH2/SCN5A/KCNQ1/CACNA1C), 'all' for cardiac wedge, or any non-cardiac gene name.",
+    ),
+    runtime_dir: Path = typer.Option(
+        Path(".runtime-pathway1"),
+        "--runtime",
+        help="Runtime root directory (default: .runtime-pathway1).",
+    ),
+    library_size: int = typer.Option(
+        20, "--library-size", help="Generation library size (>= 10).", min=10, max=200
+    ),
+    max_iterations: int = typer.Option(
+        50, "--max-iterations", help="Max optimization iterations.", min=1, max=500
+    ),
+) -> None:
+    """End-to-end Pathway 1 R&D run.
+
+    Walks P1.Target → P1.Structure → P1.Generate → P1.Screen → P1.Optimize → P1.Handoff,
+    bridges into the existing cardiac L1 panel for cardiac targets, and writes every audit
+    table + KG runtime nodes + handoff packet JSON.
+    """
+    from zer0pa_health.runs import run_pathway1_cardiac_wedge, run_pathway1_compound
+
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    if target == "all":
+        results = run_pathway1_cardiac_wedge(runtime_dir, _PATHWAY1_CARDIAC_TARGETS)
+    else:
+        results = [
+            run_pathway1_compound(
+                target,
+                runtime_root=runtime_dir,
+                library_size=library_size,
+                max_iterations=max_iterations,
+            )
+        ]
+
+    typer.echo("\nRESEARCH USE ONLY. Pathway 1 (R&D / Drug Discovery) run.\n")
+    typer.echo(f"{'target':<10}{'packets':>10}{'l1_bridge':>14}{'audit_rows':>14}{'fails':>10}")
+    typer.echo("-" * 60)
+    for r in results:
+        bridge = "fired" if r.cardiac_l1_envelope_summary else "skipped"
+        n_audit = sum(r.audit_table_counts.values())
+        n_fails = sum(r.falsifier_fail_counts.values())
+        typer.echo(
+            f"{r.target_gene:<10}{r.n_handoff_packets:>10}{bridge:>14}{n_audit:>14}{n_fails:>10}"
+        )
+    typer.echo()
+    for r in results:
+        packets_dir = (
+            r.handoff_packets_paths[0].parent if r.handoff_packets_paths else "n/a"
+        )
+        typer.echo(f"  {r.target_gene:<10} run_id={r.run_id} packets_dir={packets_dir}")
 
 
 @app.command("validate-audit")
@@ -455,14 +513,21 @@ def cutover_dryrun(
     layer: str = typer.Option(
         "all",
         "--layer",
-        help="Which layer to flip: 'L1', 'L2', 'L5', or 'all'.",
+        help=(
+            "Which layer to flip: 'L1', 'L2', 'L5', 'all' (existing pipeline); "
+            "'P1.Structure', 'P1.Generate', 'P1.Screen', 'p1' (Pathway 1 GPU-bound layers); "
+            "'all+p1' (everything)."
+        ),
     ),
 ) -> None:
     """End-to-end Runpod cutover dry-run.
 
-    Flips one layer's adapter from Stub to RunpodSim, runs L1 + L2 + L5 envelopes
-    on dofetilide, verifies envelope shape stable and falsifier classes preserved.
-    Records a journal entry per layer to {runtime_dir}/audit/cutover_dryrun.jsonl.
+    Flips one layer's adapter from Stub to RunpodSim, verifies envelope shape stable
+    and falsifier classes preserved. Records a journal entry per layer to
+    {runtime_dir}/audit/cutover_dryrun.jsonl.
+
+    Existing pipeline layers covered: L1, L2, L5.
+    Pathway 1 layers covered: P1.Structure, P1.Generate, P1.Screen.
 
     Acceptance:
       - Each runpod-sim envelope passes JSON-Schema validation
@@ -494,9 +559,14 @@ def cutover_dryrun(
     journal_path = runtime_dir / "audit" / "cutover_dryrun.jsonl"
     journal_path.parent.mkdir(parents=True, exist_ok=True)
 
-    layers_to_flip = (
-        ["L1", "L2", "L5"] if layer == "all" else [layer]
-    )
+    if layer == "all":
+        layers_to_flip = ["L1", "L2", "L5"]
+    elif layer == "p1":
+        layers_to_flip = ["P1.Structure", "P1.Generate", "P1.Screen"]
+    elif layer == "all+p1":
+        layers_to_flip = ["L1", "L2", "L5", "P1.Structure", "P1.Generate", "P1.Screen"]
+    else:
+        layers_to_flip = [layer]
 
     typer.echo("RESEARCH USE ONLY. Cutover dry-run.\n")
     all_pass = True
@@ -532,6 +602,55 @@ def cutover_dryrun(
                 cl_l_per_h=10.0,
                 vd_l=70.0,
                 ka_per_h=1.0,
+            )
+            env_stub = stub.process(inp)
+            env_sim = sim.process(inp)
+        elif lid == "P1.Structure":
+            from zer0pa_health.pathway1.contracts.p1_structure import P1StructureInput
+            from zer0pa_health.pathway1.layers.structure.adapter import P1StructureStubAdapter
+            from zer0pa_health.runpod_sim.p1_structure_runpod_sim import P1StructureRunpodSimAdapter
+
+            stub = P1StructureStubAdapter()
+            sim = P1StructureRunpodSimAdapter()
+            inp = P1StructureInput(target_id="uniprot:Q12809", gene_symbol="KCNH2")
+            env_stub = stub.process(inp)
+            env_sim = sim.process(inp)
+        elif lid == "P1.Generate":
+            from zer0pa_health.pathway1.contracts.p1_generate import P1GenerateInput
+            from zer0pa_health.pathway1.layers.generate.adapter import P1GenerateStubAdapter
+            from zer0pa_health.runpod_sim.p1_generate_runpod_sim import P1GenerateRunpodSimAdapter
+
+            stub = P1GenerateStubAdapter()
+            sim = P1GenerateRunpodSimAdapter()
+            inp = P1GenerateInput(
+                target_id="uniprot:Q12809",
+                structure_ref="stub:openfold3:KCNH2",
+                pocket_id="pocket:KCNH2_inner_cavity",
+                mode="sbdd",
+                library_size=10,
+            )
+            env_stub = stub.process(inp)
+            env_sim = sim.process(inp)
+        elif lid == "P1.Screen":
+            from zer0pa_health.pathway1.contracts.p1_screen import P1ScreenInput
+            from zer0pa_health.pathway1.layers.screen.adapter import P1ScreenStubAdapter
+            from zer0pa_health.runpod_sim.p1_screen_runpod_sim import P1ScreenRunpodSimAdapter
+
+            stub = P1ScreenStubAdapter()
+            sim = P1ScreenRunpodSimAdapter()
+            inp = P1ScreenInput(
+                target_id="uniprot:Q12809",
+                structure_ref="stub:openfold3:KCNH2",
+                pocket_id="pocket:KCNH2_inner_cavity",
+                candidates=[
+                    {
+                        "candidate_id": f"P1-CUTOVER-{i:03d}",
+                        "smiles": "CCO",
+                        "generation_method": "REINVENT4_RL",
+                    }
+                    for i in range(5)
+                ],
+                target_panel_genes=["KCNH2", "SCN5A", "KCNQ1", "CACNA1C"],
             )
             env_stub = stub.process(inp)
             env_sim = sim.process(inp)

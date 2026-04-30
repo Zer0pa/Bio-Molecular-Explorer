@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "ip_chemspace_drift",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-IP-001",
+    "smiles": "Cc1ccc(NC(=O)c2ccc(CN3CCN(C)CC3)cc2)cc1Nc1nccc(-c2cnnc(N)c2)n1",
+    "zinc22_tanimoto_match": 0.94,
+    "enamine_catalogue_id": "ENAMINE-REDACTED",
+    "tanimoto": 0.94,
+    "purchase_agreement_confirmed": false
+  },
+  "note": "Triggers ip_chemspace_drift (block_export): generated molecule has Tanimoto similarity 0.94 to a catalogued Enamine REAL Space compound. Commercial SMILES is redacted; catalogue_id is recorded. Export blocked until Enamine purchase agreement is confirmed in writing."
+}

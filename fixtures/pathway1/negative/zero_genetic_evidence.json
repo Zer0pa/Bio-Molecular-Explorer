@@ -1,0 +1,13 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "target_validation_overreach",
+  "trigger_inputs": {
+    "target_id": "uniprot:FAKE0001",
+    "gene_symbol": "HYPOX1",
+    "genetic_evidence_score": 0.0,
+    "druggability_score": 0.85,
+    "disease_associations": ["EFO:0004143"],
+    "source_manifest_refs": []
+  },
+  "note": "Triggers target_validation_overreach: genetic_evidence_score = 0.0 with empty source_manifest_refs. Target lacks causal genomic support. Proceeding to structure or generation without validated target evidence violates P1.Target acceptance gate."
+}

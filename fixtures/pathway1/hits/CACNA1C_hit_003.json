@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/hit.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "hit_id": "P1-HIT-CACNA1C-003",
+  "target_id": "uniprot:Q13936",
+  "smiles": "O=C(Nc1nc2ccccc2s1)c1ccc(CN2CCC(O)CC2)cc1",
+  "predicted_pIC50": 6.8,
+  "admet_panel": {
+    "logP": 2.6,
+    "tpsa": 90.4,
+    "BBB_penetration_prob": 0.29,
+    "hERG_IC50_uM": 52.3,
+    "hepatotox_flag": false,
+    "oral_bioavailability_prob": 0.70,
+    "esol_logS": -3.2,
+    "lipinski_violations": 0
+  },
+  "selectivity_score": 0.78,
+  "synthetic_accessibility": 3.3,
+  "generation_method": "DiffSBDD",
+  "confidence_tier": "C",
+  "stub_provenance_note": "Stub canned hit for CACNA1C. Benzothiazole scaffold. High hERG_IC50_uM (52.3 uM) indicates favorable selectivity vs hERG at this stage. ADMET from Chemprop v2 stub; pIC50 from Boltz-2 stub. Real values require Runpod GPU adapters."
+}

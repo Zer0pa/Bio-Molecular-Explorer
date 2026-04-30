@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/fixtures/pathway1/hit.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "hit_id": "P1-HIT-SCN5A-003",
+  "target_id": "uniprot:Q14524",
+  "smiles": "CC(=O)Nc1ccc(OCC(=O)N2CCC(F)(F)CC2)cc1",
+  "predicted_pIC50": 6.5,
+  "admet_panel": {
+    "logP": 1.8,
+    "tpsa": 82.3,
+    "BBB_penetration_prob": 0.22,
+    "hERG_IC50_uM": 56.1,
+    "hepatotox_flag": false,
+    "oral_bioavailability_prob": 0.79,
+    "esol_logS": -2.7,
+    "lipinski_violations": 0
+  },
+  "selectivity_score": 0.77,
+  "synthetic_accessibility": 2.9,
+  "generation_method": "DiffSBDD",
+  "confidence_tier": "C",
+  "stub_provenance_note": "Stub canned hit for SCN5A. Lower logP and high TPSA reduce BBB penetration (CNS selectivity). ADMET from Chemprop v2 stub; pIC50 from Boltz-2 stub. Real values require Runpod GPU adapters."
+}

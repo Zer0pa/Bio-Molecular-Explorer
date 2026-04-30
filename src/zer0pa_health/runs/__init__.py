@@ -14,6 +14,11 @@ from zer0pa_health.runs.cardiac_run import (
     run_cardiac_wedge,
 )
 from zer0pa_health.runs.l6_orchestrated_run import L6RunResult, run_cardiac_via_l6_router
+from zer0pa_health.runs.pathway1_run import (
+    Pathway1RunResult,
+    run_pathway1_cardiac_wedge,
+    run_pathway1_compound,
+)
 
 __all__ = [
     "CardiacRunResult",
@@ -21,4 +26,7 @@ __all__ = [
     "run_cardiac_compound",
     "run_cardiac_wedge",
     "run_cardiac_via_l6_router",
+    "Pathway1RunResult",
+    "run_pathway1_compound",
+    "run_pathway1_cardiac_wedge",
 ]

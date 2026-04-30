@@ -1,0 +1,16 @@
+{
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "target_falsifier": "pretrained_hallucination",
+  "trigger_inputs": {
+    "hit_id": "P1-HIT-KCNH2-HALLUC-001",
+    "smiles": "C1CC2=CC=CC=C2N1",
+    "generation_method": "REINVENT4_RL",
+    "provenance_check": {
+      "structure_found_in_pretrain_corpus_exact_match": true,
+      "pretrain_corpus": "ChEMBL_36_pretraining",
+      "memorization_flag": true
+    },
+    "predicted_pIC50": 9.1
+  },
+  "note": "Triggers pretrained_hallucination: generated SMILES is an exact memorization from the pretraining corpus (ChEMBL_36). The model reproduced a known molecule rather than generating novel chemical matter. High predicted pIC50 is suspect — molecule is from training distribution."
+}

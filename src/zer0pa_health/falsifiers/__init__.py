@@ -34,6 +34,20 @@ from zer0pa_health.falsifiers.detectors import (
     detect_pubmed_no_value_add,
     detect_silent_falsifier_loss,
     detect_license_drift,
+    # Pathway 1
+    detect_target_validation_overreach,
+    detect_hit_from_noise,
+    detect_lead_without_physchem_feasibility,
+    detect_novelty_without_tractability,
+    detect_ip_chemspace_drift,
+    detect_alphafold_d_leakage,
+    detect_benchmark_leakage,
+    detect_pretrained_hallucination,
+    detect_gpt_rosalind_unavailable,
+    detect_structure_confidence_below_threshold,
+    detect_selectivity_not_assessed,
+    detect_synthesis_route_absent,
+    detect_confidence_tier_overclaim,
 )
 
 __all__ = [
@@ -60,4 +74,18 @@ __all__ = [
     "detect_pubmed_no_value_add",
     "detect_silent_falsifier_loss",
     "detect_license_drift",
+    # Pathway 1
+    "detect_target_validation_overreach",
+    "detect_hit_from_noise",
+    "detect_lead_without_physchem_feasibility",
+    "detect_novelty_without_tractability",
+    "detect_ip_chemspace_drift",
+    "detect_alphafold_d_leakage",
+    "detect_benchmark_leakage",
+    "detect_pretrained_hallucination",
+    "detect_gpt_rosalind_unavailable",
+    "detect_structure_confidence_below_threshold",
+    "detect_selectivity_not_assessed",
+    "detect_synthesis_route_absent",
+    "detect_confidence_tier_overclaim",
 ]

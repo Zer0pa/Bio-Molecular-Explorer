@@ -27,12 +27,20 @@ class LayerName(str, Enum):
     L4 = "L4"
     L5 = "L5"
     L6 = "L6"
+    # Pathway 1 — R&D / Drug Discovery front-end (PATHWAY1_PRD.md §2)
+    P1_TARGET = "P1.Target"
+    P1_STRUCTURE = "P1.Structure"
+    P1_GENERATE = "P1.Generate"
+    P1_SCREEN = "P1.Screen"
+    P1_OPTIMIZE = "P1.Optimize"
+    P1_HANDOFF = "P1.Handoff"
 
 
 class Backend(str, Enum):
     STUB = "stub"
     CPU_LITE = "cpu_lite"
     RUNPOD_GPU = "runpod_gpu"
+    EXTERNAL_API = "external_api"  # Pathway 1: Open Targets, TTD, GPT-Rosalind, ChEMBL, ZINC-22, etc.
 
 
 class ConfidenceBand(str, Enum):

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zer0pa.ai/schemas/fixtures/pathway1/hit.schema.json",
+  "title": "Zer0pa Health Pathway 1 Hit Fixture",
+  "description": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "type": "object",
+  "required": [
+    "research_boundary",
+    "hit_id",
+    "target_id",
+    "smiles",
+    "predicted_pIC50",
+    "admet_panel",
+    "selectivity_score",
+    "synthetic_accessibility",
+    "generation_method",
+    "confidence_tier",
+    "stub_provenance_note"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "research_boundary": {
+      "type": "string",
+      "const": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification."
+    },
+    "hit_id": {
+      "type": "string",
+      "pattern": "^P1-HIT-[A-Z0-9]+-[0-9]+$",
+      "description": "Hit identifier in the form P1-HIT-<GENE>-<NNN>"
+    },
+    "target_id": {
+      "type": "string",
+      "pattern": "^uniprot:[A-Z0-9_]+$"
+    },
+    "smiles": {
+      "type": "string",
+      "minLength": 1
+    },
+    "predicted_pIC50": {
+      "type": "number",
+      "minimum": 4,
+      "maximum": 12
+    },
+    "admet_panel": {
+      "type": "object",
+      "required": [
+        "logP",
+        "tpsa",
+        "BBB_penetration_prob",
+        "hERG_IC50_uM",
+        "hepatotox_flag"
+      ],
+      "properties": {
+        "logP": {
+          "type": "number"
+        },
+        "tpsa": {
+          "type": "number",
+          "minimum": 0
+        },
+        "BBB_penetration_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "hERG_IC50_uM": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "hepatotox_flag": {
+          "type": "boolean"
+        },
+        "oral_bioavailability_prob": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "esol_logS": {
+          "type": "number"
+        },
+        "lipinski_violations": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "selectivity_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "synthetic_accessibility": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "generation_method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence_tier": {
+      "type": "string",
+      "enum": ["A", "B", "C"]
+    },
+    "stub_provenance_note": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

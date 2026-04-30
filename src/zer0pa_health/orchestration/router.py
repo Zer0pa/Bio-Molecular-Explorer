@@ -37,6 +37,7 @@ class RouterStep:
     envelope: LayerEnvelope
     backedges_emitted: int
     falsifier_classes_active: list[str] = field(default_factory=list)
+    is_reexecution: bool = False  # True when this step is a back-edge-driven re-run
 
 
 @dataclass
@@ -46,6 +47,7 @@ class RouterReport:
     promote_count: int
     block_count: int
     backedge_count: int
+    backedge_reexecutions: int
     fatal_falsifiers_blocked_export: list[str]
     final_envelope: LayerEnvelope | None
 
@@ -147,12 +149,63 @@ class L6Router:
                 break
             current = successors[0]
 
+        # Drain pending back-edges by re-executing target layers with the proposed
+        # constraint. Cap re-executions so a misbehaving layer can't loop forever.
+        # Per-layer re-execution budget = 2 by default (one rerun per back-edge wave).
+        per_layer_reexec_budget: dict[str, int] = {}
+        max_reexec = 12  # global cap
+        backedge_reexecutions = 0
+        while self.graph.backedges.pending() and backedge_reexecutions < max_reexec:
+            pending_by_layer = self.graph.backedges.pending()
+            target_layer = next(iter(pending_by_layer.keys()))
+            nodes = self.graph.nodes_by_layer(target_layer)
+            if not nodes:
+                # No node registered for this layer; drain the queue and stop
+                self.graph.backedges.pop_for(target_layer)
+                continue
+
+            budget = per_layer_reexec_budget.get(target_layer, 2)
+            if budget <= 0:
+                # Budget exhausted; drain the queue without re-execution
+                self.graph.backedges.pop_for(target_layer)
+                continue
+
+            target_node = nodes[0]
+            pending = self.graph.backedges.pop_for(target_layer)
+            try:
+                re_envelope = target_node.handler(
+                    last_input,
+                    run_id=rid,
+                    pending_backedges=pending,
+                )
+            except Exception:  # noqa: BLE001 — re-execution must not crash the router
+                break
+
+            re_classes = [it.falsifier_class for it in re_envelope.falsifier.items]
+            steps.append(
+                RouterStep(
+                    layer=target_node.layer,
+                    decision=Decision.REROUTE,
+                    envelope=re_envelope,
+                    backedges_emitted=len(re_envelope.back_edges),
+                    falsifier_classes_active=re_classes,
+                    is_reexecution=True,
+                )
+            )
+            for be in re_envelope.back_edges:
+                self.graph.backedges.push(be)
+                backedge_count += 1
+            per_layer_reexec_budget[target_layer] = budget - 1
+            backedge_reexecutions += 1
+            last_envelope = re_envelope
+
         return RouterReport(
             run_id=rid,
             steps=steps,
             promote_count=promote_count,
             block_count=block_count,
             backedge_count=backedge_count,
+            backedge_reexecutions=backedge_reexecutions,
             fatal_falsifiers_blocked_export=blocked_export,
             final_envelope=last_envelope,
         )

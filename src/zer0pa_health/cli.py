@@ -368,6 +368,83 @@ def health_check(
     typer.echo("HEALTH CHECK PASSED")
 
 
+@app.command("export-finetune-corpus")
+def export_finetune_corpus(
+    runtime_dir: Path = typer.Argument(..., help="Runtime root containing reasoner_queue/runs/"),
+    out_path: Path = typer.Option(
+        Path("finetune_corpus.jsonl"),
+        "--out",
+        help="Output JSONL of (positives, negatives) for fine-tuning",
+    ),
+) -> None:
+    """Walk all reasoner_queue/runs/<rid>/tuples.jsonl and emit a corpus split into
+    fine-tune positives (passed + ground-truth available/human-adjudication) and
+    fine-tune negatives (failed status OR clinical_overclaim class).
+
+    Each output line: {"split": "positive|negative", "tuple": <full tuple JSON>}.
+    """
+    from zer0pa_health.reasoner.queue import ReasonerQueue
+    from zer0pa_health.reasoner.tuple_schema import (
+        GroundTruthStatus,
+        GroundTruthType,
+        ReasonerFalsifierClass,
+        ReasonerFalsifierStatus,
+    )
+
+    runs_dir = runtime_dir / "reasoner_queue" / "runs"
+    if not runs_dir.is_dir():
+        typer.echo(f"missing: {runs_dir}", err=True)
+        raise typer.Exit(1)
+
+    n_pos = 0
+    n_neg = 0
+    n_skipped = 0
+
+    with out_path.open("w", encoding="utf-8") as out_fh:
+        for run_dir in sorted(runs_dir.iterdir()):
+            if not run_dir.is_dir():
+                continue
+            queue_path = run_dir / "tuples.jsonl"
+            if not queue_path.exists():
+                continue
+            queue = ReasonerQueue(
+                queue_path=runtime_dir / "reasoner_queue", run_id=run_dir.name
+            )
+            for t in queue.iter():
+                # Positive eligibility:
+                is_positive = (
+                    t.falsifier.status == ReasonerFalsifierStatus.PASSED
+                    and (
+                        t.ground_truth.status == GroundTruthStatus.AVAILABLE
+                        or t.ground_truth.type == GroundTruthType.HUMAN_ADJUDICATION
+                    )
+                )
+                # Negative eligibility:
+                is_negative = (
+                    t.falsifier.status == ReasonerFalsifierStatus.FAILED
+                    or t.falsifier.falsifier_class == ReasonerFalsifierClass.CLINICAL_OVERCLAIM
+                )
+                if is_positive:
+                    out_fh.write(
+                        json.dumps({"split": "positive", "tuple": t.model_dump(mode="json")})
+                        + "\n"
+                    )
+                    n_pos += 1
+                elif is_negative:
+                    out_fh.write(
+                        json.dumps({"split": "negative", "tuple": t.model_dump(mode="json")})
+                        + "\n"
+                    )
+                    n_neg += 1
+                else:
+                    n_skipped += 1
+
+    typer.echo(f"wrote {out_path}")
+    typer.echo(f"  positives: {n_pos}")
+    typer.echo(f"  negatives: {n_neg}")
+    typer.echo(f"  skipped (neither): {n_skipped}")
+
+
 def main() -> int:
     app()
     return 0

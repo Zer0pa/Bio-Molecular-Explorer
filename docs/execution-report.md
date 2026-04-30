@@ -234,7 +234,17 @@ After iteration 2 closed the obvious gaps, the user asked again — "have you do
 
 **Iteration 3 test delta**: 464 → 477 (+13). All green in <10 s.
 
-## Final test count: 477 passing.
+## Iteration 4 additions (2026-04-30)
+
+| Addition | Tests | Notes |
+|---|---|---|
+| L6Router backedge re-execution loop | +4 | `RouterStep.is_reexecution` flag added; per-layer budget 2 + global cap 12; orphan back-edges drained safely. The router now actually walks back when an upstream constraint is proposed. |
+| `runpod_sim/L2RunpodSimAdapter` + `L5RunpodSimAdapter` | +9 | Symmetry with L1 sim. Three layers now have a CPU-side `backend=runpod_gpu` simulation, so the cutover invariant is testable for L1, L2, and L5 independently. |
+| `zer0pa-health export-finetune-corpus` CLI | +3 | Walks reasoner_queue/runs/<rid>/tuples.jsonl across all runs, splits into PRD-section-8-eligible positives (passed + ground_truth.available OR type.human_adjudication) and negatives (failed status OR clinical_overclaim class). Stub-only runs legitimately produce empty corpora until curated ground truth arrives. |
+
+**Iteration 4 test delta**: 477 → 493 (+16). All green in <10 s.
+
+## Final test count: 493 passing.
 
 What this means concretely:
 

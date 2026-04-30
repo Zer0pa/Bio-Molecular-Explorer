@@ -95,6 +95,10 @@ class StateGraph:
             if e.src == name and e.gate(last_envelope):
                 yield e.dst
 
+    def nodes_by_layer(self, layer: str) -> list[StateNode]:
+        """Return all registered nodes whose `layer` field matches the given layer string."""
+        return [n for n in self._nodes.values() if n.layer == layer]
+
     @staticmethod
     def gate_pass_only(env: LayerEnvelope) -> bool:
         return env.falsifier.status == FalsifierStatus.PASS

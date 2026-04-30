@@ -12,5 +12,11 @@ identical; the falsification gate is `GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPT
 """
 
 from zer0pa_health.runpod_sim.l1_runpod_sim import L1RunpodSimAdapter
+from zer0pa_health.runpod_sim.l2_runpod_sim import L2RunpodSimAdapter
+from zer0pa_health.runpod_sim.l5_runpod_sim import L5RunpodSimAdapter
 
-__all__ = ["L1RunpodSimAdapter"]
+__all__ = [
+    "L1RunpodSimAdapter",
+    "L2RunpodSimAdapter",
+    "L5RunpodSimAdapter",
+]

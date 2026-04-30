@@ -191,20 +191,23 @@ def _build_toy_state_graph(
 
 
 def test_l6_router_toy_chain_executes_all_layers():
-    """Toy chain executes all 6 layers without crashing."""
+    """Toy chain executes all 6 layers without crashing.
+
+    Note: re-executions triggered by back-edges may add additional steps
+    beyond the initial 6-layer forward walk; the assertion checks coverage,
+    not exact length.
+    """
     graph = _build_toy_state_graph()
     router = L6Router(graph)
     report = router.execute(start_node="l1", run_id="run:toy-chain-test", max_iters=64)
 
-    # All 6 layers should be visited
-    layers_visited = [step.layer for step in report.steps]
-    assert len(layers_visited) == 6, f"Expected 6 layers, got {len(layers_visited)}: {layers_visited}"
-    assert "L1" in layers_visited
-    assert "L2.5" in layers_visited
-    assert "L2" in layers_visited
-    assert "L3" in layers_visited
-    assert "L4" in layers_visited
-    assert "L5" in layers_visited
+    # All 6 layers must appear in the visit set (forward chain + any re-executions)
+    layers_visited = {step.layer for step in report.steps}
+    assert layers_visited == {"L1", "L2.5", "L2", "L3", "L4", "L5"}, (
+        f"layers_visited={layers_visited}"
+    )
+    # At least 6 transitions (one per forward layer); re-executions allowed.
+    assert len(report.steps) >= 6
 
 
 def test_l6_router_toy_chain_at_least_one_promotion():

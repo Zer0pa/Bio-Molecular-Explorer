@@ -155,22 +155,108 @@ def detect_sbml_failure(
     return _item(FalsifierClass.SBML_SCHEMA_FAILURE, FalsifierStatus.PASS)
 
 
+_HERG_ONLY_PHRASES = (
+    "herg block alone",
+    "hERG IC50 alone",
+    "hERG-only",
+    "hERG only",
+    "based solely on herg",
+    "based solely on hERG",
+    "hERG inhibition is the dominant",
+    "hERG inhibition is the primary risk",
+    "tdp risk from herg",
+    "torsade risk from herg",
+    "torsades risk from herg",
+    "proarrhythmia risk from herg",
+    "qt prolongation due to herg",  # without "and" / "with" companion currents
+    "rank by herg",
+    "ranked by herg",
+)
+
+_MULTI_CURRENT_HEDGE_PHRASES = (
+    "multi-current",
+    "multi current",
+    "ikr and ical",
+    "ikr and ina",
+    "ikr and iks",
+    "ikr+ical",
+    "cipa",
+    "ipsc-cm",
+    "or-d",
+    "tor-ord",
+    "in the context of",
+)
+
+
 def detect_herg_only_overreach(
-    panel_genes_present: list[str], explicit_absence: list[str]
+    panel_genes_present: list[str],
+    explicit_absence: list[str],
+    *,
+    claim_text: str = "",
+    ranking: list[str] | None = None,
 ) -> EnvelopeFalsifierItem:
-    """Pass iff KCNH2 is present AND (SCN5A, KCNQ1, CACNA1C all present or in explicit_absence)."""
+    """Detect hERG-only-overreach.
+
+    A claim or panel commits hERG-only-overreach when ANY of the following holds:
+
+    1. **Panel-only check (legacy)**: KCNH2/hERG is present in the panel but
+       SCN5A, KCNQ1, or CACNA1C is missing AND not recorded in explicit_absence.
+
+    2. **Claim-text semantics**: `claim_text` contains a phrase signalling that
+       hERG block alone is being used as the proarrhythmia/TdP/QT verdict
+       (e.g., "based solely on hERG", "ranked by hERG", "hERG-only ranking"),
+       AND no multi-current hedge phrase ("multi-current", "CiPA", "and ICaL",
+       "in the context of...") appears in the same text.
+
+    3. **Ranking semantics**: `ranking` is provided and the top ranked entity
+       is justified by hERG signal alone (heuristic: a ranking item containing
+       "hERG" without an accompanying companion-current term in its rationale).
+
+    Evidence enumerates the failing condition; PASS otherwise.
+    """
     required_companions = {"SCN5A", "KCNQ1", "CACNA1C"}
     panel = set(panel_genes_present)
     absence = set(explicit_absence)
     missing = required_companions - panel - absence
+
+    failures: list[str] = []
+
+    # 1. Panel-only check
     if "KCNH2" in panel and missing:
+        failures.append(
+            "panel: KCNH2 present but missing companions "
+            f"{sorted(missing)}; no explicit_absence record"
+        )
+
+    # 2. Claim-text semantics
+    if claim_text:
+        text_lower = claim_text.lower()
+        herg_only_hits = [p for p in _HERG_ONLY_PHRASES if p.lower() in text_lower]
+        multi_hedges_hits = [p for p in _MULTI_CURRENT_HEDGE_PHRASES if p in text_lower]
+        if herg_only_hits and not multi_hedges_hits:
+            failures.append(
+                f"claim_text: {len(herg_only_hits)} hERG-only phrase(s) detected with "
+                f"no multi-current hedge; phrase_count={len(herg_only_hits)}"
+            )
+
+    # 3. Ranking semantics
+    if ranking:
+        for item in ranking[:5]:
+            item_lower = str(item).lower()
+            if "herg" in item_lower:
+                companions = ("ical", "ina", "inal", "iks", "kcnq1", "scn5a", "cacna1c")
+                if not any(c in item_lower for c in companions):
+                    failures.append(
+                        f"ranking: 'hERG' appears in ranked item {item!r} without "
+                        "companion-current rationale"
+                    )
+                    break
+
+    if failures:
         return _item(
             FalsifierClass.HERG_ONLY_OVERREACH,
             FalsifierStatus.FAIL,
-            [
-                f"KCNH2/hERG present but missing multi-current companions: {sorted(missing)}; "
-                "no explicit_absence record either."
-            ],
+            failures,
         )
     return _item(FalsifierClass.HERG_ONLY_OVERREACH, FalsifierStatus.PASS)
 

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../schemas/contracts/l1.fep.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "purpose": "Parked-work canned reference for L1 FEP/RBFE output (OpenFE 1.7 or equivalent).",
+  "ligand_a_inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+  "ligand_b_inchikey": "SGTNSNPWRIOYBX-UHFFFAOYSA-N",
+  "target_gene": "KCNH2",
+  "ddg_kcal_mol": -1.8,
+  "ddg_uncertainty_kcal_mol": 0.6,
+  "convergence_ok": true,
+  "method": "RBFE",
+  "parked_work": {
+    "id": "parked_l1_real_openfe_rbfe",
+    "blocker": "requires A100 GPU + OpenFE 1.7 + 3h compute per ligand pair",
+    "promotion_gate": "GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER",
+    "note": "Values are stub canned outputs."
+  }
+}

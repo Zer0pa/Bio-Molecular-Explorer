@@ -11,12 +11,16 @@ where:
     outward_block = mean fractional block of IKr + IKs
     inward_block  = mean fractional block of INaL + ICaL
 
-INTERPRETATION:
+INTERPRETATION (research-only indicator; NOT a clinical safety claim):
   - HIGHER score → more outward currents blocked relative to inward currents
-    → less repolarisation reserve → greater APD prolongation tendency
-    → greater research-only proarrhythmia risk indicator.
+    → less repolarisation reserve → greater APD-prolongation tendency in
+    research-only QSP/CiPA-style multi-current models.
   - LOWER (more negative) score → more inward current block relative to outward
-    → can shorten or normalise APD → potentially lower TdP risk in research models.
+    → APD-prolongation tendency reduced in the same research models.
+
+  This is an INDICATOR for downstream researcher inspection, not a verdict.
+  No clinical, diagnostic, prescribing, or safety claim is implied or supported
+  by this score in any direction.
 
 Canonical examples:
   - Dofetilide: blocks only IKr (outward), score ≈ +IKr_block > 0 (high risk indicator).

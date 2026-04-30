@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../schemas/contracts/l1.docking.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "purpose": "Parked-work canned reference for L1 docking output (DiffDock V2 or equivalent).",
+  "molecule_inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+  "target_gene": "KCNH2",
+  "target_current": "IKr",
+  "poses": [
+    {"pose_index": 0, "confidence": 0.55, "estimated_binding_kcal_mol": -7.2, "structure_basis": "stub_canned_for_parked_work"},
+    {"pose_index": 1, "confidence": 0.50, "estimated_binding_kcal_mol": -6.9, "structure_basis": "stub_canned_for_parked_work"},
+    {"pose_index": 2, "confidence": 0.45, "estimated_binding_kcal_mol": -6.5, "structure_basis": "stub_canned_for_parked_work"}
+  ],
+  "structure_confidence": 0.45,
+  "binding_confidence": 0.45,
+  "parked_work": {
+    "id": "parked_l1_real_diffdock_v2",
+    "blocker": "requires Runpod GPU + DiffDock V2 container",
+    "promotion_gate": "GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER",
+    "note": "Values are stub canned outputs; replace with real DiffDock V2 outputs at cutover."
+  }
+}

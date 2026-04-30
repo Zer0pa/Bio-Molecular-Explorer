@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/morphology.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_inchikey": "VLPIATFUUWWMKC-UHFFFAOYSA-N",
+  "compound_name": "mexiletine",
+  "extractor": {
+    "name": "PTBXL_plus_morphology_extractor_stub",
+    "version": "0.1.0-locked-2026-04",
+    "reference_table": "research_only_fixed_table",
+    "notes": "Locked stub values; arrays are NOT real PTB-XL+ data."
+  },
+  "fiducials": {
+    "QT": [0.9, 1.4, 1.8, 1.2, 1.6, 2.0, 1.0, 1.5, 1.7, 1.3],
+    "QRS": [0.5, 0.8, 0.7, 1.0, 0.8, 0.9, 0.7, 1.0, 0.8, 0.9],
+    "PR": [0.9, 1.2, 1.1, 1.3, 1.2, 1.1, 1.4, 1.2, 1.3, 1.1],
+    "ST": [6.5, 8.5, 7.5, 9.5, 8.0, 9.0, 7.5, 8.5, 8.0, 9.5],
+    "T_amplitude": [5.5, 7.0, 6.0, 7.5, 6.5, 7.0, 6.0, 7.5, 6.5, 7.0]
+  },
+  "provenance": {
+    "generated_at_utc": "2026-04-30T00:00:00Z",
+    "note": "Compound-class research stub: Class IB sodium-channel blocker. Locked literal arrays."
+  },
+  "expected_morphology_gate_passes": true
+}

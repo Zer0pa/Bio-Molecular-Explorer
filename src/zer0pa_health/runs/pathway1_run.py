@@ -13,7 +13,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from zer0pa_health.audit import AuditTable, AuditValidator, AuditWriter
+from zer0pa_health.audit import (
+    AuditTable,
+    AuditValidator,
+    AuditWriter,
+    reconcile_ledger_audit_kg,
+)
+from zer0pa_health.falsifiers import FalsifierClass, FalsifierLedger
 from zer0pa_health.contracts.l1 import (
     L1ChannelGene,
     L1ChannelPanelInput,
@@ -97,8 +103,14 @@ def _audit_envelope(
     run_id: str,
     layer: str,
     params: dict[str, Any],
+    led: FalsifierLedger | None = None,
 ) -> None:
-    """Write the cross-cutting audit rows that every layer envelope generates."""
+    """Write the cross-cutting audit rows that every layer envelope generates.
+
+    When `led` is provided, falsifier items are also mirrored to the operational
+    ledger view; the ledger reuses the envelope's falsifier_id so reconciliation
+    holds.
+    """
     adapter = env.tool_adapter
     aw.append(
         AuditTable.MODEL_TOOLS,
@@ -185,6 +197,20 @@ def _audit_envelope(
                 "evidence": list(it.evidence),
             },
         )
+        # Mirror to the operational FalsifierLedger view (D-028 reconciliation).
+        if led is not None:
+            try:
+                led.emit(
+                    run_id=run_id,
+                    falsifier_class=FalsifierClass(it.falsifier_class),
+                    layer=layer,
+                    status=it.status,
+                    evidence=list(it.evidence),
+                    falsifier_id=it.falsifier_id,
+                )
+            except ValueError:
+                # Falsifier_class string not in the enum; record raw to audit only.
+                pass
 
 
 def _kg_emit_envelope(kg: KGStore, env: LayerEnvelope, run_id: str, layer: str) -> int:
@@ -288,6 +314,9 @@ def run_pathway1_compound(
         p.mkdir(parents=True, exist_ok=True)
 
     aw = AuditWriter(audit_root, rid)
+    # Operational FalsifierLedger view (mirrored from audit/falsifiers.jsonl per envelope).
+    # `reconcile_ledger_audit_kg` (called below) verifies set-equality with audit IDs.
+    led = FalsifierLedger(audit_root / "runs" / rid / "falsifier_ledger.jsonl")
     kg = KGStore(kg_root)
     if not (kg_root / "nodes.jsonl").exists():
         kg.load_seed(KG_CARDIAC_SEED)
@@ -328,7 +357,7 @@ def run_pathway1_compound(
         P1TargetInput(disease_ids=_CARDIAC_DISEASE_IDS, max_targets=10),
         run_id=rid,
     )
-    _audit_envelope(aw, e_target, rid, "P1.Target", {"disease_ids": _CARDIAC_DISEASE_IDS})
+    _audit_envelope(aw, e_target, rid, "P1.Target", {"disease_ids": _CARDIAC_DISEASE_IDS}, led=led)
     _kg_emit_envelope(kg, e_target, rid, "P1.Target")
     layer_outputs["P1.Target"] = e_target.output
 
@@ -337,7 +366,7 @@ def run_pathway1_compound(
         P1StructureInput(target_id=target_id, gene_symbol=target_gene),
         run_id=rid,
     )
-    _audit_envelope(aw, e_structure, rid, "P1.Structure", {"target_id": target_id})
+    _audit_envelope(aw, e_structure, rid, "P1.Structure", {"target_id": target_id}, led=led)
     _kg_emit_envelope(kg, e_structure, rid, "P1.Structure")
     layer_outputs["P1.Structure"] = e_structure.output
     structure_dossier = e_structure.output["dossier"]
@@ -353,7 +382,7 @@ def run_pathway1_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_generate, rid, "P1.Generate", {"library_size": library_size})
+    _audit_envelope(aw, e_generate, rid, "P1.Generate", {"library_size": library_size}, led=led)
     _kg_emit_envelope(kg, e_generate, rid, "P1.Generate")
     layer_outputs["P1.Generate"] = e_generate.output
 
@@ -368,7 +397,7 @@ def run_pathway1_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_screen, rid, "P1.Screen", {"n_candidates": len(e_generate.output["candidates"])})
+    _audit_envelope(aw, e_screen, rid, "P1.Screen", {"n_candidates": len(e_generate.output["candidates"])}, led=led)
     _kg_emit_envelope(kg, e_screen, rid, "P1.Screen")
     layer_outputs["P1.Screen"] = e_screen.output
 
@@ -382,7 +411,7 @@ def run_pathway1_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_optimize, rid, "P1.Optimize", {"max_iterations": max_iterations})
+    _audit_envelope(aw, e_optimize, rid, "P1.Optimize", {"max_iterations": max_iterations}, led=led)
     _kg_emit_envelope(kg, e_optimize, rid, "P1.Optimize")
     layer_outputs["P1.Optimize"] = e_optimize.output
 
@@ -398,7 +427,7 @@ def run_pathway1_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_handoff, rid, "P1.Handoff", {"target_gene": target_gene})
+    _audit_envelope(aw, e_handoff, rid, "P1.Handoff", {"target_gene": target_gene}, led=led)
     _kg_emit_envelope(kg, e_handoff, rid, "P1.Handoff")
     layer_outputs["P1.Handoff"] = e_handoff.output
 
@@ -430,12 +459,22 @@ def run_pathway1_compound(
                 ]
             )
             l1_adapter = L1StubAdapter()
+            # Pass a synthesized inchikey so the L1 stub records something
+            # bound to this Pathway 1 candidate. Real Pathway 1 candidates have
+            # NO canned channel panel (they are novel), so the L1 envelope's
+            # panel will fall back to deterministic stubs with explicit_absence
+            # set on every gene. That is the honest representation; we will not
+            # invent canned panel data downstream.
+            p1_synthetic_inchikey = (
+                "P1SYNTH-" + first_packet["candidate_id"][:14].upper().replace(":", "_")
+            )
             e_cardiac_l1 = l1_adapter.channel_panel(
                 l1_panel_input,
                 ligand_smiles=first_packet["smiles"],
+                ligand_inchikey=p1_synthetic_inchikey,
                 run_id=rid,
             )
-            _audit_envelope(aw, e_cardiac_l1, rid, "L1", {"target_panel_genes_count": len(l1_input["targets"])})
+            _audit_envelope(aw, e_cardiac_l1, rid, "L1", {"target_panel_genes_count": len(l1_input["targets"])}, led=led)
             _kg_emit_envelope(kg, e_cardiac_l1, rid, "L1")
             cardiac_l1_summary = {
                 "envelope_id": e_cardiac_l1.audit.audit_record_id,
@@ -499,39 +538,18 @@ def run_pathway1_compound(
                 f"Pathway 1 lead for {target_gene}; multi-current bridge populated "
                 "from L1 channel-panel envelope."
             ),
-            "channel_panel_canned": {
-                "KCNH2_hERG_IKr": {
-                    "ic50_uM": admet.get("hERG_IC50_uM"),
-                    "block_fraction_at_cmax_unbound": None,
-                    "method": "stub",
-                    "confidence": 0.5,
-                    "explicit_absence": (
-                        None
-                        if admet.get("hERG_IC50_uM") is not None
-                        else "p1_admet_panel_did_not_emit_value"
-                    ),
-                },
-                "SCN5A_Nav1_5_INa_INaL": {
-                    "ic50_uM": None,
-                    "block_fraction_at_cmax_unbound": None,
-                    "method": "stub",
-                    "confidence": 0.0,
-                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
-                },
-                "KCNQ1_Kv7_1_IKs": {
-                    "ic50_uM": None,
-                    "block_fraction_at_cmax_unbound": None,
-                    "method": "stub",
-                    "confidence": 0.0,
-                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
-                },
-                "CACNA1C_CaV1_2_ICaL": {
-                    "ic50_uM": None,
-                    "block_fraction_at_cmax_unbound": None,
-                    "method": "stub",
-                    "confidence": 0.0,
-                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
-                },
+            # Per operator brief 2026-04-30, Pathway 1's cardiac packet must
+            # source its multi-current panel from the validated L1 envelope, NOT
+            # from a fixture-shaped blob synthesized from ADMET. Pathway 1
+            # candidates legitimately have no canned panel; the L1 envelope's
+            # explicit_absence list reflects that. The admet hERG_IC50_uM (if
+            # any) belongs to ADMET context, not channel-panel evidence.
+            "p1_admet_context": {
+                "hERG_IC50_uM_from_admet_predictor": admet.get("hERG_IC50_uM"),
+                "note": (
+                    "ADMET hERG IC50 is informational only. It does NOT enter "
+                    "the cardiac packet as channel-panel evidence."
+                ),
             },
             "expected_packet_verdict": "pass",
             "expected_morphology_signal": (
@@ -556,6 +574,8 @@ def run_pathway1_compound(
                     run_id=rid,
                     cmax_unbound_uM=0.001,
                     morphology_errors_ms={"QT": [1.5, 2.0, 2.5, 1.8, 2.1]},
+                    l1_panel_envelope_output=dict(e_cardiac_l1.output),
+                    require_envelope=True,
                 )
             )
             cardiac_packet_path = (
@@ -566,12 +586,19 @@ def run_pathway1_compound(
             )
             cardiac_packet_path.write_text(cardiac_packet.model_dump_json(indent=2))
             engine = score_packet(cardiac_packet)
-            baseline = score_baseline_for_compound(synthetic_fixture["name"])
+            # Pathway 1 candidates are NOVEL — no PubMed baseline fixture exists,
+            # and it would be dishonest to use a known compound's calibration.
+            # We skip per-compound baseline scoring for P1 cardiac packets and
+            # report the engine score with an explicit "no_calibrated_baseline"
+            # marker. Per D-028 (Pathway 1 non-governing), this packet is
+            # quarantined regardless of score.
             cardiac_packet_score = {
                 "verdict": cardiac_packet.verdict.value,
                 "engine_score": engine.total,
-                "baseline_score": baseline.total,
-                "lift": engine.total - baseline.total,
+                "baseline_score": None,
+                "lift": None,
+                "baseline_status": "no_calibrated_baseline_for_novel_p1_candidate",
+                "note": "Pathway 1 candidates have no PubMed reader baseline; quarantined per D-028.",
             }
         except Exception as exc:  # noqa: BLE001
             cardiac_packet_score = {"error": f"{type(exc).__name__}: {exc}"}
@@ -613,8 +640,9 @@ def run_pathway1_compound(
             },
         )
 
-    # Validate audit log
+    # Validate audit log + reconcile ledger ↔ audit ↔ KG (D-028)
     AuditValidator(audit_root, rid).validate()
+    reconcile_ledger_audit_kg(audit_root=audit_root, run_id=rid, kg_store=kg)
 
     # Audit-table counts
     audit_table_counts: dict[str, int] = {}

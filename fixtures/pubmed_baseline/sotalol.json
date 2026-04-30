@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "sotalol",
+  "compound_inchikey": "ZBMZVLHSJCTVON-UHFFFAOYSA-N",
+  "is_held_out": false,
+  "competent_reader_input": {
+    "claim_text": "Sotalol is a Class III antiarrhythmic with both beta-blocker and IKr-blocking activity; QT prolongation is a recognized class effect.",
+    "source_refs": ["pubmed:Roden_clinical_pharmacology_2004", "pubmed:sotalol_review"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 72.0,
+    "source_grounding": 65.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Beta-blocker + IKr framing is common but full multi-current frame is rare. Citations are real but not machine-validated. No falsifier discipline."
+  },
+  "expected_total": 42.85
+}

@@ -118,6 +118,70 @@ def test_cli_runpod_precheck():
     assert "Acceptance gates declared" in result.stdout
 
 
+def test_runpod_precheck_returns_nonzero_on_runpod_endpoint_blocker(tmp_path):
+    """Phase E.2: a config with backend=runpod_gpu but endpoint=null must exit 3."""
+    import yaml
+    from zer0pa_health.cli import _runpod_precheck_logic
+    bad_cfg = {
+        "contract_version": "zer0pa.runpod-migration.v1",
+        "layers": {
+            "l1": {
+                "docking": {
+                    "adapter_id": "adapter:l1:diffdock_v2",
+                    "backend": "runpod_gpu",
+                    "endpoint": None,  # blocker
+                    "pre_cutover_state": "stub_state",
+                },
+            },
+        },
+        "acceptance_gates": [{"id": "GATE_X", "description": "fake"}],
+        "what_stays_parked_until_runpod": [
+            {
+                "id": "p1",
+                "contract_id": "x",
+                "fixture": "non/existent/path.json",
+                "runpod_or_credential_steps": ["s1"],
+                "acceptance_gate": "GATE_X",
+            }
+        ],
+    }
+    bad_path = tmp_path / "bad.yaml"
+    bad_path.write_text(yaml.safe_dump(bad_cfg))
+    rc = _runpod_precheck_logic(bad_path)
+    assert rc == 3, f"expected exit_code 3 (adapter blocker); got {rc}"
+
+
+def test_runpod_precheck_returns_nonzero_on_structural_defect(tmp_path):
+    """Phase E.2: missing acceptance_gates / parked-work / pre_cutover_state must exit 4."""
+    import yaml
+    from zer0pa_health.cli import _runpod_precheck_logic
+    bad_cfg = {
+        "contract_version": "zer0pa.runpod-migration.v1",
+        "layers": {
+            "l1": {
+                "docking": {
+                    "adapter_id": "adapter:l1:diffdock_v2",
+                    "backend": "stub",
+                    "endpoint": None,
+                    # MISSING pre_cutover_state
+                },
+            },
+        },
+        "acceptance_gates": [],  # MISSING
+        "what_stays_parked_until_runpod": [],  # MISSING
+    }
+    bad_path = tmp_path / "bad.yaml"
+    bad_path.write_text(yaml.safe_dump(bad_cfg))
+    rc = _runpod_precheck_logic(bad_path)
+    assert rc == 4, f"expected exit_code 4 (structural defect); got {rc}"
+
+
+def test_runpod_precheck_missing_config_returns_2(tmp_path):
+    from zer0pa_health.cli import _runpod_precheck_logic
+    rc = _runpod_precheck_logic(tmp_path / "does_not_exist.yaml")
+    assert rc == 2
+
+
 def test_cli_validate_packet(tmp_path):
     """Generate a packet via the runner, then validate it via the CLI."""
     res = run_cardiac_compound("dofetilide", runtime_root=tmp_path, cmax_unbound_uM=0.001)
@@ -193,3 +257,111 @@ def test_run_cardiac_source_manifest_populated_from_kg_seed(tmp_path):
     n = sum(1 for line in sm_path.read_text().splitlines() if line.strip())
     # cardiac_seed has 6 SourceManifest nodes — every one should be reflected
     assert n >= 5, f"expected >= 5 source manifest entries, got {n}"
+
+
+# ---------------- L6 router governance (Phase C.2) ----------------
+
+
+def test_run_cardiac_l6_router_governs_normal_run(tmp_path):
+    """Per operator brief 2026-04-30: run-cardiac must be governed by the L6 router.
+    On a normal pass-through run the router promotes every layer and packet exports.
+    """
+    res = run_cardiac_compound("dofetilide", runtime_root=tmp_path, cmax_unbound_uM=0.001)
+    assert res.l6_router_governed is True
+    assert res.packet_exported is True
+    assert res.l6_router_block_count == 0
+    # 6 promote decisions for L1, L2.5, L2, L3, L4, L5
+    assert res.l6_router_promote_count >= 5
+    # decisions.jsonl must contain at least one l6_router-actor row per layer
+    dec_path = tmp_path / "audit" / "runs" / res.run_id / "decisions.jsonl"
+    txt = dec_path.read_text()
+    assert "l6_router" in txt
+
+
+def test_cli_run_cardiac_exit_code_nonzero_on_l6_block(tmp_path, monkeypatch):
+    """When the L6 router blocks export, `zer0pa-health run-cardiac` MUST exit with non-zero."""
+    from zer0pa_health.envelope import EnvelopeFalsifierItem, FalsifierStatus
+    from zer0pa_health.layers.l1.adapter import L1StubAdapter
+
+    real_channel_panel = L1StubAdapter.channel_panel
+
+    def _fail_channel_panel(self, inp, ligand_smiles, **kwargs):
+        env = real_channel_panel(self, inp, ligand_smiles=ligand_smiles, **kwargs)
+        env.falsifier.items.append(
+            EnvelopeFalsifierItem(
+                falsifier_id="falsifier:test_inject_fail:cli_l1",
+                falsifier_class="invalid_molecular_input",
+                trigger_condition="cli exit-code test inject",
+                status=FalsifierStatus.FAIL,
+                evidence=["forced FAIL for CLI exit-code coverage"],
+            )
+        )
+        env.falsifier.status = FalsifierStatus.FAIL
+        return env
+
+    monkeypatch.setattr(L1StubAdapter, "channel_panel", _fail_channel_panel)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app, ["run-cardiac", "dofetilide", "--runtime", str(tmp_path)]
+    )
+    assert result.exit_code == 2, (
+        f"L6 block must produce exit_code=2; got {result.exit_code}\n{result.stdout}"
+    )
+    assert "BLOCKED_BY_L6" in result.stdout
+
+
+def test_l6_router_blocks_packet_export_when_envelope_fails(tmp_path, monkeypatch):
+    """Inject a FAIL falsifier into the L1 envelope; the L6 router MUST block
+    packet export. The CardiacRunResult must reflect the block, packet_path
+    must be empty, and no cardiac packet file must be written.
+    """
+    from zer0pa_health.envelope import (
+        EnvelopeFalsifierItem,
+        FalsifierStatus,
+    )
+    from zer0pa_health.layers.l1.adapter import L1StubAdapter
+
+    real_channel_panel = L1StubAdapter.channel_panel
+
+    def _fail_channel_panel(self, inp, ligand_smiles, **kwargs):
+        env = real_channel_panel(self, inp, ligand_smiles=ligand_smiles, **kwargs)
+        # Force the envelope into FAIL by injecting a FAIL falsifier item
+        env.falsifier.items.append(
+            EnvelopeFalsifierItem(
+                falsifier_id="falsifier:test_inject_fail:l1",
+                falsifier_class="invalid_molecular_input",
+                trigger_condition="injected for L6 governance test",
+                status=FalsifierStatus.FAIL,
+                evidence=["forced FAIL to exercise L6 router block path"],
+            )
+        )
+        env.falsifier.status = FalsifierStatus.FAIL
+        return env
+
+    monkeypatch.setattr(L1StubAdapter, "channel_panel", _fail_channel_panel)
+
+    res = run_cardiac_compound("dofetilide", runtime_root=tmp_path, cmax_unbound_uM=0.001)
+    assert res.l6_router_governed is True
+    assert res.packet_exported is False, "L6 router must block packet export"
+    assert res.l6_router_block_count >= 1
+    # The L1 FAIL of invalid_molecular_input cascades to silent_falsifier_loss
+    # at the next layer (L2.5 didn't carry it forward), which is the proximate
+    # block trigger. The block must mention at least one of the two — the
+    # router's BLOCK list reports the proximate cause.
+    blocked = set(res.l6_router_blocked_falsifiers)
+    assert blocked & {"invalid_molecular_input", "silent_falsifier_loss"}, (
+        f"Expected invalid_molecular_input or silent_falsifier_loss in blocked list, got {blocked}"
+    )
+    # The original injected L1 FAIL must appear in the audit trail
+    fal_path = tmp_path / "audit" / "runs" / res.run_id / "falsifiers.jsonl"
+    assert "invalid_molecular_input" in fal_path.read_text()
+    assert res.packet_verdict == "blocked_by_l6"
+    # No cardiac evidence packet file must be written under packets/
+    packets_root = tmp_path / "packets"
+    if packets_root.exists():
+        assert not list(packets_root.glob("cardiac_evidence_packet_v0_1__*.json")), (
+            "L6 block must prevent cardiac packet file from being written"
+        )
+    # Audit log up to the block point must still validate
+    AuditValidator(tmp_path / "audit", res.run_id).validate()

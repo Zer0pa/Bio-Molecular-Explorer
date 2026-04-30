@@ -91,7 +91,18 @@ def run_cardiac(
         )
     typer.echo()
     for r in results:
-        typer.echo(f"  {r.compound:<14} run_id={r.run_id} packet={r.packet_path.name}")
+        if r.packet_exported:
+            typer.echo(f"  {r.compound:<14} run_id={r.run_id} packet={r.packet_path.name}")
+        else:
+            typer.echo(
+                f"  {r.compound:<14} run_id={r.run_id} BLOCKED_BY_L6: {r.block_reason}"
+            )
+
+    # L6 governance: any blocked run produces a non-zero exit code so CI / scripts
+    # see the authority gate fire. Per operator brief 2026-04-30: falsifier FAIL
+    # must block packet export, and the CLI must surface that block.
+    if any(not r.packet_exported for r in results):
+        raise typer.Exit(code=2)
 
 
 @app.command("run-pathway1")
@@ -196,7 +207,16 @@ def validate_packet(
 
 
 def _runpod_precheck_logic(config_path: Path) -> int:
-    """Pure logic: returns 0 on success, non-zero on config errors. No typer.Exit."""
+    """Runpod cutover precheck.
+
+    Return codes (Phase E.2 — operator brief 2026-04-30: nonzero on real blockers):
+      0 — config valid, no blockers, no missing-fixture issues.
+      2 — config file missing.
+      3 — adapter blocker(s): e.g., backend=runpod_gpu but endpoint=null.
+      4 — structural defects: missing acceptance_gates, missing parked-work,
+          parked-work entries lacking required keys, or referenced parked
+          fixture paths missing on disk.
+    """
     import yaml  # type: ignore[import-untyped]
 
     if not config_path.exists():
@@ -207,7 +227,9 @@ def _runpod_precheck_logic(config_path: Path) -> int:
     typer.echo("RESEARCH USE ONLY. Cutover precheck — CPU stub state expected.\n")
     blockers: list[tuple[str, str]] = []
     ok: list[str] = []
+    structural_defects: list[str] = []
 
+    valid_backends = {"stub", "cpu_lite", "runpod_gpu"}
     for layer_name, layer_cfg in cfg.get("layers", {}).items():
         for adapter_key, ac in layer_cfg.items():
             backend = ac.get("backend", "stub")
@@ -215,24 +237,94 @@ def _runpod_precheck_logic(config_path: Path) -> int:
             label = f"{layer_name}.{adapter_key}"
             if backend == "stub":
                 ok.append(f"{label}: backend=stub (CPU)")
+            elif backend == "cpu_lite":
+                ok.append(f"{label}: backend=cpu_lite (CPU)")
             elif backend == "runpod_gpu":
                 if not endpoint:
                     blockers.append((label, "backend=runpod_gpu but endpoint=null"))
                 else:
                     ok.append(f"{label}: backend=runpod_gpu, endpoint set")
+            else:
+                blockers.append((label, f"unknown backend={backend!r}; valid={sorted(valid_backends)}"))
 
+            # Stubs that will be cut over MUST declare a pre_cutover_state explaining
+            # their CPU stub state. cpu_lite adapters are real CPU code (e.g. botorch)
+            # that don't need a swap, so the field is optional for them.
+            if backend == "stub" and not ac.get("pre_cutover_state"):
+                structural_defects.append(
+                    f"{label}: missing required pre_cutover_state (audit/replay invariant)"
+                )
+
+    # Acceptance gates must be present and non-trivial.
+    gates = cfg.get("acceptance_gates", [])
+    if not gates:
+        structural_defects.append("acceptance_gates list is empty or missing")
+    else:
+        for g in gates:
+            if not g.get("id") or not g.get("description"):
+                structural_defects.append(
+                    f"acceptance_gate entry malformed: {g}"
+                )
+
+    # Parked work (what stays canned until runpod) must be documented.
     parked = cfg.get("what_stays_parked_until_runpod", [])
+    if not parked:
+        structural_defects.append(
+            "what_stays_parked_until_runpod is empty — Phase E.2 expects every parked GPU "
+            "dependency to be enumerated with id/contract/fixture/runpod_steps/acceptance_gate"
+        )
+    else:
+        repo_root = Path(__file__).resolve().parents[2]
+        gate_ids = {g.get("id") for g in gates if g.get("id")}
+        required_parked_keys = (
+            "id", "contract_id", "fixture", "runpod_or_credential_steps", "acceptance_gate"
+        )
+        for entry in parked:
+            missing = [k for k in required_parked_keys if not entry.get(k)]
+            if missing:
+                structural_defects.append(
+                    f"parked-work entry {entry.get('id', '<unknown>')!r}: missing keys {missing}"
+                )
+                continue
+            steps = entry.get("runpod_or_credential_steps") or []
+            if not isinstance(steps, list) or len(steps) == 0:
+                structural_defects.append(
+                    f"parked-work entry {entry['id']!r}: runpod_or_credential_steps must be a non-empty list"
+                )
+            # Acceptance gate cross-reference
+            if entry.get("acceptance_gate") not in gate_ids:
+                structural_defects.append(
+                    f"parked-work entry {entry['id']!r}: "
+                    f"acceptance_gate {entry.get('acceptance_gate')!r} not declared in acceptance_gates"
+                )
+            # Fixture file existence check (research-only — must exist on disk)
+            fixture_str = str(entry.get("fixture", ""))
+            if fixture_str:
+                fp = repo_root / fixture_str
+                if not fp.exists():
+                    structural_defects.append(
+                        f"parked-work entry {entry['id']!r}: fixture path missing on disk: {fixture_str}"
+                    )
+
     typer.echo(f"layers configured     : {sum(len(v) for v in cfg.get('layers', {}).values())}")
     typer.echo(f"on stub (CPU-ready)   : {len(ok)}")
     typer.echo(f"would-block at cutover: {len(blockers)}")
     typer.echo(f"parked-work items     : {len(parked)}")
+    typer.echo(f"structural defects    : {len(structural_defects)}")
     typer.echo()
     for label, reason in blockers:
         typer.echo(f"  BLOCK {label}: {reason}")
+    for d in structural_defects:
+        typer.echo(f"  DEFECT {d}")
     typer.echo()
     typer.echo("Acceptance gates declared:")
-    for g in cfg.get("acceptance_gates", []):
-        typer.echo(f"  - {g['id']}: {g['description']}")
+    for g in gates:
+        typer.echo(f"  - {g.get('id', '<no id>')}: {g.get('description', '<no description>')}")
+
+    if blockers:
+        return 3
+    if structural_defects:
+        return 4
     return 0
 
 

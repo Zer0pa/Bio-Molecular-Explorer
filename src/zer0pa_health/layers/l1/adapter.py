@@ -450,26 +450,32 @@ class L1StubAdapter:
         if ligand_inchikey:
             try:
                 canned = canned_channel_panel(ligand_inchikey)
-                # canned is gene -> dict with ic50_uM, block_fraction, confidence, etc.
+                # canned is gene -> dict with ic50_uM, block_fraction, confidence, method, etc.
+                # We preserve the full set of fields the downstream packet assembler needs,
+                # so that the L1 envelope is the single source of truth for the channel panel.
+                #
+                # `explicit_absence` membership is faithful to the FIXTURE'S flag — we do
+                # NOT derive it from numeric presence. A gene with `block_fraction=0.0`
+                # AND `explicit_absence` set (e.g., verapamil's SCN5A) is genuinely absent
+                # of meaningful INaL block; the flag is the source of truth.
                 for gene in _CANONICAL_PANEL_GENES:
                     if gene in canned:
                         entry = canned[gene]
-                        has_value = entry.get("ic50_uM") is not None
-                        if has_value or entry.get("block_fraction_at_cmax_unbound") is not None:
-                            panel[gene] = {
-                                "ic50_uM": entry.get("ic50_uM"),
-                                "confidence": entry.get("confidence", 0.5),
-                            }
-                        else:
-                            # null values with explicit_absence
-                            panel[gene] = {
-                                "ic50_uM": None,
-                                "confidence": entry.get("confidence", 0.0),
-                            }
+                        absence_flag = entry.get("explicit_absence")
+                        panel[gene] = {
+                            "ic50_uM": entry.get("ic50_uM"),
+                            "block_fraction_at_cmax_unbound": entry.get(
+                                "block_fraction_at_cmax_unbound"
+                            ),
+                            "method": entry.get("method", "stub"),
+                            "confidence": entry.get("confidence", 0.0),
+                            "source_refs": list(entry.get("source_refs", [])),
+                            "explicit_absence": absence_flag,
+                        }
+                        if absence_flag:
                             explicit_absence.append(gene)
                     else:
-                        # Gene not in canned fixture — explicit absence
-                        panel[gene] = {"ic50_uM": None, "confidence": 0.0}
+                        panel[gene] = _empty_panel_entry()
                         explicit_absence.append(gene)
             except KeyError:
                 # No fixture for this inchikey — generate deterministic stubs
@@ -480,7 +486,7 @@ class L1StubAdapter:
         # Always ensure all four genes present
         for gene in _CANONICAL_PANEL_GENES:
             if gene not in panel:
-                panel[gene] = {"ic50_uM": None, "confidence": 0.0}
+                panel[gene] = _empty_panel_entry()
                 if gene not in explicit_absence:
                     explicit_absence.append(gene)
 
@@ -517,9 +523,21 @@ class L1StubAdapter:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+def _empty_panel_entry() -> dict[str, Any]:
+    """Empty panel entry shape — preserves the full schema downstream assemblers expect."""
+    return {
+        "ic50_uM": None,
+        "block_fraction_at_cmax_unbound": None,
+        "method": "stub",
+        "confidence": 0.0,
+        "source_refs": [],
+        "explicit_absence": "no_canned_value_pending_lookup",
+    }
+
+
 def _fill_stub_panel(
     seed: str,
-    panel: dict[str, dict[str, float | None]],
+    panel: dict[str, dict[str, Any]],
     explicit_absence: list[str],
 ) -> None:
     """Fill panel with deterministic stub values (no fixture available)."""
@@ -527,19 +545,23 @@ def _fill_stub_panel(
     for gene in _CANONICAL_PANEL_GENES:
         if gene not in panel:
             conf = _seed_float(seed, gene, "panel_conf", 0.40, 0.60)
-            panel[gene] = {
-                "ic50_uM": None,
-                "confidence": round(conf, 3),
-            }
+            entry = _empty_panel_entry()
+            entry["confidence"] = round(conf, 3)
+            panel[gene] = entry
             explicit_absence.append(gene)
 
 
 def _compute_balance_score(panel: dict[str, dict[str, float | None]]) -> float | None:
-    """Rough multi-current balance score from stub panel.
+    """Rough multi-current balance score from stub panel (research-only indicator).
 
-    Positive = net outward repolarisation push (safer tendency).
-    Negative = net depolarisation or APD prolongation tendency.
+    HIGHER = more outward-current block relative to inward-current block
+             = greater APD-prolongation tendency in research-only multi-current
+             models. NOT a clinical or safety claim in any direction.
+    LOWER  = more inward-current block relative to outward
+             = APD-prolongation tendency reduced in the same research models.
+
     For stub data with only confidence available, returns 0.0.
+    See `layers/l5/cardiac_bridge.py` for the canonical formula.
     """
     # With stub data, use ic50_uM presence as proxy
     # Lower IC50 = more block

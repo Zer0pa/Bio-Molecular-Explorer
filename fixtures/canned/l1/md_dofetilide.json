@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../schemas/contracts/l1.md.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "purpose": "Parked-work canned reference for L1 MD simulation output (OpenMM or equivalent).",
+  "molecule_inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+  "target_gene": "KCNH2",
+  "rmsd_nm": 0.18,
+  "convergence_metric": 0.62,
+  "n_frames": 1000,
+  "parked_work": {
+    "id": "parked_l1_real_openmm_md",
+    "blocker": "requires A100 GPU + OpenMM + production MD run",
+    "promotion_gate": "GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER",
+    "note": "Values are stub canned outputs."
+  }
+}

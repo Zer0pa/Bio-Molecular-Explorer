@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "diltiazem",
+  "compound_inchikey": "HSUGRBWQSSZJOP-RTWAWAEBSA-N",
+  "is_held_out": true,
+  "competent_reader_input": {
+    "claim_text": "Diltiazem is a benzothiazepine calcium-channel blocker (ICaL); cardiac effects mediated by L-type calcium channel modulation.",
+    "source_refs": ["pubmed:diltiazem_pharmacology_review", "pubmed:CCB_class_review"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 70.0,
+    "source_grounding": 65.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "ICaL framing is dominant; reader less likely to multi-current frame. SEALED for blind evaluation."
+  },
+  "expected_total": 42.25
+}

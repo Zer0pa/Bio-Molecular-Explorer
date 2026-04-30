@@ -16,7 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from zer0pa_health.envelope import EnvelopeFalsifierItem, FalsifierStatus
 from zer0pa_health.falsifiers.registry import FalsifierClass, get_definition
-from zer0pa_health.ids import falsifier_id, utc_now_iso
+from zer0pa_health.ids import utc_now_iso
 
 
 class LedgerEntry(BaseModel):
@@ -48,10 +48,25 @@ class FalsifierLedger:
         status: FalsifierStatus,
         evidence: list[str] | None = None,
         extra: dict[str, str] | None = None,
+        *,
+        falsifier_id: str | None = None,
     ) -> EnvelopeFalsifierItem:
+        """Emit a falsifier entry to the operational ledger.
+
+        Parameters
+        ----------
+        falsifier_id:
+            Optional pre-existing falsifier_id (e.g., from an envelope's
+            EnvelopeFalsifierItem). When provided, the ledger reuses this id —
+            critical for ledger ↔ audit reconciliation. When None, a fresh id
+            is generated.
+        """
         defn = get_definition(falsifier_class)
+        from zer0pa_health.ids import falsifier_id as _generate_falsifier_id
+
+        fid = falsifier_id if falsifier_id is not None else _generate_falsifier_id(falsifier_class.value)
         entry = LedgerEntry(
-            falsifier_id=falsifier_id(falsifier_class.value),
+            falsifier_id=fid,
             falsifier_class=falsifier_class,
             layer=layer,
             run_id=run_id,

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "quinidine",
+  "compound_inchikey": "LOUPRKONTZGTKE-UHFFFAOYSA-N",
+  "is_held_out": false,
+  "competent_reader_input": {
+    "claim_text": "Quinidine blocks multiple cardiac currents (IKr, INa, IKs); historical antiarrhythmic with QT prolongation risk.",
+    "source_refs": ["pubmed:Roden_clinical_pharmacology_2004", "pubmed:CiPA_review_2018"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": true,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 70.0,
+    "source_grounding": 65.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Multi-current framing is well established for quinidine. Citations are real but not machine-validated. No falsifier discipline."
+  },
+  "expected_total": 42.25
+}

@@ -7,6 +7,11 @@ reference for model-informed evidence discipline only.
 
 from zer0pa_health.audit.writer import AuditTable, AuditWriter, AUDIT_TABLE_FILES
 from zer0pa_health.audit.validator import AuditValidator, AuditValidationError
+from zer0pa_health.audit.reconciliation import (
+    ReconciliationError,
+    ReconciliationReport,
+    reconcile_ledger_audit_kg,
+)
 from zer0pa_health.audit.records import (
     RunRecord,
     MoleculeRecord,
@@ -28,6 +33,9 @@ __all__ = [
     "AUDIT_TABLE_FILES",
     "AuditValidator",
     "AuditValidationError",
+    "ReconciliationError",
+    "ReconciliationReport",
+    "reconcile_ledger_audit_kg",
     "RunRecord",
     "MoleculeRecord",
     "ModelToolRecord",

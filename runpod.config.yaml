@@ -100,6 +100,7 @@ layers:
       endpoint: null                # https://db.idrblab.net/ttd/api
       cost_estimate_usd_per_call: 0.0
       license_class: A
+      pre_cutover_state: p1_target_ttd_stub_canned_target_records
     gpt_rosalind:
       adapter_id: adapter:p1.target:gpt_rosalind
       backend: stub                 # external_api at cutover
@@ -162,6 +163,7 @@ layers:
       gpu_sku_min: A100_40GB
       cost_estimate_usd_per_call: 0.001
       license_class: A
+      pre_cutover_state: p1_screen_boltz2_stub_canned_affinity
     gnina_1_3:
       adapter_id: adapter:p1.screen:gnina_1_3
       backend: stub
@@ -169,6 +171,7 @@ layers:
       gpu_sku_min: A100_40GB
       cost_estimate_usd_per_call: 0.005
       license_class: A
+      pre_cutover_state: p1_screen_gnina_stub_canned_pose_score
 
   # P1.Optimize is CPU-friendly (BoTorch + Ax + REINVENT 4 RL on CPU); no GPU
   # adapter needed. Documented for completeness; no cutover entry required.

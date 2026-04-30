@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schemas/reasoner/seed_input.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "purpose": "Parked-work canned reference for the L7 reasoner (TxGemma 27B) seed input.",
+  "task_type": "evidence_packet",
+  "question": "What is the multi-current research-only signal for dofetilide?",
+  "entities": {
+    "compounds": ["dofetilide"],
+    "genes": ["KCNH2", "SCN5A", "KCNQ1", "CACNA1C"],
+    "currents": ["IKr", "INaL", "IKs", "ICaL"],
+    "phenotypes": ["QT/QTc"]
+  },
+  "context_pack_refs": [
+    "source:FDA_E14_S7B",
+    "source:FDA_CiPA",
+    "source:ICH_M15_2026",
+    "source:PTB_XL_plus"
+  ],
+  "constraints": {
+    "max_input_tokens": 4096,
+    "require_research_boundary": true
+  },
+  "parked_work": {
+    "id": "parked_reasoner_txgemma_27b",
+    "blocker": "requires Runpod GPU + TxGemma 27B weights + private HF dataset reference",
+    "promotion_gate": "GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER",
+    "note": "Values are stub canned inputs; the cutover swaps the reasoner backend."
+  }
+}

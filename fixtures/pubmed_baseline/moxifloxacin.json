@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "moxifloxacin",
+  "compound_inchikey": "FABPRXSRWADJSP-MEDUHNTESA-N",
+  "is_held_out": true,
+  "competent_reader_input": {
+    "claim_text": "Moxifloxacin is a fluoroquinolone antibiotic used as the thorough-QT positive control reference; produces modest IKr block with reproducible QTc prolongation.",
+    "source_refs": ["pubmed:thorough_QT_review_2010", "pubmed:moxifloxacin_QT_meta_analysis"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 78.0,
+    "source_grounding": 70.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Moxifloxacin is famous as the thorough-QT positive control. Multi-current framing is uncommon for antibiotics. SEALED for blind evaluation."
+  },
+  "expected_total": 45.65
+}

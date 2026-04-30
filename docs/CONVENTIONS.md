@@ -262,3 +262,31 @@ Each Pathway 1 run emits one `ReasonerTuple` per leading P1 packet to `reasoner_
 ---
 
 *Last updated: 2026-04-30 (iteration 7) — Pathway 1 conventions added.*
+
+---
+
+## 16. Runpod Readiness Authority (governing vs non-governing)
+
+The Runpod-readiness verdict is gated on the cardiac authority path — NOT on Pathway 1.
+
+- **Governing**: cardiac wedge (envelope, contracts, audit, KG K1-K5, falsifier registry+ledger, L6 router, L1-L5 stubs + runpod-sim, CardiacPacketAssembler with morphology gate + real PubMed baseline harness, cardiac falsification wave).
+- **Non-governing (quarantined)**: Pathway 1. Built and tested, but does NOT count toward Runpod readiness until the cardiac authority gate independently passes.
+
+Rationale: Pathway 1 candidates flow INTO the cardiac wedge via `P1HandoffPacket → L1ChannelPanelInput`. If the cardiac wedge is defective, Pathway 1's apparent passes mask the defect. Authority is earned at the back-end before front-end claims count.
+
+`zer0pa-health runpod-precheck` rejects P1 layer cutover claims when the cardiac authority gate is not yet satisfied. See `docs/RUNPOD_READINESS.md` for the seven gates that must pass before quarantine can be lifted (D-028).
+
+### Sign convention for `multi_current_balance_score`
+
+Canonical formula (in `layers/l5/cardiac_bridge.py`):
+
+    multi_current_balance_score = (outward_block - inward_block) / 2.0
+        outward_block = mean fractional block of IKr + IKs
+        inward_block  = mean fractional block of INaL + ICaL
+
+Interpretation (research-only indicator; NOT a clinical safety claim in any direction):
+
+- **HIGHER** = more outward-current block relative to inward = greater APD-prolongation tendency in research-only multi-current models.
+- **LOWER** (more negative) = more inward-current block relative to outward = APD-prolongation tendency reduced in the same models.
+
+The word "safer" is FORBIDDEN in any sign-convention discussion in code, docs, or tests (D-029). The score is a research indicator for downstream researcher inspection — not a verdict.

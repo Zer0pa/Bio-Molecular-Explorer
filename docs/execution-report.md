@@ -342,3 +342,42 @@ The pipeline now has both ends, fully integrated:
 A single command (`zer0pa-health run-pathway1 KCNH2`) walks the entire pipeline: P1.Target → P1.Structure → P1.Generate → P1.Screen → P1.Optimize → P1.Handoff → existing L1 channel-panel → CardiacEvidencePacket assembled → engine score 96.25 vs baseline 49 → packet written to disk. All 12 audit tables populate; KG combined seed validates K1-K5; reasoner tuple emitted; falsifier ledger preserved.
 
 **Remote-review readiness**: README, CONVENTIONS, DECISIONS, PRD.md, PATHWAY1_PRD.md, execution-report.md, runpod.config.yaml, runpod-migration.md all current and consistent. CI workflow (`.github/workflows/ci.yml`) runs the full suite on every push. Repo synced at https://github.com/Zer0pa/Health.
+
+## Iteration 8 (2026-04-30) — Authority-path defects fixed (operator brief 2026-04-30)
+
+The brief was explicit: stop increasing test count without raising the bar; fix the
+authority-path defects so the CPU-side pipeline is genuinely Runpod-ready, not
+narratable-Runpod-ready. Iteration 8 closes the twelve items in that brief.
+
+| Phase | Defect addressed | Decision row | Test delta |
+|---|---|---|---|
+| A.1 | `multi_current_balance_score` sign convention had clashing "safer" / "APD-prolongation" framings; "safer" framing conflated research signal with clinical safety claim. | D-029 | n/a (normalization) |
+| A.2 | Pathway 1 was governing Runpod readiness despite cardiac authority gates not passing. | D-028 | n/a (quarantine) |
+| B.1 | `hERG_only_overreach` detector accepted multi-current panels at face value — a claim asserting hERG-only-driven proarrhythmia in prose still passed. | D-030 | +6 (claim-text + ranking semantics) |
+| B.2 | `FalsifierLedger` was instantiated but never written; audit and ledger could silently diverge. | D-031 | +5 (reconciliation) |
+| C.1 | Cardiac packet read `fixture["channel_panel_canned"]` directly — fixture was authority, not the L1 envelope. | D-032 | +3 (envelope-driven assembly) |
+| C.2 | `run-cardiac` was a forward chain; falsifier FAIL was visible only as data, not as gate. | D-033 | +3 (L6 governance + CLI exit code) |
+| D.3 | KG used `OUTPUT_ENVELOPE` as audit pointer (reuse hack); K2 codec-not-mechanism, K4 layer-coverage L1-L6, K5 episode-no-evidence were unenforced. | D-034 | +8 (K1-K5 unit tests) |
+| D.2 | Morphology arrays were synthetic ad-hoc lists; no extractor provenance; NaN/inf handled via FAIL falsifier instead of hard-stop. | D-035 | +8 (locked fixture loader + hard-stop) |
+| D.1 | PubMed baseline was constant 49.0 for every compound; held-out subset not separated. | D-036 | +3 (per-compound calibration + held-out partition) |
+| E.1 | Plug-swap tests verified only top-level envelope keys; signatures, audit shape, falsifier set were not asserted. | D-038 | +12 (hardened tests) |
+| E.2 | `runpod-precheck` always returned 0; structural defects (missing acceptance gates, parked-work, pre_cutover_state, parked-fixture-files-on-disk) and adapter blockers (backend=runpod_gpu but endpoint=null) produced no signal. | D-037 | +3 (exit-code coverage) |
+| F | Documentation lagged the code. | this section + DECISIONS rows above | n/a |
+
+### Iteration 8 cumulative test delta
+
+728 → 768 (+40). All green in <22 s. No tests deleted.
+
+### Iteration 8 functional changes (brief summary)
+
+- **Cardiac authority gate is now the L6 router**, not the forward chain. `_run_l6_governance` builds a state graph from the L1-L5 envelopes, runs `L6Router.execute()`, and refuses packet export when `report.block_count > 0`. The `zer0pa-health run-cardiac` CLI exits 2 on a router block (existing CLI tests continue to pass; new test `test_cli_run_cardiac_exit_code_nonzero_on_l6_block` proves the FAIL path).
+- **Cardiac packet is assembled from validated envelopes**, not from `fixture["channel_panel_canned"]`. `AssemblerInputs.l1_panel_envelope_output` is now the source of truth; `require_envelope=True` is set for production runs. Tests prove the envelope wins over the fixture (sentinel injection) and that fixtures alone are insufficient under `require_envelope=True`.
+- **`FalsifierLedger` mirror is mandatory** in cardiac and Pathway 1 runs; `reconcile_ledger_audit_kg` raises `ReconciliationError` if the audit table, the ledger, and the KG falsifier nodes diverge. The first smoke test of this caught a real defect: the ledger generated fresh `falsifier_id`s rather than reusing the envelope's. Fixed by adding `falsifier_id` keyword arg to `FalsifierLedger.emit()`.
+- **`NodeType.AUDIT_RECORD` is a real type** (not OUTPUT_ENVELOPE reuse). `KGValidator.validate_cardiac()` enforces K1-K5; cardiac runs invoke it. K2 rejects claims whose only falsifier is `codec_as_mechanism` FAIL; K4 requires L1-L6 OutputEnvelopes; K5 forbids Episode→Claim SUPPORTS edges.
+- **Locked morphology fixtures** under `fixtures/morphology/<compound>.json` carry extractor name + version + reference table + provenance + finite arrays. `load_morphology_fixture` hard-stops on NaN/inf with `MorphologyFixtureError`. Cardiac runs record the extractor provenance in `parameters.jsonl`.
+- **Per-compound, source-grounded PubMed baselines** under `fixtures/pubmed_baseline/<compound>.json`. Held-out subset (moxifloxacin, diltiazem, mexiletine, lidocaine) is reserved for blind evaluation; `BaselineHarness.evaluate_with_holdout` partitions seed and held-out lift. Pathway 1 candidates have no calibrated baseline (D-028 quarantine); the runner emits `baseline_status="no_calibrated_baseline_for_novel_p1_candidate"`.
+- **Plug-swap hardening** (`tests/plug_swap/test_plug_swap_hardening.py`): asserts identical adapter signatures, audit-shape sha256:64-hex format, nested schema compatibility under Pydantic `T | None` semantics, and falsifier-class equality between Stub and Toy.
+- **`runpod-precheck` exits 3 on adapter blockers, 4 on structural defects**, 2 on missing config. The current canonical `runpod.config.yaml` clears all gates; placeholder canned fixtures created at `fixtures/canned/{l1,l2,reasoner}/*.json` so parked-work declarations are concrete.
+- **Pathway 1's synthesized fixture no longer carries `channel_panel_canned`**. P1 candidates are novel; the L1 envelope (with explicit_absence on every gene because no canned panel exists) is the honest representation. The synthetic fixture now records ADMET hERG IC50 only as informational `p1_admet_context`, not as channel-panel evidence.
+
+### Final test count after iteration 8: 768 passing.

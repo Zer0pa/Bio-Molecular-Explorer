@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "ranolazine",
+  "compound_inchikey": "XKLMZUWKNUAPSZ-UHFFFAOYSA-N",
+  "is_held_out": false,
+  "competent_reader_input": {
+    "claim_text": "Ranolazine is primarily a late-INa (INaL) blocker with modest IKr activity; has anti-anginal mechanism via reducing intracellular Na+/Ca2+ overload.",
+    "source_refs": ["pubmed:Antzelevitch_INaL_2004", "pubmed:CiPA_review_2018"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": true,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 75.0,
+    "source_grounding": 70.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "INaL primary mechanism is well-known; multi-current framing is common. No falsifier discipline; no contradictions in standard literature."
+  },
+  "expected_total": 44.75
+}

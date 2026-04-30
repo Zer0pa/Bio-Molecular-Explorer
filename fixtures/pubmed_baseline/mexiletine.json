@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "mexiletine",
+  "compound_inchikey": "VLPIATFUUWWMKC-UHFFFAOYSA-N",
+  "is_held_out": true,
+  "competent_reader_input": {
+    "claim_text": "Mexiletine is a Class IB sodium-channel blocker; orally active analog of lidocaine with antiarrhythmic activity.",
+    "source_refs": ["pubmed:mexiletine_pharmacology_review", "pubmed:Class_IB_review"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 68.0,
+    "source_grounding": 60.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Sodium-channel framing dominant; reader rarely multi-current frames. SEALED for blind evaluation."
+  },
+  "expected_total": 40.65
+}

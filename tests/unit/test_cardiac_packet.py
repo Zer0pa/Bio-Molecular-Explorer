@@ -205,3 +205,143 @@ def test_packet_verdict_blocked_when_morphology_nan():
     assert morph_f is not None
     assert morph_f["status"] == "fail"
     assert packet.verdict == PacketVerdict.FAIL
+
+
+# ---------------- envelope-driven assembly (Phase C.1) ----------------
+
+
+def test_assembler_require_envelope_raises_when_envelope_missing():
+    """When require_envelope=True, the assembler MUST refuse to fall back to
+    the fixture's `channel_panel_canned`. Per operator brief 2026-04-30:
+    fixtures may seed inputs only.
+    """
+    asm = CardiacPacketAssembler()
+    inputs = AssemblerInputs(
+        compound_fixture_path=FIX / "dofetilide.json",
+        cmax_unbound_uM=0.001,
+        morphology_errors_ms={"QT": [1.0, 2.0, 3.0]},
+        require_envelope=True,
+    )
+    with pytest.raises(ValueError, match="require_envelope"):
+        asm.assemble(inputs)
+
+
+def test_assembler_envelope_drives_panel_not_fixture():
+    """Inject a controlled L1 envelope output whose `panel` differs from the
+    fixture's `channel_panel_canned`. The packet's channel_panel MUST reflect
+    the envelope, not the fixture.
+    """
+    asm = CardiacPacketAssembler()
+    sentinel_envelope = {
+        "molecule_inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+        "panel": {
+            "KCNH2": {
+                "ic50_uM": 99.0,  # sentinel — clearly not the fixture's 0.005
+                "block_fraction_at_cmax_unbound": 0.11,
+                "method": "envelope_sentinel",
+                "confidence": 0.42,
+                "source_refs": ["source:envelope_test"],
+                "explicit_absence": None,
+            },
+            "SCN5A": {
+                "ic50_uM": None,
+                "block_fraction_at_cmax_unbound": None,
+                "method": "envelope_sentinel",
+                "confidence": 0.0,
+                "source_refs": [],
+                "explicit_absence": "envelope_sentinel_absence",
+            },
+            "KCNQ1": {
+                "ic50_uM": None,
+                "block_fraction_at_cmax_unbound": None,
+                "method": "envelope_sentinel",
+                "confidence": 0.0,
+                "source_refs": [],
+                "explicit_absence": "envelope_sentinel_absence",
+            },
+            "CACNA1C": {
+                "ic50_uM": None,
+                "block_fraction_at_cmax_unbound": None,
+                "method": "envelope_sentinel",
+                "confidence": 0.0,
+                "source_refs": [],
+                "explicit_absence": "envelope_sentinel_absence",
+            },
+        },
+        "explicit_absence": ["SCN5A", "KCNQ1", "CACNA1C"],
+        "basis": ["envelope_sentinel"],
+    }
+    packet, _ = asm.assemble(
+        AssemblerInputs(
+            compound_fixture_path=FIX / "dofetilide.json",
+            cmax_unbound_uM=0.001,
+            morphology_errors_ms={"QT": [1.0, 2.0, 3.0]},
+            l1_panel_envelope_output=sentinel_envelope,
+            require_envelope=True,
+        )
+    )
+    # Envelope wins: KCNH2 ic50 must be the sentinel 99.0, not the fixture 0.005
+    assert packet.channel_panel.KCNH2_hERG_IKr.ic50_uM == 99.0
+    assert packet.channel_panel.KCNH2_hERG_IKr.method == "envelope_sentinel"
+    # Method propagates from envelope, not from fixture
+    assert packet.channel_panel.SCN5A_Nav1_5_INa_INaL.explicit_absence == "envelope_sentinel_absence"
+
+
+def test_pubmed_baseline_per_compound_calibration():
+    """Per Phase D.1: baselines come from per-compound fixtures, not a constant 49.0."""
+    dofet = score_baseline_for_compound("dofetilide")
+    verap = score_baseline_for_compound("verapamil")
+    moxi = score_baseline_for_compound("moxifloxacin")
+    # Verapamil reader scores higher (the multi-current paradox is famous,
+    # contradiction is widely surfaced) than dofetilide.
+    assert verap.total > dofet.total, (
+        f"verapamil baseline ({verap.total}) should exceed dofetilide ({dofet.total}) "
+        "because the verapamil paradox is famously surfaced in literature"
+    )
+    # Held-out flag exposed
+    assert moxi.is_held_out is True
+    assert dofet.is_held_out is False
+    # Source refs propagate from the fixture
+    assert verap.source_refs
+    assert any("verapamil_paradox" in s for s in verap.source_refs)
+
+
+def test_pubmed_baseline_missing_fixture_raises():
+    from zer0pa_health.packets.pubmed_baseline import PubMedBaselineFixtureError
+    with pytest.raises(PubMedBaselineFixtureError, match="missing"):
+        score_baseline_for_compound("not_a_real_compound_zz")
+
+
+def test_baseline_harness_evaluate_with_holdout_partitions_seed_vs_held_out():
+    from zer0pa_health.packets.pubmed_baseline import BaselineHarness
+    asm = CardiacPacketAssembler()
+    packets = []
+    for c in ("dofetilide", "verapamil", "ranolazine"):
+        p, _ = asm.assemble(
+            AssemblerInputs(
+                compound_fixture_path=FIX / f"{c}.json",
+                cmax_unbound_uM=0.005,
+                morphology_errors_ms={"QT": [1.0, 2.0, 3.0]},
+            )
+        )
+        packets.append(p)
+    report = BaselineHarness().evaluate_with_holdout(packets)
+    # All three are seed compounds (none are held-out)
+    assert report.n_seed == 3
+    assert report.n_held_out == 0
+    assert report.seed_lift_mean > 0.0
+
+
+def test_assembler_envelope_missing_panel_key_raises():
+    """An envelope output dict without a 'panel' key is malformed and must raise."""
+    asm = CardiacPacketAssembler()
+    bad_envelope = {"molecule_inchikey": "X", "explicit_absence": [], "basis": []}
+    with pytest.raises(ValueError, match="missing required 'panel' key"):
+        asm.assemble(
+            AssemblerInputs(
+                compound_fixture_path=FIX / "dofetilide.json",
+                cmax_unbound_uM=0.001,
+                morphology_errors_ms={"QT": [1.0]},
+                l1_panel_envelope_output=bad_envelope,
+            )
+        )

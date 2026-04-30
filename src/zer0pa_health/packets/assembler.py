@@ -1,15 +1,22 @@
-"""CardiacPacketAssembler — composes packets from compound fixtures + L5 cardiac bridge.
+"""CardiacPacketAssembler — composes packets from validated L1-L5 envelopes.
 
 Drives the cardiac wedge (PRD section 7) end-to-end:
-  1. Load compound fixture (KCNH2/SCN5A/KCNQ1/CACNA1C panel)
-  2. (Optional) call L1 channel-panel adapter for multi-current ic50 enrichment
-  3. (Optional) call L5 PKPD adapter for cmax_unbound_uM
-  4. Build cardiac_bridge (from L5 layer if available; else stub from canned)
+  1. Load compound fixture for compound metadata only (name, inchikey, smiles,
+     research_label, cardiac_research_role, expected_morphology_signal). The
+     fixture's `channel_panel_canned` field is NOT consumed by this assembler;
+     the channel panel is sourced from the L1 envelope output.
+  2. Consume the supplied L1 channel-panel envelope output as the canonical
+     channel panel (per `assert_envelope_governs_packet` discipline)
+  3. Consume L5 envelope output (or scalar `cmax_unbound_uM`) for exposure
+  4. Build cardiac_bridge from L5 outputs
   5. Run morphology gate on supplied error arrays (or skip if absent)
   6. Run hERG-only-overreach detector on the assembled panel
   7. Emit clinical-overclaim, codec-as-mechanism, falsifier-ref guards
   8. Build claims with falsifier_refs and audit_refs
   9. Score against PubMed baseline
+
+Operator brief 2026-04-30: "Assemble cardiac packets from validated L1-L5
+envelopes, NOT `channel_panel_canned` fixtures. Fixtures may seed inputs only."
 """
 
 from __future__ import annotations
@@ -72,6 +79,15 @@ class AssemblerInputs:
     morphology_errors_ms: dict[str, list[float]] = field(default_factory=dict)  # fiducial -> errors
     extra_source_refs: list[str] = field(default_factory=list)
     extra_audit_refs: list[str] = field(default_factory=list)
+    # The validated L1 channel-panel envelope output. When provided (the
+    # governing path), the assembler reads the channel panel from this dict
+    # rather than the fixture's `channel_panel_canned` field. Required for
+    # production runs per the operator brief 2026-04-30.
+    l1_panel_envelope_output: dict[str, Any] | None = None
+    # When True, refuse to fall back to fixture's channel_panel_canned even if
+    # `l1_panel_envelope_output` is None (default False preserves test-fixture
+    # back-compat for unit tests that exercise the assembler in isolation).
+    require_envelope: bool = False
 
 
 def _balance_score(panel: PacketChannelPanel, cmax_unbound_uM: float | None) -> float | None:
@@ -98,10 +114,33 @@ def _balance_score(panel: PacketChannelPanel, cmax_unbound_uM: float | None) -> 
     return outward - inward
 
 
-def _make_member(gene: str, panel_blob: dict[str, Any]) -> PacketChannelMember:
+def _make_member_from_fixture(gene: str, panel_blob: dict[str, Any]) -> PacketChannelMember:
+    """Build a member from the LEGACY fixture `channel_panel_canned` shape.
+
+    Used only when no L1 envelope is supplied (test-fixture-only path); production
+    runs consume `_make_member_from_envelope` instead.
+    """
     field_key = _GENE_TO_FIELD[gene]
     chan, cur = _GENE_TO_CHANNEL_CURRENT[gene]
     blob = panel_blob.get(field_key) or {}
+    return PacketChannelMember(
+        gene=gene,
+        channel=chan,
+        current=cur,
+        ic50_uM=blob.get("ic50_uM"),
+        block_fraction_at_cmax_unbound=blob.get("block_fraction_at_cmax_unbound"),
+        method=blob.get("method", "stub"),
+        confidence=blob.get("confidence", 0.0),
+        explicit_absence=blob.get("explicit_absence"),
+    )
+
+
+def _make_member_from_envelope(
+    gene: str, panel_dict: dict[str, dict[str, Any]]
+) -> PacketChannelMember:
+    """Build a member from the L1 envelope output's `panel` dict (gene-keyed)."""
+    chan, cur = _GENE_TO_CHANNEL_CURRENT[gene]
+    blob = panel_dict.get(gene) or {}
     return PacketChannelMember(
         gene=gene,
         channel=chan,
@@ -130,21 +169,59 @@ class CardiacPacketAssembler:
             research_label=fixture["drug_class_research_label"],
             cardiac_research_role=fixture["cardiac_research_role"],
         )
-        panel_blob = fixture["channel_panel_canned"]
-        panel = PacketChannelPanel(
-            KCNH2_hERG_IKr=_make_member("KCNH2", panel_blob),
-            SCN5A_Nav1_5_INa_INaL=_make_member("SCN5A", panel_blob),
-            KCNQ1_Kv7_1_IKs=_make_member("KCNQ1", panel_blob),
-            CACNA1C_CaV1_2_ICaL=_make_member("CACNA1C", panel_blob),
-        )
 
-        # Falsifier checks
-        panel_genes_present = [
-            g for g, f in _GENE_TO_FIELD.items() if panel_blob.get(f, {}).get("ic50_uM") is not None
-        ]
-        explicit_absence = [
-            g for g, f in _GENE_TO_FIELD.items() if panel_blob.get(f, {}).get("explicit_absence")
-        ]
+        # Channel panel SOURCE-OF-TRUTH selection. The governing path is the L1
+        # envelope output. Fall through to the legacy fixture only when no
+        # envelope is supplied AND `require_envelope` is False — this preserves
+        # test-fixture back-compat for the unit tests that exercise the
+        # assembler in isolation, while production runs through cardiac_run.py /
+        # pathway1_run.py always pass an envelope.
+        envelope_panel: dict[str, dict[str, Any]] | None = None
+        envelope_explicit_absence: list[str] | None = None
+        envelope_basis: list[str] = []
+        if inputs.l1_panel_envelope_output is not None:
+            env_out = inputs.l1_panel_envelope_output
+            envelope_panel = env_out.get("panel")
+            ea = env_out.get("explicit_absence")
+            envelope_explicit_absence = list(ea) if ea is not None else []
+            envelope_basis = list(env_out.get("basis", []))
+            if envelope_panel is None:
+                raise ValueError(
+                    "AssemblerInputs.l1_panel_envelope_output is missing required 'panel' key"
+                )
+        elif inputs.require_envelope:
+            raise ValueError(
+                "AssemblerInputs.require_envelope=True but no l1_panel_envelope_output provided "
+                "— production runs MUST pass the L1 channel-panel envelope"
+            )
+
+        if envelope_panel is not None:
+            panel = PacketChannelPanel(
+                KCNH2_hERG_IKr=_make_member_from_envelope("KCNH2", envelope_panel),
+                SCN5A_Nav1_5_INa_INaL=_make_member_from_envelope("SCN5A", envelope_panel),
+                KCNQ1_Kv7_1_IKs=_make_member_from_envelope("KCNQ1", envelope_panel),
+                CACNA1C_CaV1_2_ICaL=_make_member_from_envelope("CACNA1C", envelope_panel),
+            )
+            panel_genes_present = [
+                g for g in _GENE_TO_FIELD if envelope_panel.get(g, {}).get("ic50_uM") is not None
+            ]
+            explicit_absence = list(envelope_explicit_absence or [])
+        else:
+            panel_blob = fixture["channel_panel_canned"]
+            panel = PacketChannelPanel(
+                KCNH2_hERG_IKr=_make_member_from_fixture("KCNH2", panel_blob),
+                SCN5A_Nav1_5_INa_INaL=_make_member_from_fixture("SCN5A", panel_blob),
+                KCNQ1_Kv7_1_IKs=_make_member_from_fixture("KCNQ1", panel_blob),
+                CACNA1C_CaV1_2_ICaL=_make_member_from_fixture("CACNA1C", panel_blob),
+            )
+            panel_genes_present = [
+                g for g, f in _GENE_TO_FIELD.items()
+                if panel_blob.get(f, {}).get("ic50_uM") is not None
+            ]
+            explicit_absence = [
+                g for g, f in _GENE_TO_FIELD.items()
+                if panel_blob.get(f, {}).get("explicit_absence")
+            ]
         herg_check = detect_herg_only_overreach(panel_genes_present, explicit_absence)
         clinical_check = detect_clinical_overclaim(json.dumps(fixture))
         codec_check = detect_codec_as_mechanism(

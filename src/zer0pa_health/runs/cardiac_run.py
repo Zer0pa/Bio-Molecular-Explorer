@@ -16,7 +16,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from zer0pa_health.audit import AuditTable, AuditValidator, AuditWriter
+from zer0pa_health.audit import (
+    AuditTable,
+    AuditValidator,
+    AuditWriter,
+    reconcile_ledger_audit_kg,
+)
 from zer0pa_health.boundary import RESEARCH_BOUNDARY
 from zer0pa_health.contracts.l1 import (
     L1ChannelGene,
@@ -35,13 +40,22 @@ from zer0pa_health.falsifiers import FalsifierClass, FalsifierLedger
 from zer0pa_health.hashing import sha256_of_obj
 from zer0pa_health.ids import audit_id, claim_id, run_id as new_run_id
 from zer0pa_health.kg import EdgeType, KGEdge, KGNode, KGStore, NodeType
+from zer0pa_health.kg.validator import KGValidator
 from zer0pa_health.layers.l1.adapter import L1StubAdapter
 from zer0pa_health.layers.l2.adapter import L2StubAdapter
 from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
 from zer0pa_health.layers.l3.adapter import L3StubAdapter
 from zer0pa_health.layers.l4.adapter import L4StubAdapter
 from zer0pa_health.layers.l5.adapter import L5StubAdapter
-from zer0pa_health.packets import CardiacPacketAssembler, score_baseline_for_compound, score_packet
+from zer0pa_health.orchestration import L6Router, StateGraph, StateNode, StateTransition
+from zer0pa_health.packets import (
+    CardiacPacketAssembler,
+    MorphologyFixtureError,
+    fixture_provenance_summary,
+    load_morphology_fixture,
+    score_baseline_for_compound,
+    score_packet,
+)
 from zer0pa_health.packets.assembler import AssemblerInputs
 from zer0pa_health.reasoner.adapter import StubReasonerBackend
 from zer0pa_health.reasoner.day_one_flow import run_reasoner_step
@@ -77,10 +91,23 @@ class CardiacRunResult:
     pubmed_lift: float
     backedges_emitted: int = 0
     decisions_recorded: int = 0
+    # L6 router governance fields (populated when the L6 router is the
+    # authority for packet export — operator brief 2026-04-30).
+    l6_router_block_count: int = 0
+    l6_router_promote_count: int = 0
+    l6_router_blocked_falsifiers: list[str] = field(default_factory=list)
+    l6_router_governed: bool = True
+    packet_exported: bool = True
+    block_reason: str | None = None
 
 
 def _audit_envelope(
-    aw: AuditWriter, env: LayerEnvelope, run_id: str, layer: str, params: dict[str, Any]
+    aw: AuditWriter,
+    env: LayerEnvelope,
+    run_id: str,
+    layer: str,
+    params: dict[str, Any],
+    led: "FalsifierLedger | None" = None,
 ) -> None:
     """Write the cross-cutting audit rows that every layer envelope generates.
 
@@ -88,6 +115,11 @@ def _audit_envelope(
     decisions (the layer's pass/fail), replay_commands (deterministic),
     artifacts (the envelope dump), falsifiers (one row per item), midd_assessments
     (research-only model qualification record).
+
+    If `led` is provided, every falsifier item is ALSO emitted to the operational
+    `FalsifierLedger` view (the JSONL file at `audit/runs/<rid>/falsifier_ledger.jsonl`).
+    Audit/falsifiers.jsonl and falsifier_ledger.jsonl MUST stay reconciled — see
+    `reconcile_ledger_audit_kg` below.
     """
     adapter = env.tool_adapter
     aw.append(
@@ -172,6 +204,22 @@ def _audit_envelope(
                 "evidence": list(it.evidence),
             },
         )
+        # Mirror to the operational ledger view (mandatory in normal runs).
+        # Pass falsifier_id so ledger reuses the envelope's id (reconciliation
+        # requires set-equal falsifier_ids across audit and ledger).
+        if led is not None:
+            try:
+                led.emit(
+                    run_id=run_id,
+                    falsifier_class=FalsifierClass(it.falsifier_class),
+                    layer=layer,
+                    status=it.status,
+                    evidence=list(it.evidence),
+                    falsifier_id=it.falsifier_id,
+                )
+            except ValueError:
+                # falsifier_class string not in our enum — record raw to audit only.
+                pass
 
 
 def _kg_emit_envelope(kg: KGStore, env: LayerEnvelope, run_id: str, layer: str) -> int:
@@ -215,6 +263,74 @@ def _kg_emit_envelope(kg: KGStore, env: LayerEnvelope, run_id: str, layer: str) 
         )
     )
     return n
+
+
+def _run_l6_governance(
+    envelopes: dict[str, LayerEnvelope],
+    run_id: str,
+    aw: AuditWriter,
+):
+    """Run the L6 router across the L1→L5 envelopes as the deciding authority.
+
+    The router walks a state graph whose handlers REPLAY the just-computed
+    envelopes (no rework — the L1-L5 adapters already ran). Its job is to
+    enforce the gate: silent_falsifier_loss is checked layer-to-layer, any
+    FAIL falsifier triggers a BLOCK decision, and the report tells the caller
+    whether packet export is allowed.
+
+    Each decision is mirrored into `audit/decisions.jsonl` so the L6 governance
+    is auditable.
+    """
+    layer_order = ("L1", "L2.5", "L2", "L3", "L4", "L5")
+
+    def make_handler(layer_key: str):
+        cached = envelopes[layer_key]
+
+        def _handler(_inp, run_id, pending_backedges):  # noqa: ARG001
+            return cached
+
+        return _handler
+
+    g = StateGraph()
+    name_for = {
+        "L1": "l1", "L2.5": "l25", "L2": "l2", "L3": "l3", "L4": "l4", "L5": "l5",
+    }
+    for layer in layer_order:
+        if layer not in envelopes:
+            continue
+        g.add_node(StateNode(name=name_for[layer], layer=layer, handler=make_handler(layer)))
+    transitions = list(zip(layer_order, layer_order[1:]))
+    for src, dst in transitions:
+        if src in envelopes and dst in envelopes:
+            g.add_edge(
+                StateTransition(
+                    src=name_for[src], dst=name_for[dst], gate=StateGraph.gate_not_blocked
+                )
+            )
+
+    router = L6Router(g)
+    report = router.execute(start_node=name_for["L1"], run_id=run_id, max_iters=64)
+
+    for step in report.steps:
+        aw.append(
+            AuditTable.DECISIONS,
+            {
+                "run_id": run_id,
+                "decision_id": f"decision:l6_router:{step.layer}:{run_id}:{step.envelope.audit.audit_record_id}",
+                "actor": "l6_router",
+                "decision_kind": step.decision.value,
+                "rationale": (
+                    f"L6 router decision for {step.layer}: "
+                    f"falsifier_classes_active={step.falsifier_classes_active}; "
+                    f"backedges_emitted={step.backedges_emitted}; "
+                    f"is_reexecution={step.is_reexecution}"
+                ),
+                "triggered_by": [
+                    it.falsifier_id for it in step.envelope.falsifier.items if it.falsifier_id
+                ][:5],
+            },
+        )
+    return report
 
 
 def _populate_source_manifests(aw: AuditWriter, kg: KGStore, run_id: str) -> int:
@@ -271,6 +387,8 @@ def run_cardiac_compound(
         p.mkdir(parents=True, exist_ok=True)
 
     aw = AuditWriter(audit_root, rid)
+    # The operational FalsifierLedger view — populated alongside audit/falsifiers.jsonl.
+    # `reconcile_ledger_audit_kg` (below) verifies the two views stay in sync after the run.
     led = FalsifierLedger(audit_root / "runs" / rid / "falsifier_ledger.jsonl")
     kg = KGStore(kg_root)
     if write_kg_seed and not (kg_root / "nodes.jsonl").exists():
@@ -318,15 +436,24 @@ def run_cardiac_compound(
             L1TargetInput(gene=L1ChannelGene.CACNA1C, current=L1IonCurrent.ICaL),
         ]
     )
-    e_l1 = l1.channel_panel(panel_input, ligand_smiles=smiles, run_id=rid)
-    _audit_envelope(aw, e_l1, rid, "L1", {"panel_genes": 4, "ligand_smiles_present": True})
+    # Pass ligand_inchikey so the L1 stub fires its canned channel panel rather
+    # than the deterministic-stub fallback. The envelope's `output` dict is the
+    # source-of-truth for the channel panel downstream (assembler reads it).
+    e_l1 = l1.channel_panel(
+        panel_input, ligand_smiles=smiles, ligand_inchikey=inchikey, run_id=rid
+    )
+    _audit_envelope(
+        aw, e_l1, rid, "L1",
+        {"panel_genes": 4, "ligand_smiles_present": True, "ligand_inchikey": inchikey},
+        led=led,
+    )
     runtime_node_count += _kg_emit_envelope(kg, e_l1, rid, "L1")
     backedges += len(e_l1.back_edges)
 
     # L2.5 retrosynthesis
     l25 = L25StubAdapter()
     e_l25 = l25.process(L25Input(canonical_smiles=smiles, policy=L25Policy.STUB), run_id=rid)
-    _audit_envelope(aw, e_l25, rid, "L2.5", {"policy": "stub"})
+    _audit_envelope(aw, e_l25, rid, "L2.5", {"policy": "stub"}, led=led)
     runtime_node_count += _kg_emit_envelope(kg, e_l25, rid, "L2.5")
     backedges += len(e_l25.back_edges)
     feedback = e_l25.output.get("feedback_to_l2", {})
@@ -347,7 +474,7 @@ def run_cardiac_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_l2, rid, "L2", {"smiles": smiles[:60]})
+    _audit_envelope(aw, e_l2, rid, "L2", {"smiles": smiles[:60]}, led=led)
     runtime_node_count += _kg_emit_envelope(kg, e_l2, rid, "L2")
     backedges += len(e_l2.back_edges)
 
@@ -368,7 +495,7 @@ def run_cardiac_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_l3, rid, "L3", {"n_rxnsmiles": len(rxn[:3])})
+    _audit_envelope(aw, e_l3, rid, "L3", {"n_rxnsmiles": len(rxn[:3])}, led=led)
     runtime_node_count += _kg_emit_envelope(kg, e_l3, rid, "L3")
     backedges += len(e_l3.back_edges)
 
@@ -396,7 +523,7 @@ def run_cardiac_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_l4, rid, "L4", {"n_unit_ops": len(e_l3.output.get("unit_ops", []))})
+    _audit_envelope(aw, e_l4, rid, "L4", {"n_unit_ops": len(e_l3.output.get("unit_ops", []))}, led=led)
     runtime_node_count += _kg_emit_envelope(kg, e_l4, rid, "L4")
     backedges += len(e_l4.back_edges)
 
@@ -417,17 +544,137 @@ def run_cardiac_compound(
         ),
         run_id=rid,
     )
-    _audit_envelope(aw, e_l5, rid, "L5", {"dose_mg": 0.5})
+    _audit_envelope(aw, e_l5, rid, "L5", {"dose_mg": 0.5}, led=led)
     runtime_node_count += _kg_emit_envelope(kg, e_l5, rid, "L5")
     backedges += len(e_l5.back_edges)
 
-    # 3. Cardiac packet
+    # 2b. L6 router governance — the falsification engine's deciding authority.
+    # Per operator brief 2026-04-30: "Make `zer0pa-health run-cardiac` use L6
+    # router as governing path — falsifier FAIL must block/reroute BEFORE
+    # packet export." We feed the just-computed envelopes into a state graph
+    # whose handlers replay them, run the L6Router as the gate, and record its
+    # promote/block decisions in the audit log. If the router blocks the chain,
+    # the cardiac packet is NOT exported; the run terminates with a structured
+    # block-reason instead.
+    l6_router_report = _run_l6_governance(
+        envelopes={"L1": e_l1, "L2.5": e_l25, "L2": e_l2, "L3": e_l3, "L4": e_l4, "L5": e_l5},
+        run_id=rid,
+        aw=aw,
+    )
+    decisions += len(l6_router_report.steps)
+    backedges += l6_router_report.backedge_count
+
+    # K4 (every L1-L6 envelope represented as OutputEnvelope) — emit an L6
+    # router-self envelope and audit row so the full layer set is represented.
+    e_l6 = L6Router.make_l6_self_envelope(
+        run_id=rid,
+        transitions=[
+            {
+                "layer": s.layer,
+                "decision": s.decision.value,
+                "active_falsifiers": s.falsifier_classes_active,
+            }
+            for s in l6_router_report.steps
+        ],
+    )
+    _audit_envelope(aw, e_l6, rid, "L6", {"router": "L6Router/StateGraph"}, led=led)
+    runtime_node_count += _kg_emit_envelope(kg, e_l6, rid, "L6")
+    backedges += len(e_l6.back_edges)
+    if l6_router_report.block_count > 0:
+        # Authority gate: block packet export. Record the block decision and
+        # synthesize a CardiacRunResult that flags the run as blocked. The
+        # caller (CLI) interprets `packet_exported=False` as a non-zero exit.
+        block_classes = sorted(set(l6_router_report.fatal_falsifiers_blocked_export))
+        aw.append(
+            AuditTable.DECISIONS,
+            {
+                "run_id": rid,
+                "decision_id": f"decision:l6_router_block_export:{rid}",
+                "actor": "l6_router",
+                "decision_kind": "block",
+                "rationale": (
+                    "L6 router blocked cardiac packet export because at least one "
+                    f"layer envelope failed: classes={block_classes}"
+                ),
+                "triggered_by": block_classes[:5],
+            },
+        )
+        # Validate the audit log we wrote so far + reconcile (defense in depth)
+        AuditValidator(audit_root, rid).validate()
+        reconcile_ledger_audit_kg(audit_root=audit_root, run_id=rid, kg_store=kg)
+        audit_table_counts: dict[str, int] = {}
+        for table in AuditTable:
+            path = audit_root / "runs" / rid / f"{table.value}.jsonl"
+            if path.exists():
+                audit_table_counts[table.value] = sum(
+                    1 for line in path.open("r", encoding="utf-8") if line.strip()
+                )
+            else:
+                audit_table_counts[table.value] = 0
+        return CardiacRunResult(
+            run_id=rid,
+            compound=compound,
+            audit_root=audit_root,
+            kg_root=kg_root,
+            packet_path=Path(),  # no packet was exported
+            reasoner_queue_path=Path(),
+            audit_table_counts=audit_table_counts,
+            falsifier_fail_counts=led.fail_count_by_class(),
+            kg_runtime_nodes=runtime_node_count,
+            kg_runtime_edges=runtime_edge_count,
+            reasoner_tuples_emitted=0,
+            packet_verdict="blocked_by_l6",
+            engine_score=0.0,
+            baseline_score=0.0,
+            pubmed_lift=0.0,
+            backedges_emitted=backedges,
+            decisions_recorded=decisions,
+            l6_router_block_count=l6_router_report.block_count,
+            l6_router_promote_count=l6_router_report.promote_count,
+            l6_router_blocked_falsifiers=block_classes,
+            l6_router_governed=True,
+            packet_exported=False,
+            block_reason=(
+                f"L6 router blocked export: {', '.join(block_classes) or 'unknown'}"
+            ),
+        )
+
+    # 3. Cardiac packet — assembled from validated L1 envelope output (NOT
+    # the fixture's `channel_panel_canned` blob). Per operator brief 2026-04-30:
+    # "Assemble cardiac packets from validated L1-L5 envelopes. Fixtures may
+    # seed inputs only."
+    #
+    # Morphology arrays come from the LOCKED morphology fixture under
+    # `fixtures/morphology/<compound>.json` — not synthetic ad-hoc values.
+    # The loader hard-stops on NaN/inf and records extractor provenance.
+    if qt_errors_ms is not None:
+        # Caller-supplied override (test path); validate finiteness inline.
+        morph_arrays: dict[str, list[float]] = {"QT": list(qt_errors_ms)}
+        morph_provenance = {"extractor_name": "caller_override", "extractor_version": "n/a"}
+    else:
+        morph_fixture = load_morphology_fixture(compound)
+        morph_arrays = dict(morph_fixture["fiducials"])
+        morph_provenance = fixture_provenance_summary(morph_fixture)
+    aw.append(
+        AuditTable.PARAMETERS,
+        {
+            "run_id": rid,
+            "layer": "morphology_fixture",
+            "adapter_id": "morphology:fixture_loader",
+            "parameters": {
+                "compound": compound,
+                **{k: str(v) for k, v in morph_provenance.items()},
+            },
+        },
+    )
     packet, diag = CardiacPacketAssembler().assemble(
         AssemblerInputs(
             compound_fixture_path=fixture_path,
             run_id=rid,
             cmax_unbound_uM=cmax_unbound_uM,
-            morphology_errors_ms={"QT": qt_errors_ms or [1.0, 1.5, 2.0, 2.5, 1.8]},
+            morphology_errors_ms=morph_arrays,
+            l1_panel_envelope_output=dict(e_l1.output),
+            require_envelope=True,
         )
     )
     packet_path = packets_root / f"cardiac_evidence_packet_v0_1__{compound}__{rid.replace(':','_')}.json"
@@ -544,14 +791,14 @@ def run_cardiac_compound(
         )
         runtime_edge_count += 1
 
-        # HAS_AUDIT edge -> AuditRecord node (K1: at least one AuditRecord)
+        # HAS_AUDIT edge -> AuditRecord node (K1: at least one AuditRecord).
+        # Phase D.3 (operator brief 2026-04-30): use the dedicated NodeType.AUDIT_RECORD
+        # rather than reusing OUTPUT_ENVELOPE — K1 now matches on type, not shape.
         ar_id = f"AuditRecord:{rid}:{c.audit_refs[0]}"
         kg.add_node(
             KGNode(
                 node_id=ar_id,
-                # Reusing OUTPUT_ENVELOPE since AuditRecord is not a NodeType in the
-                # PRD enum; the audit-record-shaped node satisfies HAS_AUDIT structurally.
-                node_type=NodeType.OUTPUT_ENVELOPE,
+                node_type=NodeType.AUDIT_RECORD,
                 properties={
                     "kind": "audit_record_pointer",
                     "run_id": rid,
@@ -582,7 +829,7 @@ def run_cardiac_compound(
             "qualification_basis": [
                 "schema_validates_against_pydantic_and_jsonschema",
                 "audit_hash_chain_validates",
-                "kg_constraints_K1_K3_validate",
+                "kg_constraints_K1_K5_validate",
                 "falsifier_ledger_present",
                 "morphology_gate_threshold_met_or_explicit_absence",
                 f"engine_score={engine.total:.2f}",
@@ -657,6 +904,15 @@ def run_cardiac_compound(
     # 7. Validate the audit log we just wrote (acceptance gate per PRD section 11)
     AuditValidator(audit_root, rid).validate()
 
+    # 7a. K1-K5 KG constraint validation (Phase D.3 — operator brief 2026-04-30).
+    # Cardiac runs MUST have OutputEnvelope nodes for L1-L6, AuditRecord-typed
+    # audit nodes, and pass codec-not-mechanism (K2) and Episode-no-evidence (K5).
+    KGValidator(kg).validate_cardiac()
+
+    # 7b. Reconcile audit/falsifiers.jsonl ↔ falsifier_ledger.jsonl ↔ KG falsifier nodes.
+    # Per operator brief 2026-04-30: "fail if ledger, audit, and KG diverge."
+    reconcile_ledger_audit_kg(audit_root=audit_root, run_id=rid, kg_store=kg)
+
     # 8. Compute counts
     audit_table_counts: dict[str, int] = {}
     for table in AuditTable:
@@ -688,6 +944,12 @@ def run_cardiac_compound(
         pubmed_lift=engine.total - baseline.total,
         backedges_emitted=backedges,
         decisions_recorded=decisions,
+        l6_router_block_count=l6_router_report.block_count,
+        l6_router_promote_count=l6_router_report.promote_count,
+        l6_router_blocked_falsifiers=list(l6_router_report.fatal_falsifiers_blocked_export),
+        l6_router_governed=True,
+        packet_exported=True,
+        block_reason=None,
     )
 
 

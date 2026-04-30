@@ -74,7 +74,11 @@ class L5ChannelExposureBridge(BaseModel):
     )
     multi_current_balance_score: float | None = Field(
         default=None, ge=-1.0, le=1.0,
-        description="Net repolarization balance: positive=safer (net outward), negative=longer APD.",
+        description=(
+            "Net repolarization balance: HIGHER = more outward-current block relative to "
+            "inward-current block = greater APD-prolongation tendency in research-only "
+            "multi-current models. RESEARCH INDICATOR ONLY. See L5 cardiac_bridge.py."
+        ),
     )
 
 

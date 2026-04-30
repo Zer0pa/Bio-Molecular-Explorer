@@ -8,7 +8,7 @@ Replaceable tools: RDKit, DiffDock V2, Boltz-2, Protenix, OpenMM, OpenFE, stubs.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -129,11 +129,22 @@ class L1ChannelPanelHypothesis(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     molecule_inchikey: str
-    panel: dict[str, dict[str, float | None]] = Field(
+    panel: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
-        description="gene -> {'ic50_uM': float|None, 'confidence': float}",
+        description=(
+            "gene -> {'ic50_uM': float|None, 'block_fraction_at_cmax_unbound': float|None, "
+            "'method': str, 'confidence': float, 'source_refs': list[str], "
+            "'explicit_absence': str|None}. The widening to Any preserves panel provenance "
+            "(method, source_refs, explicit_absence flag) end-to-end so the cardiac packet "
+            "assembler can source these from the L1 envelope rather than the fixture."
+        ),
     )
     multi_current_balance_score: float | None = Field(
         default=None, ge=-1.0, le=1.0,
-        description="Net repolarization balance (positive=net outward/safer; negative=net inward/longer APD).",
+        description=(
+            "Net repolarization balance: HIGHER = more outward-current block relative to "
+            "inward-current block = greater APD-prolongation tendency in research-only "
+            "multi-current models. RESEARCH INDICATOR ONLY — no clinical or safety claim "
+            "implied in any direction. See L5 cardiac_bridge.py for canonical formula."
+        ),
     )

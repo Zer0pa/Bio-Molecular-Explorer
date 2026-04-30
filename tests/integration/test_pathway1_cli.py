@@ -83,9 +83,11 @@ def test_cli_run_pathway1_writes_packets_to_disk(tmp_path):
     )
     packets_dir = tmp_path / "packets" / "pathway1"
     assert packets_dir.is_dir()
-    packets = list(packets_dir.glob("*.json"))
-    assert len(packets) >= 1
-    raw = json.loads(packets[0].read_text())
+    # Filter to P1 handoff packets specifically — the cardiac evidence packet
+    # written alongside (cardiac_evidence_packet_p1__*) has a different schema.
+    handoff_packets = list(packets_dir.glob("p1_handoff__*.json"))
+    assert len(handoff_packets) >= 1
+    raw = json.loads(handoff_packets[0].read_text())
     assert raw["target_gene"] == "KCNH2"
     assert raw["is_cardiac_target"] is True
     assert raw["l1_channel_panel_input"] is not None

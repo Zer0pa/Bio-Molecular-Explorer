@@ -1,0 +1,26 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "verapamil",
+  "compound_inchikey": "SGTNSNPWRIOYBX-UHFFFAOYSA-N",
+  "is_held_out": false,
+  "competent_reader_input": {
+    "claim_text": "Verapamil blocks both IKr (hERG) and ICaL channels; multi-current balance produces a low TdP signal in the literature despite hERG block.",
+    "source_refs": ["pubmed:Mirams_2014", "pubmed:CiPA_review_2018", "pubmed:verapamil_paradox_review"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": true,
+    "contradictions": [
+      "verapamil:hERG_block_low_TdP_research_signal"
+    ]
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 80.0,
+    "source_grounding": 70.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 65.0,
+    "audit_replay": 5.0,
+    "rationale": "Verapamil is famous as the hERG-only-overreach refuter; competent readers DO multi-current frame this one and surface the contradiction. Citations are real but not machine-validated. No falsifier discipline."
+  },
+  "expected_total": 48.5
+}

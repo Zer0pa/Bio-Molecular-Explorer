@@ -32,6 +32,7 @@ class NodeType(str, Enum):
     EPISODE = "Episode"
     REASONER_TUPLE = "ReasonerTuple"
     ACCEPTANCE_GATE = "AcceptanceGate"
+    AUDIT_RECORD = "AuditRecord"
     # Pathway 1 — R&D / Drug Discovery extensions (PATHWAY1_PRD.md §2)
     TARGET = "Target"
     HIT = "Hit"

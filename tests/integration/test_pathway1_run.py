@@ -173,8 +173,9 @@ def test_pathway1_p1_to_cardiac_evidence_packet_full_e2e(tmp_path):
 
     The pathway1 runner synthesizes a compound fixture from the leading P1.Handoff
     packet, calls CardiacPacketAssembler.assemble() against it, and writes the
-    resulting CardiacEvidencePacket to disk. Engine score must beat the PubMed
-    baseline by ≥ 10 points (PRD section 7 acceptance gate).
+    resulting CardiacEvidencePacket to disk. Engine score must clear the
+    acceptance threshold; baseline lift is intentionally NOT computed for novel
+    Pathway 1 candidates (D-028 quarantine; no PubMed reader has seen them).
     """
     res = run_pathway1_compound("KCNH2", runtime_root=tmp_path, library_size=10)
     assert res.cardiac_evidence_packet_path is not None
@@ -183,7 +184,9 @@ def test_pathway1_p1_to_cardiac_evidence_packet_full_e2e(tmp_path):
     assert "error" not in score, f"cardiac packet assembly errored: {score.get('error')}"
     assert score["verdict"] == "pass"
     assert score["engine_score"] >= 80.0, f"engine score below acceptance: {score}"
-    assert score["lift"] >= 10.0, f"PubMed-baseline lift below threshold: {score}"
+    # Per Phase D.1 — Pathway 1 candidates have no calibrated baseline.
+    assert score.get("baseline_score") is None
+    assert score.get("baseline_status") == "no_calibrated_baseline_for_novel_p1_candidate"
 
 
 def test_pathway1_non_cardiac_target_does_not_assemble_cardiac_packet(tmp_path):

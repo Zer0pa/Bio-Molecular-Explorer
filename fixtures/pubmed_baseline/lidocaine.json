@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "lidocaine",
+  "compound_inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+  "is_held_out": true,
+  "competent_reader_input": {
+    "claim_text": "Lidocaine is a Class IB sodium-channel blocker; minimal QT effect under therapeutic exposures; widely used as local anesthetic and IV antiarrhythmic.",
+    "source_refs": ["pubmed:lidocaine_pharmacology_review", "pubmed:Class_IB_review"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 70.0,
+    "source_grounding": 60.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Sodium-channel framing well-known; multi-current framing uncommon. SEALED for blind evaluation."
+  },
+  "expected_total": 41.25
+}

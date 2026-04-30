@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/contracts/l2.dissolution.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "purpose": "Parked-work canned reference for L2 DeepXDE PINN-style IR-tablet dissolution output.",
+  "formulation": "IR_tablet",
+  "weibull_alpha": 0.42,
+  "weibull_beta": 0.85,
+  "f2_similarity_score": 65.0,
+  "dissolution_profile_pct": [
+    {"t_min": 5, "pct_dissolved": 18.0},
+    {"t_min": 10, "pct_dissolved": 38.0},
+    {"t_min": 15, "pct_dissolved": 55.0},
+    {"t_min": 30, "pct_dissolved": 78.0},
+    {"t_min": 45, "pct_dissolved": 88.0},
+    {"t_min": 60, "pct_dissolved": 92.0}
+  ],
+  "parked_work": {
+    "id": "parked_l2_deepxde_pinn",
+    "blocker": "requires GPU + DeepXDE training pipeline",
+    "promotion_gate": "GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER",
+    "note": "Values are stub canned outputs."
+  }
+}

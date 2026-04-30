@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/fixtures/pubmed_baseline.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "compound_name": "dofetilide",
+  "compound_inchikey": "IXTMWRCNAAVVAI-UHFFFAOYSA-N",
+  "is_held_out": false,
+  "competent_reader_input": {
+    "claim_text": "Dofetilide is a Class III antiarrhythmic that prolongs QT primarily via IKr/hERG block. Clinical guidance recommends QT monitoring.",
+    "source_refs": ["pubmed:Roden_clinical_pharmacology_2004", "pubmed:CiPA_review_2018"],
+    "falsifier_refs": [],
+    "audit_refs": [],
+    "multi_current_context": false,
+    "contradictions": []
+  },
+  "scorecard_calibration": {
+    "claim_correctness": 75.0,
+    "source_grounding": 70.0,
+    "falsifier_coverage": 0.0,
+    "contradiction_handling": 50.0,
+    "audit_replay": 5.0,
+    "rationale": "Reader correctly identifies IKr/hERG block but rarely multi-current frames; PubMed citations are real but not machine-validated; no falsifier discipline; no machine replay."
+  },
+  "expected_total": 44.75
+}

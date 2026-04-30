@@ -34,9 +34,9 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 4. `briefing-pack/README.md` then the six numbered docs (1-scope, 2-charter, 3-inherited, 4-current-thinking, 5-open-questions, 6-evidence-and-data-map) — the cardiac wedge from the parallel RBTE work stream.
 5. `synthesis/01-fresh-eyes-on-pipeline-briefs.md` — synthesis-agent reframe of the briefs; this is the substrate for your own fresh-eyes augmentation.
 
-## Implementation status (overnight execution, 2026-04-30, 7 iterations)
+## Implementation status (overnight execution, 2026-04-30, 8 iterations)
 
-- **Tests**: 728 passing (unit + integration + plug-swap + falsification wave + cardiac packet + Runpod cutover acceptance + L6 router backedge re-execution + reasoner sim + dispatcher sim + Pathway 1 R&D front-end + P1 → L1 → CardiacEvidencePacket end-to-end).
+- **Tests**: 768 passing (unit + integration + plug-swap + falsification wave + cardiac packet + Runpod cutover acceptance + L6 router backedge re-execution + reasoner sim + dispatcher sim + Pathway 1 R&D front-end + P1 → L1 → CardiacEvidencePacket end-to-end + L6 governance block-export gate + K1-K5 KG constraints + locked morphology fixtures + per-compound PubMed baselines + plug-swap signature/audit-shape hardening).
 - **Pipelines**: TWO ends — front-end (Pathway 1 R&D / Drug Discovery) + back-end (cardiac safety wedge).
 - **Layers**: L1 (REST stubs + canned outputs for the cardiac wedge), L2 (property/formulation with L2.5 back-edge), L2.5 (retrosynthesis with RXNSMILES + atom-map validators), L3 (process + mass balance), L4 (FMU/Ditto sensor twin), L5 (PKPD + cardiac exposure-channel bridge), L6 (LangGraph-shaped router with silent_falsifier_loss preservation).
 - **Cross-cutting**: universal layer envelope (Pydantic + JSON Schema), append-only audit log with hash chain, KG with cardiac seed (33 nodes, 21 edges), 16-class falsifier registry with 13 detectors, falsifier ledger, self-bootstrapping reasoner with PRD-shaped tuples and clinical-overclaim self-policing, cloud-lab dry-run adapters (Strateos/Emerald/Arctoris) with hard interlocks.
@@ -56,6 +56,20 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 - **KG seed extension** (`kg/pathway1_seed.jsonl`, +17 nodes / +13 edges). Combined cardiac+P1 KG: 50 nodes, 35 edges. K1-K5 hold.
 - **End-to-end runner** (`runs/pathway1_run.py`): walks all 6 P1 layers, bridges into existing L1 cardiac panel, writes all 12 audit tables, emits handoff packets, emits a reasoner tuple, and assembles a `CardiacEvidencePacket` from the leading P1 candidate. Smoke result for KCNH2: engine score 96.25 / baseline 49.0 / lift +47.25.
 - **Cutover acceptance**: `P1StructureRunpodSimAdapter`, `P1GenerateRunpodSimAdapter`, `P1ScreenRunpodSimAdapter` mirror the existing pipeline's runpod-sim pattern. `cutover-dryrun --layer p1` PASSES.
+
+## Iteration 8 (2026-04-30) — Authority-path defects fixed
+
+Twelve operator-brief items closed; details in `docs/execution-report.md` and DECISIONS D-030 through D-038. Highlights:
+
+- **L6 router governs `run-cardiac`** — falsifier FAIL produces a router BLOCK that prevents packet export; CLI exits 2 on block.
+- **Cardiac packet is assembled from validated L1 envelopes**, not from `fixture["channel_panel_canned"]`. `require_envelope=True` for production runs.
+- **`FalsifierLedger` mirror is mandatory**; `reconcile_ledger_audit_kg` raises on audit/ledger/KG divergence.
+- **K1-K5 enforced** — true `NodeType.AUDIT_RECORD`; K2 codec-not-mechanism, K4 layer-coverage L1-L6, K5 episode-no-evidence all enforced via `KGValidator.validate_cardiac()`.
+- **Locked morphology fixtures** under `fixtures/morphology/` with extractor provenance; NaN/inf hard-stop via `MorphologyFixtureError`.
+- **Per-compound PubMed baselines** under `fixtures/pubmed_baseline/`; held-out subset (moxifloxacin / diltiazem / mexiletine / lidocaine) reserved for blind evaluation; constant 49.0 baseline replaced.
+- **Plug-swap hardening** — adapter signatures, audit-shape sha256:64-hex format, nested schema compatibility, falsifier-class preservation between Stub and Toy.
+- **`runpod-precheck` exits 3 on adapter blockers, 4 on structural defects**; parked-work fixture files exist on disk under `fixtures/canned/{l1,l2,reasoner}/`.
+- **Pathway 1 quarantined** (D-028); P1 cardiac packet uses no calibrated baseline; ADMET hERG IC50 marked as informational only, not channel-panel evidence.
 
 ## Provenance
 

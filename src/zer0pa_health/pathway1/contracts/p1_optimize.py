@@ -59,6 +59,10 @@ class P1OptimizedLead(BaseModel):
     distinct_models_count: int = Field(
         ge=0, description="Number of independent scoring engines that ran on this lead."
     )
+    generation_method: str = Field(
+        default="unknown",
+        description="Generation method carried through from P1.Generate (e.g., REINVENT4_RL, DiffSBDD).",
+    )
 
 
 class P1OptimizeOutput(BaseModel):

@@ -40,6 +40,20 @@ from zer0pa_health.pathway1.layers.optimize.adapter import P1OptimizeStubAdapter
 from zer0pa_health.pathway1.layers.screen.adapter import P1ScreenStubAdapter
 from zer0pa_health.pathway1.layers.structure.adapter import P1StructureStubAdapter
 from zer0pa_health.pathway1.layers.target.adapter import P1TargetStubAdapter
+from zer0pa_health.packets import (
+    CardiacPacketAssembler,
+    score_baseline_for_compound,
+    score_packet,
+)
+from zer0pa_health.packets.assembler import AssemblerInputs
+from zer0pa_health.reasoner.adapter import StubReasonerBackend
+from zer0pa_health.reasoner.day_one_flow import run_reasoner_step
+from zer0pa_health.reasoner.queue import ReasonerQueue
+from zer0pa_health.reasoner.tuple_schema import (
+    ReasonerInput,
+    TupleConstraints,
+    TupleEntities,
+)
 
 
 REPO = Path(__file__).resolve().parents[3]
@@ -72,6 +86,9 @@ class Pathway1RunResult:
     audit_table_counts: dict[str, int] = field(default_factory=dict)
     cardiac_l1_envelope_summary: dict[str, Any] = field(default_factory=dict)
     falsifier_fail_counts: dict[str, int] = field(default_factory=dict)
+    reasoner_tuples_emitted: int = 0
+    cardiac_evidence_packet_path: Path | None = None
+    cardiac_evidence_packet_score: dict[str, Any] = field(default_factory=dict)
 
 
 def _audit_envelope(
@@ -427,6 +444,138 @@ def run_pathway1_compound(
                 "confidence_score": e_cardiac_l1.confidence.score,
             }
 
+    # ---- Reasoner tuple per run (PRD section 8) ----
+    queue_root = runtime_root / "reasoner_queue"
+    queue_root.mkdir(parents=True, exist_ok=True)
+    reasoner_tuples_emitted = 0
+    if packets:
+        first_packet = packets[0]
+        queue = ReasonerQueue(queue_path=queue_root, run_id=rid)
+        backend = StubReasonerBackend()
+        reasoner_input = ReasonerInput(
+            question=(
+                f"What is the multi-current research-only signal for the leading "
+                f"Pathway 1 candidate against {target_gene}?"
+            ),
+            entities=TupleEntities(
+                compounds=[first_packet["candidate_id"]],
+                genes=["KCNH2", "SCN5A", "KCNQ1", "CACNA1C"],
+                currents=["IKr", "INaL", "IKs", "ICaL"],
+                phenotypes=["QT/QTc"],
+            ),
+            context_pack_refs=[
+                "source:OpenTargets_v25_06",
+                "source:TTD_2026",
+                "source:FDA_E14_S7B",
+                "source:FDA_CiPA",
+                f"packet:p1_handoff:{first_packet['candidate_id']}",
+            ],
+            constraints=TupleConstraints(),
+        )
+        run_reasoner_step(adapter=backend, input_block=reasoner_input, run_id=rid, queue=queue)
+        reasoner_tuples_emitted = 1
+
+    # ---- Cardiac evidence packet bridge (cardiac targets only) ----
+    cardiac_packet_path: Path | None = None
+    cardiac_packet_score: dict[str, Any] = {}
+    if packets and target_gene in _CARDIAC_GENE_TO_CURRENT and cardiac_l1_summary:
+        first_packet = packets[0]
+        admet = first_packet.get("admet", {})
+        synthetic_fixture = {
+            "$schema": "../../schemas/fixtures/compound.schema.json",
+            "research_boundary": (
+                "Research use only. Not for diagnosis, treatment, cure claims, "
+                "prescribing, clinical deployment, regulatory compliance, or "
+                "drug-safety certification."
+            ),
+            "name": first_packet["candidate_id"].lower().replace(":", "_"),
+            "inchikey": "P1SYNTH-" + first_packet["candidate_id"][:14].upper().replace(":", "_"),
+            "canonical_smiles": first_packet["smiles"],
+            "drug_class_research_label": (
+                f"Pathway-1-derived candidate against {target_gene} (research label; "
+                "not a clinical recommendation)"
+            ),
+            "cardiac_research_role": (
+                f"Pathway 1 lead for {target_gene}; multi-current bridge populated "
+                "from L1 channel-panel envelope."
+            ),
+            "channel_panel_canned": {
+                "KCNH2_hERG_IKr": {
+                    "ic50_uM": admet.get("hERG_IC50_uM"),
+                    "block_fraction_at_cmax_unbound": None,
+                    "method": "stub",
+                    "confidence": 0.5,
+                    "explicit_absence": (
+                        None
+                        if admet.get("hERG_IC50_uM") is not None
+                        else "p1_admet_panel_did_not_emit_value"
+                    ),
+                },
+                "SCN5A_Nav1_5_INa_INaL": {
+                    "ic50_uM": None,
+                    "block_fraction_at_cmax_unbound": None,
+                    "method": "stub",
+                    "confidence": 0.0,
+                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
+                },
+                "KCNQ1_Kv7_1_IKs": {
+                    "ic50_uM": None,
+                    "block_fraction_at_cmax_unbound": None,
+                    "method": "stub",
+                    "confidence": 0.0,
+                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
+                },
+                "CACNA1C_CaV1_2_ICaL": {
+                    "ic50_uM": None,
+                    "block_fraction_at_cmax_unbound": None,
+                    "method": "stub",
+                    "confidence": 0.0,
+                    "explicit_absence": "p1_admet_panel_pending_runpod_real",
+                },
+            },
+            "expected_packet_verdict": "pass",
+            "expected_morphology_signal": (
+                "Pathway-1-derived candidate; multi-current research signal contingent "
+                "on Runpod-real channel panel from L1."
+            ),
+            "stub_provenance_note": (
+                "Synthetic compound fixture composed from P1.Handoff packet at runtime. "
+                "Mechanism escalation requires Runpod-real OpenFold3/Boltz-2 + "
+                "multi-current channel panel; current values are P1 stub canned."
+            ),
+        }
+        synth_dir = runtime_root / "packets" / "pathway1" / "synthetic_fixtures"
+        synth_dir.mkdir(parents=True, exist_ok=True)
+        synth_fixture_path = synth_dir / f"{synthetic_fixture['name']}.json"
+        synth_fixture_path.write_text(json.dumps(synthetic_fixture, indent=2))
+
+        try:
+            cardiac_packet, _diag = CardiacPacketAssembler().assemble(
+                AssemblerInputs(
+                    compound_fixture_path=synth_fixture_path,
+                    run_id=rid,
+                    cmax_unbound_uM=0.001,
+                    morphology_errors_ms={"QT": [1.5, 2.0, 2.5, 1.8, 2.1]},
+                )
+            )
+            cardiac_packet_path = (
+                runtime_root
+                / "packets"
+                / "pathway1"
+                / f"cardiac_evidence_packet_p1__{target_gene}__{rid.replace(':', '_')}.json"
+            )
+            cardiac_packet_path.write_text(cardiac_packet.model_dump_json(indent=2))
+            engine = score_packet(cardiac_packet)
+            baseline = score_baseline_for_compound(synthetic_fixture["name"])
+            cardiac_packet_score = {
+                "verdict": cardiac_packet.verdict.value,
+                "engine_score": engine.total,
+                "baseline_score": baseline.total,
+                "lift": engine.total - baseline.total,
+            }
+        except Exception as exc:  # noqa: BLE001
+            cardiac_packet_score = {"error": f"{type(exc).__name__}: {exc}"}
+
     # MIDD assessment per packet (PRD §6 audit table 12)
     aw.append(
         AuditTable.MIDD_ASSESSMENTS,
@@ -501,6 +650,9 @@ def run_pathway1_compound(
         audit_table_counts=audit_table_counts,
         cardiac_l1_envelope_summary=cardiac_l1_summary,
         falsifier_fail_counts=fail_counts,
+        reasoner_tuples_emitted=reasoner_tuples_emitted,
+        cardiac_evidence_packet_path=cardiac_packet_path,
+        cardiac_evidence_packet_score=cardiac_packet_score,
     )
 
 

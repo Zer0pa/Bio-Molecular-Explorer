@@ -34,9 +34,10 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 4. `briefing-pack/README.md` then the six numbered docs (1-scope, 2-charter, 3-inherited, 4-current-thinking, 5-open-questions, 6-evidence-and-data-map) — the cardiac wedge from the parallel RBTE work stream.
 5. `synthesis/01-fresh-eyes-on-pipeline-briefs.md` — synthesis-agent reframe of the briefs; this is the substrate for your own fresh-eyes augmentation.
 
-## Implementation status (overnight execution, 2026-04-30, 5 iterations)
+## Implementation status (overnight execution, 2026-04-30, 7 iterations)
 
-- **Tests**: 507 passing (unit + integration + plug-swap + falsification wave + cardiac packet + Runpod cutover acceptance + L6 router backedge re-execution + reasoner sim + dispatcher sim).
+- **Tests**: 728 passing (unit + integration + plug-swap + falsification wave + cardiac packet + Runpod cutover acceptance + L6 router backedge re-execution + reasoner sim + dispatcher sim + Pathway 1 R&D front-end + P1 → L1 → CardiacEvidencePacket end-to-end).
+- **Pipelines**: TWO ends — front-end (Pathway 1 R&D / Drug Discovery) + back-end (cardiac safety wedge).
 - **Layers**: L1 (REST stubs + canned outputs for the cardiac wedge), L2 (property/formulation with L2.5 back-edge), L2.5 (retrosynthesis with RXNSMILES + atom-map validators), L3 (process + mass balance), L4 (FMU/Ditto sensor twin), L5 (PKPD + cardiac exposure-channel bridge), L6 (LangGraph-shaped router with silent_falsifier_loss preservation).
 - **Cross-cutting**: universal layer envelope (Pydantic + JSON Schema), append-only audit log with hash chain, KG with cardiac seed (33 nodes, 21 edges), 16-class falsifier registry with 13 detectors, falsifier ledger, self-bootstrapping reasoner with PRD-shaped tuples and clinical-overclaim self-policing, cloud-lab dry-run adapters (Strateos/Emerald/Arctoris) with hard interlocks.
 - **Cardiac wedge deliverable**: three packets (dofetilide PASS / verapamil PASS / ranolazine PASS) generated via `scripts/generate_cardiac_packets.py`; balance score signs match the multi-current story (dofetilide +0.17 IKr-pure outward, verapamil −0.24 ICaL compensates, ranolazine −0.11 INaL-dominant). PubMed-baseline lift: ~47-51 points above competent-reader baseline.
@@ -45,7 +46,16 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 - **Runpod migration**: `runpod.config.yaml` + `docs/runpod-migration.md` define the stub-swap procedure; backend flag flip per adapter is the entire migration.
 - **Cutover demonstrated in code**: L1, L2, L5 GPU-bound layers, the TxGemma reasoner, and the Parsl-shaped dispatcher all have CPU-side `*RunpodSimAdapter` / `RunpodSimDispatcher` implementations that satisfy the same Protocols as the real GPU adapters will. `zer0pa-health cutover-dryrun` flips all layers in one command and verifies envelope shape + falsifier classes + backend flag are stable.
 - **L6 closed-loop routing**: the router doesn't just walk forward — it re-executes upstream layers when a back-edge is propagated, capped per-layer (budget=2) and globally (max=12), with `is_reexecution` flag on the step record.
-- **CLI**: `zer0pa-health {run-cardiac, validate-audit, validate-kg, validate-packet, runpod-precheck, graph-export, bundle, compare-runs, health-check, export-finetune-corpus, cutover-dryrun}` are all wired and tested.
+- **CLI**: `zer0pa-health {run-cardiac, run-pathway1, validate-audit, validate-kg, validate-packet, runpod-precheck, graph-export, bundle, compare-runs, health-check, export-finetune-corpus, cutover-dryrun}` are all wired and tested. `cutover-dryrun --layer all+p1` exercises every GPU-bound adapter swap in one shot.
+
+### Pathway 1 (R&D / Drug Discovery front-end)
+
+- **Layers**: P1.Target (target identification → UniProt + druggability), P1.Structure (OpenFold3 / Boltz-2 stubs → mmCIF + binding pocket), P1.Generate (REINVENT 4 / DiffSBDD stubs → candidate library), P1.Screen (Boltz-2 affinity + Chemprop ADMET + selectivity + SA score → ranked hits), P1.Optimize (BoTorch + Ax + REINVENT 4 RL on CPU → optimized leads), P1.Handoff (CRO-ready dossier; cardiac targets get an `l1_channel_panel_input` block).
+- **Falsifier registry +13 R&D classes**: target_validation_overreach, hit_from_noise, lead_without_physchem_feasibility, novelty_without_tractability, ip_chemspace_drift, alphafold_d_leakage, benchmark_leakage, pretrained_hallucination, gpt_rosalind_unavailable, structure_confidence_below_threshold, selectivity_not_assessed, synthesis_route_absent, confidence_tier_overclaim. **Sanitization extended**: AlphaFold AF IDs, leaked InChIKeys, and Enamine catalogue SMILES are sha256-prefix-hashed in evidence; never echoed verbatim.
+- **6 target fixtures + 12 hit fixtures + 18 negative fixtures** + JSON Schemas. Cardiac targets (KCNH2/SCN5A/KCNQ1/CACNA1C) bridge into the existing cardiac wedge; non-cardiac (EGFR/BACE1) framing for general-pipeline.
+- **KG seed extension** (`kg/pathway1_seed.jsonl`, +17 nodes / +13 edges). Combined cardiac+P1 KG: 50 nodes, 35 edges. K1-K5 hold.
+- **End-to-end runner** (`runs/pathway1_run.py`): walks all 6 P1 layers, bridges into existing L1 cardiac panel, writes all 12 audit tables, emits handoff packets, emits a reasoner tuple, and assembles a `CardiacEvidencePacket` from the leading P1 candidate. Smoke result for KCNH2: engine score 96.25 / baseline 49.0 / lift +47.25.
+- **Cutover acceptance**: `P1StructureRunpodSimAdapter`, `P1GenerateRunpodSimAdapter`, `P1ScreenRunpodSimAdapter` mirror the existing pipeline's runpod-sim pattern. `cutover-dryrun --layer p1` PASSES.
 
 ## Provenance
 

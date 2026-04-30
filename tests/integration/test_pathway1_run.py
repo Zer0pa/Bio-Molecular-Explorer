@@ -156,3 +156,38 @@ def test_pathway1_run_source_manifests_populated(tmp_path):
     n = sum(1 for line in sm_path.read_text().splitlines() if line.strip())
     # Both cardiac KG seed and pathway1 seed contribute SourceManifest nodes; expect ≥ 10
     assert n >= 10, f"too few source manifests in P1 run: {n}"
+
+
+def test_pathway1_emits_reasoner_tuple(tmp_path):
+    """PRD section 8: every P1 run emits a reasoner tuple to reasoner_queue/."""
+    res = run_pathway1_compound("KCNH2", runtime_root=tmp_path)
+    assert res.reasoner_tuples_emitted == 1
+    queue_path = tmp_path / "reasoner_queue" / "runs" / res.run_id / "tuples.jsonl"
+    assert queue_path.exists()
+    lines = [line for line in queue_path.read_text().splitlines() if line.strip()]
+    assert len(lines) == 1
+
+
+def test_pathway1_p1_to_cardiac_evidence_packet_full_e2e(tmp_path):
+    """Full end-to-end: P1 candidate flows into the existing CardiacPacketAssembler.
+
+    The pathway1 runner synthesizes a compound fixture from the leading P1.Handoff
+    packet, calls CardiacPacketAssembler.assemble() against it, and writes the
+    resulting CardiacEvidencePacket to disk. Engine score must beat the PubMed
+    baseline by ≥ 10 points (PRD section 7 acceptance gate).
+    """
+    res = run_pathway1_compound("KCNH2", runtime_root=tmp_path, library_size=10)
+    assert res.cardiac_evidence_packet_path is not None
+    assert res.cardiac_evidence_packet_path.exists()
+    score = res.cardiac_evidence_packet_score
+    assert "error" not in score, f"cardiac packet assembly errored: {score.get('error')}"
+    assert score["verdict"] == "pass"
+    assert score["engine_score"] >= 80.0, f"engine score below acceptance: {score}"
+    assert score["lift"] >= 10.0, f"PubMed-baseline lift below threshold: {score}"
+
+
+def test_pathway1_non_cardiac_target_does_not_assemble_cardiac_packet(tmp_path):
+    """Non-cardiac targets skip the cardiac packet bridge."""
+    res = run_pathway1_compound("EGFR", runtime_root=tmp_path, library_size=10)
+    assert res.cardiac_evidence_packet_path is None
+    assert res.cardiac_evidence_packet_score == {}

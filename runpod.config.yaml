@@ -85,6 +85,112 @@ layers:
       pre_cutover_state: stub_reasoner_self_policed_no_clinical_overclaim
       license_check_required: gemma_2_terms_then_health_ai_developer_foundations
 
+  # ── Pathway 1 (R&D / Drug Discovery front-end) ─────────────────────────────
+  p1_target:
+    open_targets_api:
+      adapter_id: adapter:p1.target:open_targets_v25_06
+      backend: stub                 # external_api at cutover
+      endpoint: null                # https://platform.opentargets.org/api/v4/graphql
+      cost_estimate_usd_per_call: 0.0   # Open Targets API is free, but rate-limited
+      license_class: A
+      pre_cutover_state: p1_target_stub_canned_dossiers
+    ttd_api:
+      adapter_id: adapter:p1.target:ttd_2026
+      backend: stub
+      endpoint: null                # https://db.idrblab.net/ttd/api
+      cost_estimate_usd_per_call: 0.0
+      license_class: A
+    gpt_rosalind:
+      adapter_id: adapter:p1.target:gpt_rosalind
+      backend: stub                 # external_api at cutover
+      endpoint: null                # OpenAI Life Sciences Codex
+      cost_estimate_usd_per_call: 0.05  # estimated; Class C research preview
+      license_class: C
+      pre_cutover_state: stub_reasoner_self_policed_no_clinical_overclaim
+      license_check_required: openai_life_sciences_codex_terms
+
+  p1_structure:
+    openfold3:
+      adapter_id: adapter:p1.structure:openfold3
+      backend: stub                 # runpod_gpu at cutover
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      gpu_sku_recommended: H100_80GB
+      cost_estimate_usd_per_call: 0.10
+      license_class: A
+      pre_cutover_state: p1_structure_stub_with_canned_pocket
+    boltz_2_joint:
+      adapter_id: adapter:p1.structure:boltz_2_joint
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.05
+      license_class: A
+      pre_cutover_state: p1_structure_stub_joint_structure_affinity
+
+  p1_generate:
+    reinvent4:
+      adapter_id: adapter:p1.generate:reinvent4_rl
+      backend: stub                 # runpod_gpu at cutover
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.20  # full RL run
+      license_class: A
+      pre_cutover_state: p1_generate_stub_canned_smiles_pool
+    diffsbdd:
+      adapter_id: adapter:p1.generate:diffsbdd
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.15
+      license_class: A
+      pre_cutover_state: p1_generate_stub_pocket_conditioned_smiles
+
+  p1_screen:
+    chemprop_v2_admet:
+      adapter_id: adapter:p1.screen:chemprop_v2
+      backend: stub                 # runpod_gpu at cutover
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.001  # per-molecule inference; library-scale
+      license_class: A
+      pre_cutover_state: p1_screen_stub_admet_panel
+    boltz_2_affinity:
+      adapter_id: adapter:p1.screen:boltz_2_affinity
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.001
+      license_class: A
+    gnina_1_3:
+      adapter_id: adapter:p1.screen:gnina_1_3
+      backend: stub
+      endpoint: null
+      gpu_sku_min: A100_40GB
+      cost_estimate_usd_per_call: 0.005
+      license_class: A
+
+  # P1.Optimize is CPU-friendly (BoTorch + Ax + REINVENT 4 RL on CPU); no GPU
+  # adapter needed. Documented for completeness; no cutover entry required.
+  p1_optimize:
+    botorch_ehvi:
+      adapter_id: adapter:p1.optimize:botorch_ehvi
+      backend: cpu_lite             # stays CPU at cutover
+      endpoint: null
+      cost_estimate_usd_per_call: 0.0
+      license_class: A
+      pre_cutover_state: p1_optimize_cpu_lite_pareto_frontier
+
+  # P1.Handoff is the CRO dossier composer (CPU-friendly: RDKit + ZINC-22 lookup).
+  p1_handoff:
+    composer:
+      adapter_id: adapter:p1.handoff:composer
+      backend: stub                 # cpu_lite at cutover
+      endpoint: null
+      cost_estimate_usd_per_call: 0.0
+      license_class: A
+      pre_cutover_state: p1_handoff_stub_composer_with_cardiac_bridge
+
 # Cutover procedure (PRD section 10, step-by-step). Each step is idempotent.
 cutover:
   steps:

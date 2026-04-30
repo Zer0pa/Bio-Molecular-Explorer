@@ -5,8 +5,7 @@
 
 ## Boundary
 
-Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical
-deployment, regulatory compliance, or drug-safety certification.
+Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.
 
 ## Commit + Repo
 
@@ -33,7 +32,11 @@ deployment, regulatory compliance, or drug-safety certification.
 | Tests + falsification wave | ✅ | [`tests/`](https://github.com/Zer0pa/Health/tree/main/tests) (333 passing) |
 | Final execution report | ✅ | this document |
 
-## Test Results — 333 passing
+## Test Results — 464 passing
+
+(See "Iteration 2 additions" section below for the 131 tests added in the second pass.)
+
+## Test Results — 333 passing (initial pass)
 
 | Suite | Count | Notes |
 |---|---|---|
@@ -186,8 +189,32 @@ These map to PRD section 12 user-level innovation questions:
 
 1. Clone https://github.com/Zer0pa/Health and `cd Health`.
 2. `python3.11 -m venv .venv && .venv/bin/pip install -e .[test]`.
-3. `.venv/bin/python -m pytest -q` — should report **333 passed**.
-4. `.venv/bin/python scripts/generate_cardiac_packets.py` — regenerates the three packets and the PubMed-baseline summary.
-5. Read this report, [`PRD.md`](https://github.com/Zer0pa/Health/blob/main/PRD.md), and [`docs/runpod-migration.md`](https://github.com/Zer0pa/Health/blob/main/docs/runpod-migration.md).
+3. `.venv/bin/python -m pytest -q` — should report **464 passed**.
+4. `.venv/bin/python -m zer0pa_health.cli run-cardiac all+held-out --runtime .runtime` — runs the 3 seed compounds plus 6 held-out compounds end-to-end, writes audit + KG + packets + reasoner queue under `.runtime/`.
+5. `.venv/bin/python -m zer0pa_health.cli runpod-precheck` — dry-runs the cutover; expected output: 7 layers configured, 7 on stub (CPU-ready), 0 blockers, 5 parked-work items.
+6. `.venv/bin/python -m zer0pa_health.cli graph-export kg/ --out kg.dot` — exports the cardiac KG seed as Graphviz DOT.
+7. Read this report, [`docs/CONVENTIONS.md`](https://github.com/Zer0pa/Health/blob/main/docs/CONVENTIONS.md), [`docs/DECISIONS.md`](https://github.com/Zer0pa/Health/blob/main/docs/DECISIONS.md), [`PRD.md`](https://github.com/Zer0pa/Health/blob/main/PRD.md), and [`docs/runpod-migration.md`](https://github.com/Zer0pa/Health/blob/main/docs/runpod-migration.md).
 
 No conversation history required.
+
+## Iteration 2 additions (2026-04-30)
+
+After the initial 333-test pass, the user asked: "is there nothing left to do CPU-side?" — a fair challenge. Audit revealed real gaps; this section records what was added.
+
+| Addition | Tests | Notes |
+|---|---|---|
+| `cli.py` (zer0pa-health entry point) with `run-cardiac`, `validate-audit`, `validate-kg`, `validate-packet`, `runpod-precheck`, `graph-export` subcommands | +6 (CLI smoke) | The pyproject.toml declared `zer0pa-health` but the module didn't exist. Now it does. |
+| `runs/cardiac_run.py` — end-to-end runner that writes all 12 audit tables per compound | +13 | Previously, audit tables were declared but only `runs`, `molecules`, `model_tools`, `source_manifest`, `falsifiers` were populated by the falsification wave. Now `parameters`, `confidence`, `decisions`, `artifacts`, `replay_commands`, `offload_manifest`, `midd_assessments` all populate per layer per run. |
+| `runs/l6_orchestrated_run.py` — L6Router-driven run with per-transition decision recording | +3 | The L6 router was tested but never used to actually orchestrate the cardiac wedge. Now it does, writing 6 decisions per run to `audit/decisions.jsonl`. The `silent_falsifier_loss` filter was tightened to FAIL-only items so the router walks the full chain on clean inputs (D-015). |
+| `layers/{l1,l2,l2_5,l3,l4,l5}/toy_adapter.py` — second stub adapter per layer with deliberately different canned values | +X (held by toy subagent) | Plug-swap tests previously used two instances of the same StubAdapter class — that doesn't prove plug-replaceability. Now Stub-as-A / Toy-as-B. |
+| `tests/plug_swap/test_real_swap.py`, `test_l6_router_with_toy_chain.py` | +X (held by toy subagent) | Real cross-implementation swap acceptance + L6 router wired with all-toy chain. |
+| Six held-out benchmark compound fixtures: quinidine, moxifloxacin, diltiazem, sotalol, mexiletine, lidocaine | +56 (parametrized 9×6 + 2) | PRD section 7 / RBTE briefing pack open question #3. All six pass through the assembler with verdict=pass; collectively cover IKr, INaL, ICaL, INa channel dimensions. |
+| `schemas/fixtures/compound.schema.json` — JSON Schema 2020-12 for compound fixtures | enforced via test_held_out_packets.py | All 9 compound fixtures (3 seed + 6 held-out) validate against it. |
+| `tests/unit/test_audit_validator.py` — negative tests for PHI/secrets/bulk/boundary/hash-chain/clinical-overclaim catches | +12 | The validator was implemented but never tested against deliberate failures. Now it is. |
+| `tests/unit/test_repo_boundary.py` — repo-wide boundary string + clinical-overclaim phrase scan | +5 | Catches files that should carry the boundary but don't. Caught two `docs/*.md` files with line-wrapped boundary strings; fixed in this iteration. |
+| `docs/CONVENTIONS.md` + `docs/DECISIONS.md` (D-001 through D-019) | enforced via boundary scan | Single source of truth for executive decisions. Append-only log; future agents add rows without editing existing. |
+| Source manifest runtime writer | covered by test_run_cardiac_source_manifest_populated_from_kg_seed | Every cardiac run reads the cardiac KG seed's SourceManifest nodes and emits matching audit/source_manifest.jsonl rows. |
+| KG runtime nodes + edges + K1 fix | covered by test_run_cardiac_compound_kg_runtime_writes | Each run emits OutputEnvelope, ToolAdapter, Compound, EvidencePacket, Claim, EvidenceItem, AuditRecord, ReasonerTuple nodes plus GENERATED_BY/MEMBER_OF_PACKET/HAS_SOURCE/HAS_FALSIFIER/HAS_AUDIT/SUPPORTS/DERIVES_TUPLE edges. K1 (Claim must have evidence/source/falsifier/audit) validates against the runtime graph. |
+| Reasoner wired into the run | covered by test_run_cardiac_compound_reasoner_tuple_emitted | Every cardiac run produces one `ReasonerTuple` to `reasoner_queue/runs/<run_id>/tuples.jsonl` with all PRD section 8 fields populated and the clinical-overclaim self-policing in effect. |
+
+**Iteration 2 test delta**: 333 → 464 (+131 net new). All green in <10 s.

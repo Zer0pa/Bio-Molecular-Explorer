@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "diltiazem",
+  "inchikey": "HSUGRBWQSSZJOP-RTWAWAEBSA-N",
+  "canonical_smiles": "COc1ccc([C@H]2OC(=O)[C@@H](CC(=O)Oc3ccccc3)[C@@H]2CCN(C)C)cc1OC",
+  "drug_class_research_label": "non-dihydropyridine calcium channel blocker / Class IV antiarrhythmic (research label; not a clinical recommendation)",
+  "cardiac_research_role": "non-dihydropyridine calcium channel blocker; ICaL reference",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": 0.20,
+      "block_fraction_at_cmax_unbound": 0.50,
+      "method": "stub",
+      "confidence": 0.55,
+      "source_refs": ["source:FDA_CiPA"],
+      "note": "ICaL is the dominant mechanism; benzothiazepine class selectivity for L-type Ca channel."
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "PR_interval_prolongation_ICaL_dominant_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for diltiazem (PubChem CID 39186); ic50 values are stub estimates pending real assay lookup. Mechanism escalation requires Runpod-real simulation."
+}

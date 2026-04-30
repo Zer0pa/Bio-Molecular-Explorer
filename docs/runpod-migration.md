@@ -1,7 +1,6 @@
 # Runpod Migration — Cutover Procedure
 
-> Research use only. Not for diagnosis, treatment, cure claims, prescribing,
-> clinical deployment, regulatory compliance, or drug-safety certification.
+> Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.
 
 ## Premise
 

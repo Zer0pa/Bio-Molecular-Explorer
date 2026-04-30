@@ -68,7 +68,13 @@ class L6Router:
         backedge_count = 0
         blocked_export: list[str] = []
 
-        prev_falsifier_classes: list[str] = []
+        # Only FAIL items carry the obligation to be preserved across layers; a PASS
+        # falsifier item (e.g., L1 emitting hERG_only_overreach PASS because the multi-
+        # current panel was complete) is informational and downstream layers are not
+        # required to re-emit it. Tracking only FAIL items prevents the router from
+        # erroneously blocking forward chains where each layer's falsifier scope
+        # legitimately differs.
+        prev_failing_classes: list[str] = []
         last_envelope: LayerEnvelope | None = None
 
         current = start_node
@@ -83,9 +89,14 @@ class L6Router:
                 pending_backedges=pending_backedges,
             )
 
-            # silent_falsifier_loss check: were any upstream falsifier classes lost?
+            # silent_falsifier_loss check: were any upstream FAILING falsifier classes lost?
             current_classes = [it.falsifier_class for it in envelope.falsifier.items]
-            sfl = detect_silent_falsifier_loss(prev_falsifier_classes, current_classes)
+            current_failing = [
+                it.falsifier_class
+                for it in envelope.falsifier.items
+                if it.status == FalsifierStatus.FAIL
+            ]
+            sfl = detect_silent_falsifier_loss(prev_failing_classes, current_failing)
             if sfl.status == FalsifierStatus.FAIL:
                 envelope.falsifier.items.append(sfl)
                 # Force the envelope status to FAIL if loss detected
@@ -127,7 +138,7 @@ class L6Router:
                 # find a successor; if no successor, stop
                 pass
 
-            prev_falsifier_classes = list(set(prev_falsifier_classes + current_classes))
+            prev_failing_classes = list(set(prev_failing_classes + current_failing))
             last_envelope = envelope
             last_input = envelope.output
 

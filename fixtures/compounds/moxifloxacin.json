@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "moxifloxacin",
+  "inchikey": "FABPRXSRWADJSP-MEDUHNTESA-N",
+  "canonical_smiles": "COc1ccc2c(c1OC)n(cc(C(=O)O)c2=O)[C@@H]1CC[C@@H](N)C1",
+  "drug_class_research_label": "fluoroquinolone antibacterial / IKr blocker (research label; not a clinical recommendation)",
+  "cardiac_research_role": "fluoroquinolone with notable IKr block; QT-prolongation reference (research only)",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 35.0,
+      "block_fraction_at_cmax_unbound": 0.15,
+      "method": "stub",
+      "confidence": 0.5,
+      "source_refs": ["source:FDA_CiPA"]
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "mild_QT_prolongation_IKr_dominant_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for moxifloxacin (PubChem CID 152946); ic50 values are stub estimates from published CiPA pilot data. Mechanism escalation requires Runpod-real simulation."
+}

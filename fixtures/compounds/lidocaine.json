@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "lidocaine",
+  "inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+  "canonical_smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+  "drug_class_research_label": "Class IB local anesthetic / INa blocker (research label; not a clinical recommendation)",
+  "cardiac_research_role": "Class IB local-anesthetic; INa/INaL block research reference",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_significant_IKr_block_expected_research_note_pending_lookup"
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": 100.0,
+      "block_fraction_at_cmax_unbound": 0.25,
+      "method": "stub",
+      "confidence": 0.45,
+      "note": "INa block is the primary mechanism; use-dependent block characteristic of Class IB. Stub literature value pending verification."
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "QRS_widening_INa_dominant_low_QT_effect_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for lidocaine (PubChem CID 3676); ic50 values are stub estimates pending real assay lookup. Mechanism escalation requires Runpod-real simulation."
+}

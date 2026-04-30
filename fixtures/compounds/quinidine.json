@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "quinidine",
+  "inchikey": "LOUPRKONTZGTKE-UHFFFAOYSA-N",
+  "canonical_smiles": "COc1ccc2nccc([C@@H](O)[C@H]3C[C@@H]4CC[N@]3C[C@@H]4C=C)c2c1",
+  "drug_class_research_label": "Class IA antiarrhythmic / multi-channel blocker (research label; not a clinical recommendation)",
+  "cardiac_research_role": "multi-channel Class IA antiarrhythmic; multi-current reference",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 0.8,
+      "block_fraction_at_cmax_unbound": 0.45,
+      "method": "stub",
+      "confidence": 0.55,
+      "source_refs": ["source:FDA_CiPA"]
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": 3.0,
+      "block_fraction_at_cmax_unbound": 0.25,
+      "method": "stub",
+      "confidence": 0.5,
+      "note": "Class IA INa block at therapeutic concentrations; stub literature value pending verification."
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "QT_prolongation_with_INa_contribution_multi_current_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for quinidine (PubChem CID 441074); ic50 values are stub estimates pending real assay lookup. Mechanism escalation requires Runpod-real simulation."
+}

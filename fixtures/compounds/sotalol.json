@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "sotalol",
+  "inchikey": "ZBMZVLHSJCTVON-UHFFFAOYSA-N",
+  "canonical_smiles": "CC(NCC(O)c1ccc(NS(=O)(=O)C)cc1)C",
+  "drug_class_research_label": "Class III + non-selective beta-blocker antiarrhythmic (research label; not a clinical recommendation)",
+  "cardiac_research_role": "Class III + non-selective β-blocker; pure IKr block reference",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": 100.0,
+      "block_fraction_at_cmax_unbound": 0.20,
+      "method": "stub",
+      "confidence": 0.5,
+      "source_refs": ["source:FDA_CiPA"]
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_significant_INa_block_expected_research_note_pending_lookup"
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_significant_ICaL_block_expected_research_note_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "QT_prolongation_IKr_pure_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for sotalol (PubChem CID 5253); ic50 values are stub estimates from published CiPA pilot data. Mechanism escalation requires Runpod-real simulation."
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/fixtures/compound.schema.json",
+  "research_boundary": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "name": "mexiletine",
+  "inchikey": "VLPIATFUUWWMKC-UHFFFAOYSA-N",
+  "canonical_smiles": "CC(Cc1c(C)cccc1C)NC",
+  "drug_class_research_label": "Class IB antiarrhythmic / INa blocker (research label; not a clinical recommendation)",
+  "cardiac_research_role": "Class IB; INa/INaL block research reference",
+  "channel_panel_canned": {
+    "KCNH2_hERG_IKr": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_significant_IKr_block_expected_research_note_pending_lookup"
+    },
+    "SCN5A_Nav1_5_INa_INaL": {
+      "ic50_uM": 5.0,
+      "block_fraction_at_cmax_unbound": 0.30,
+      "method": "stub",
+      "confidence": 0.5,
+      "note": "INa/INaL block is the primary mechanism for Class IB; stub literature value pending verification."
+    },
+    "KCNQ1_Kv7_1_IKs": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    },
+    "CACNA1C_CaV1_2_ICaL": {
+      "ic50_uM": null,
+      "block_fraction_at_cmax_unbound": null,
+      "method": "stub",
+      "confidence": 0.0,
+      "explicit_absence": "no_canned_value_pending_lookup"
+    }
+  },
+  "expected_packet_verdict": "pass",
+  "expected_morphology_signal": "QRS_widening_INa_dominant_research_only",
+  "stub_provenance_note": "SMILES and InChIKey are literature values for mexiletine (PubChem CID 4178); ic50 values are stub estimates pending real assay lookup. Mechanism escalation requires Runpod-real simulation."
+}

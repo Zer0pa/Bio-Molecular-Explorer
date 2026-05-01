@@ -4,7 +4,7 @@ Canonical home for the Zer0pa Health work stream. Multi-agent handoff: synthesis
 
 ## Boundary
 
-Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact in this repository carries this boundary.
+Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact you produce carries this boundary verbatim.
 
 ## What is in here
 
@@ -22,8 +22,9 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 | `fixtures/` | Compound seeds (dofetilide/verapamil/ranolazine), negative fixtures, routes, SBML | Overnight executor |
 | `kg/cardiac_seed.jsonl` | Cardiac wedge KG seed (33 nodes, 21 edges) | Overnight executor |
 | `packets/` | Generated cardiac evidence packets + benchmark summary | Overnight executor |
-| `tests/` | Unit + integration + plug-swap + falsification wave (333 tests) | Overnight executor |
+| `tests/` | Unit + integration + plug-swap + falsification wave (768 tests as of Iteration 8) | Overnight executor |
 | `runpod.config.yaml` + `docs/runpod-migration.md` | Stub-swap cutover config and procedure | Overnight executor |
+| `docs/H100_COMPLETION_PLAN.md` | Enterprise-grade H100 completion plan, remaining blockers, wall-clock budget | Runpod readiness reviewer |
 | `runtime/cloud_lab.config.yaml` | Cloud-lab dry-run defaults (disabled, interlocks on) | Overnight executor |
 
 ## Read order for the next agent
@@ -40,11 +41,11 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 - **Pipelines**: TWO ends — front-end (Pathway 1 R&D / Drug Discovery) + back-end (cardiac safety wedge).
 - **Layers**: L1 (REST stubs + canned outputs for the cardiac wedge), L2 (property/formulation with L2.5 back-edge), L2.5 (retrosynthesis with RXNSMILES + atom-map validators), L3 (process + mass balance), L4 (FMU/Ditto sensor twin), L5 (PKPD + cardiac exposure-channel bridge), L6 (LangGraph-shaped router with silent_falsifier_loss preservation).
 - **Cross-cutting**: universal layer envelope (Pydantic + JSON Schema), append-only audit log with hash chain, KG with cardiac seed (33 nodes, 21 edges), 16-class falsifier registry with 13 detectors, falsifier ledger, self-bootstrapping reasoner with PRD-shaped tuples and clinical-overclaim self-policing, cloud-lab dry-run adapters (Strateos/Emerald/Arctoris) with hard interlocks.
-- **Cardiac wedge deliverable**: three packets (dofetilide PASS / verapamil PASS / ranolazine PASS) generated via `scripts/generate_cardiac_packets.py`; balance score signs match the multi-current story (dofetilide +0.17 IKr-pure outward, verapamil −0.24 ICaL compensates, ranolazine −0.11 INaL-dominant). PubMed-baseline lift: ~47-51 points above competent-reader baseline.
+- **Cardiac wedge deliverable**: governing authority-path runs use `zer0pa-health run-cardiac` and validated L1-L5 envelopes. Legacy script-generated packet artifacts are non-governing until updated to the same path. The seed wedge currently produces dofetilide PASS / verapamil PASS / ranolazine PASS with per-compound PubMed-baseline lift in the ~50 point range.
 - **Plug-replaceability**: nine tests covering all six layers + L6 router + cross-layer contract version invariant. Pass.
 - **Falsification wave**: every named trigger (invalid SMILES, missing RXNSMILES/atom-map, mass balance, L4 sensor, SBML, hERG-only, clinical-overclaim, stub-laundering, missing falsifier ref, plug regression, NaN ECG, codec-as-mechanism, noise-brittle phenotype, license drift, silent falsifier loss, PubMed no-value-add) caught, audited, routed, and preserved in the ledger. Pass.
-- **Runpod migration**: `runpod.config.yaml` + `docs/runpod-migration.md` define the stub-swap procedure; backend flag flip per adapter is the entire migration.
-- **Cutover demonstrated in code**: L1, L2, L5 GPU-bound layers, the TxGemma reasoner, and the Parsl-shaped dispatcher all have CPU-side `*RunpodSimAdapter` / `RunpodSimDispatcher` implementations that satisfy the same Protocols as the real GPU adapters will. `zer0pa-health cutover-dryrun` flips all layers in one command and verifies envelope shape + falsifier classes + backend flag are stable.
+- **Runpod migration scaffold**: `runpod.config.yaml` + `docs/runpod-migration.md` define the intended stub-swap procedure. Backend flag flip per adapter is the target migration mechanism after the H100 blockers below are closed.
+- **Cutover demonstrated in code**: L1, L2, L5 GPU-bound layers, the TxGemma reasoner, and the Parsl-shaped dispatcher all have CPU-side `*RunpodSimAdapter` / `RunpodSimDispatcher` implementations that satisfy the same Protocols as the real GPU adapters will. `zer0pa-health cutover-dryrun` flips all layers in one command and verifies envelope shape + falsifier classes + backend flag are stable in runpod-sim mode only.
 - **L6 closed-loop routing**: the router doesn't just walk forward — it re-executes upstream layers when a back-edge is propagated, capped per-layer (budget=2) and globally (max=12), with `is_reexecution` flag on the step record.
 - **CLI**: `zer0pa-health {run-cardiac, run-pathway1, validate-audit, validate-kg, validate-packet, runpod-precheck, graph-export, bundle, compare-runs, health-check, export-finetune-corpus, cutover-dryrun}` are all wired and tested. `cutover-dryrun --layer all+p1` exercises every GPU-bound adapter swap in one shot.
 
@@ -57,7 +58,9 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 - **End-to-end runner** (`runs/pathway1_run.py`): walks all 6 P1 layers, bridges into existing L1 cardiac panel, writes all 12 audit tables, emits handoff packets, emits a reasoner tuple, and assembles a `CardiacEvidencePacket` from the leading P1 candidate. Smoke result for KCNH2: engine score 96.25 / baseline 49.0 / lift +47.25.
 - **Cutover acceptance**: `P1StructureRunpodSimAdapter`, `P1GenerateRunpodSimAdapter`, `P1ScreenRunpodSimAdapter` mirror the existing pipeline's runpod-sim pattern. `cutover-dryrun --layer p1` PASSES.
 
-## Iteration 8 (2026-04-30) — Authority-path defects fixed
+## Iteration 8 (2026-04-30) — Authority-path defects addressed in scaffold
+
+The 2026-05-01 H100 review below is controlling where it identifies residual edge blockers. Do not treat this historical iteration summary as authoritative Runpod readiness.
 
 Twelve operator-brief items closed; details in `docs/execution-report.md` and DECISIONS D-030 through D-038. Highlights:
 
@@ -70,6 +73,42 @@ Twelve operator-brief items closed; details in `docs/execution-report.md` and DE
 - **Plug-swap hardening** — adapter signatures, audit-shape sha256:64-hex format, nested schema compatibility, falsifier-class preservation between Stub and Toy.
 - **`runpod-precheck` exits 3 on adapter blockers, 4 on structural defects**; parked-work fixture files exist on disk under `fixtures/canned/{l1,l2,reasoner}/`.
 - **Pathway 1 quarantined** (D-028); P1 cardiac packet uses no calibrated baseline; ADMET hERG IC50 marked as informational only, not channel-panel evidence.
+
+## H100 Completion Status (2026-05-01)
+
+Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact you produce carries this boundary verbatim.
+
+This repository is **not complete end-to-end** and must not be treated as a demo-grade success. The current state is a CPU-governed scaffold with strong contracts, audit, KG, falsifiers, and Runpod-sim cutover tests. The H100 should now be used to complete the governing pipeline by replacing named stubs with real artifacts and proving that falsifier behavior, audit state, KG state, and downstream packet generation survive the swap.
+
+Current verification on `a8ea6e8`:
+
+- `pytest -q`: 768 passing.
+- `zer0pa-health health-check`: passing.
+- `zer0pa-health runpod-precheck`: stub-state internally consistent.
+- `zer0pa-health cutover-dryrun --layer all+p1`: passing against runpod-sim adapters.
+- `zer0pa-health run-cardiac all+held-out`: 9/9 passing in stub-state with audit/KG validation.
+
+Remaining blockers before authoritative Runpod cutover:
+
+1. Terminal L6 failures must block packet export even when represented as unresolved `REROUTE` or late-layer FAIL state.
+2. `runpod-precheck` must reject every invalid cutover state, including missing `gpu_sku_min`, invalid `external_api`, and quarantined P1 `runpod_gpu` claims.
+3. Audit/ledger/KG reconciliation must fail on KG-only orphan falsifiers and `HAS_FALSIFIER` divergence.
+4. Morphology fixtures are locked replay stubs, not real PTB-XL+/extractor evidence. Real morphology evidence must replace or explicitly remain non-governing.
+5. PubMed-reader lift must become a blind scientific-correctness gate, not a packet-shape or fixture-scoring proxy.
+6. Legacy packet scripts and committed packet summaries must not contradict the governing `run-cardiac` authority path.
+
+Budget on one H100 plus engineering effort:
+
+| Scope | GPU / engineering budget | Calendar wall clock | Meaning |
+|---|---:|---:|---|
+| Final authority hardening | 0-2 GPU hours | 4-8 engineering hours | Fix blockers above; mostly CPU/code work |
+| H100 environment bring-up | 1-3 GPU hours | 2-4 hours | Container, drivers, repo, secrets, artifact paths, smoke run |
+| Minimal governing cardiac cutover | 60-120 GPU hours + 40-80 engineering hours | 3-5 days continuous | Replace priority L1/L2/L5/reasoner stubs for seed + held-out wedge; rerun falsification |
+| Enterprise cardiac pass | 120-250 GPU hours + 80-160 engineering hours | 5-10 days continuous | Broader MD/FEP sampling, repeated seeds, artifact deltas, source/audit/KG reconciliation |
+| Full Pathway 1 plus cardiac authority | 180-400 GPU hours + 120-240 engineering hours | 10-21 days continuous | Adds generation/screening/structure adapters; P1 remains non-governing until cardiac gate passes |
+| Exhaustive channel/compound sweep | 500+ GPU hours | Multi-week | Scale-out phase, not first cutover |
+
+Detailed plan: [`docs/H100_COMPLETION_PLAN.md`](docs/H100_COMPLETION_PLAN.md).
 
 ## Provenance
 

@@ -80,6 +80,8 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 This repository is **not complete end-to-end** and must not be treated as a demo-grade success. The current state is a CPU-governed scaffold with strong contracts, audit, KG, falsifiers, and Runpod-sim cutover tests. The H100 should now be used to complete the governing pipeline by replacing named stubs with real artifacts and proving that falsifier behavior, audit state, KG state, and downstream packet generation survive the swap.
 
+Execution mandate: the H100 work stream is led by an Opus Max chief-engineer agent with Sonnet-level subagents at minimum, escalating to Opus-level subagents where cross-layer scientific or systems reasoning is required. The lead agent has authority to make engineering decisions that move the pipeline toward more performant, more dataful, and more powerful outcomes, provided the boundary, interface contracts, falsifier gates, audit/KG integrity, and GitHub handoff discipline are preserved.
+
 Current verification on `a8ea6e8`:
 
 - `pytest -q`: 768 passing.

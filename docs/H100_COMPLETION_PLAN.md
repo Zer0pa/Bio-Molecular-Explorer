@@ -8,6 +8,24 @@ This is not a demo plan. Green tests and synthetic packets do not complete the w
 
 The H100 is for completing the enterprise pipeline, not for producing a visual proof that a command can run. Pathway 1 remains non-governing until the cardiac authority path passes with real artifacts.
 
+## Execution Mandate and Agent Topology
+
+The H100 work stream is led by an Opus Max chief-engineer agent. Its job is not to ask the user for incremental permission after startup; it proceeds end to end, commits to GitHub, runs the falsification wave, and reports only when a full pass, a true blocker, or a clearly documented revert/augment brief exists.
+
+Required agent topology:
+
+- Opus Max lead owns system architecture, scientific integration, cross-layer tradeoffs, final authority-gate interpretation, and decisions that increase performance, datafulness, and engineering power.
+- Sonnet-level subagents are the minimum for bounded layer work, tests, adapter swaps, audit/KG wiring, and documentation updates.
+- Opus-level subagents are used where a task crosses scientific mechanism, falsifier design, architecture contracts, or budget/risk tradeoffs.
+- Claude deep research and Claude subagents are the deep-research path for stuck points and innovation points; do not reintroduce Perplexity/Gemini as required dependencies.
+- Subagents work in parallel where write sets are separable, but the Opus Max lead remains accountable for the integrated authority path.
+
+Decision authority:
+
+- The lead may replace tools, adapters, libraries, and workflows when the interface contracts, audit schema, falsifier semantics, and downstream packet shape remain intact.
+- The lead may park only work that genuinely requires GPU, unavailable credentials, unavailable data rights, or a scientific choice that cannot be resolved from repo context.
+- The lead must not report completion from green secondary tests when the sovereign authority gate regresses or remains synthetic.
+
 ## Current State
 
 Current HEAD at review time: `a8ea6e8`.

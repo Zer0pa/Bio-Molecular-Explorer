@@ -82,9 +82,9 @@ The current review findings control readiness. The sovereign authority metric is
 | V_01 | Canonical live-lab README spine applied with `Pipeline Mechanics` as Zone 02 | PASS |
 | V_02 | Research/medical boundary preserved verbatim | PASS |
 | V_03 | Visibility unchanged; repo remains INTERNAL | PASS |
-| V_04 | CPU scaffold verification recorded at 768 tests before this README-only alignment | RECORDED |
-| V_05 | Authority-path blocker review reflected in the front door | OPEN |
-| V_06 | H100 cutover status says completion work may begin, not authoritative readiness | OPEN |
+| V_04 | CPU scaffold verification recorded at 768 tests before this README-only alignment | PASS |
+| V_05 | Authority-path blocker remains the governing front-door gate | BLOCKED |
+| V_06 | Authoritative H100 cutover remains gated until completion evidence exists | BLOCKED |
 
 ## Proof Anchors
 
@@ -171,7 +171,7 @@ The previous implementation record reported 768 passing tests, a runpod-sim cuto
 ## Provenance
 
 - Initial commit: 2026-04-29.
-- Front-door alignment: 2026-05-02, using `/Users/Zer0pa/orchestration-state/ZER0PA_LANE_AGENT_FRONT_DOOR_GUIDANCE_2026-05-02.md`.
+- Front-door alignment: 2026-05-02, using the orchestration-state lane-agent guidance dated 2026-05-02.
 - Upstream cardiac wedge context: Brain Phase 8 / Rosalind Bioelectric Translational Engine briefing pack.
 - Medical orchestrator: produced `PRD.md`.
 - Overnight executor: built the CPU scaffold, tests, Runpod-sim adapters, audit/KG/falsifier surface, and H100 completion artifacts.

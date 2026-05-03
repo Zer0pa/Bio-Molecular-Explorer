@@ -1,0 +1,32 @@
+{
+  "title": "Zer0pa Bio-Molecular Explorer",
+  "description": "Falsification-engine pipeline for molecular and biological-system exploration. The first authority wedge is cardiac evidence: dofetilide, verapamil, ranolazine, and held-out comparators through KCNH2, SCN5A, KCNQ1, and CACNA1C under multi-current CiPA framing. Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
+  "version": "0.1.0",
+  "license": "other-open",
+  "license_url": "https://github.com/Zer0pa/ZPE-License-Commercial",
+  "creators": [
+    {
+      "name": "Zer0pa Research",
+      "affiliation": "Zer0pa (Pty) Ltd"
+    }
+  ],
+  "keywords": [
+    "biology",
+    "falsification",
+    "cardiac",
+    "cipa",
+    "pipeline",
+    "zer0pa",
+    "life-sciences"
+  ],
+  "upload_type": "software",
+  "access_right": "open",
+  "notes": "INTERNAL GitHub repository. Zenodo record captures the released artifact. License: Zer0pa Source-Available License v7.1 (LicenseRef-Zer0pa-SAL-7.1). See NOTICE.md and LICENSE for terms.",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Zer0pa/Bio-Molecular-Explorer",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

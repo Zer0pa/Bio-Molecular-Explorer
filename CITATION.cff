@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software in research, please cite it as below."
+type: software
+title: "Zer0pa Bio-Molecular Explorer"
+version: 0.1.0
+date-released: "2026-05-03"
+authors:
+  - name: "Zer0pa Research"
+    email: "architects@zer0pa.ai"
+    affiliation: "Zer0pa (Pty) Ltd"
+license: LicenseRef-Zer0pa-SAL-7.1
+repository-code: "https://github.com/Zer0pa/Bio-Molecular-Explorer"
+abstract: >
+  Falsification-engine pipeline for molecular and biological-system exploration.
+  The first authority wedge is cardiac: dofetilide, verapamil, ranolazine, and
+  held-out comparators through KCNH2, SCN5A, KCNQ1, and CACNA1C under
+  multi-current CiPA framing. Research use only.
+keywords:
+  - biology
+  - falsification
+  - cardiac
+  - cipa
+  - pipeline
+  - zer0pa
+  - life-sciences

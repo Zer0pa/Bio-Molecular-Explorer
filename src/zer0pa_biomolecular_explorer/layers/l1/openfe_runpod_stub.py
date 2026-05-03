@@ -10,7 +10,7 @@ When a RunPod GPU container is available:
     1. Follow runpod.config.yaml (repo root) for container configuration.
     2. Replace this module's method bodies with real OpenFE/OpenMM calls.
     3. Set backend="runpod_gpu" in ToolAdapter (instead of "stub").
-    4. Update the zer0pa-l1-stub entry point or add zer0pa-l1-runpod.
+    4. Update the zer0pa-biomolecular-l1-stub entry point or add a Runpod-specific entry point.
     5. Re-run the full test suite; all tests must pass with real outputs.
     6. The envelope contract (LayerEnvelope) is IDENTICAL — no downstream
        changes required. Swap is purely a backend flag.

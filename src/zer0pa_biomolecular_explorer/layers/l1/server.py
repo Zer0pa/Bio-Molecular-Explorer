@@ -2,7 +2,7 @@
 
 Run locally via:
     python -m zer0pa_biomolecular_explorer.layers.l1.server
-    zer0pa-l1-stub
+    zer0pa-biomolecular-l1-stub
 
 Environment overrides:
     ZER0PA_L1_STUB_HOST   (default 127.0.0.1)

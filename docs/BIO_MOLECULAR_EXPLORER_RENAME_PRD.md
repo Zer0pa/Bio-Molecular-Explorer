@@ -2,6 +2,8 @@
 
 Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact you produce carries this boundary verbatim.
 
+Status note, 2026-05-03: this PRD is a completed rename execution artifact retained for audit. It is not a current startup prompt. Current agents must use `Zer0pa/Bio-Molecular-Explorer`, `zer0pa-biomolecular-explorer`, and `zer0pa_biomolecular_explorer`.
+
 ## 0. Authority
 
 This PRD is the execution authority for the pre-public clean rename of `Zer0pa/Health` to **Bio-Molecular Explorer**.

@@ -41,7 +41,7 @@ jobs:
         run: python scripts/generate_cardiac_packets.py
 
       - name: Health check
-        run: python -m zer0pa_health.cli health-check
+        run: python -m zer0pa_biomolecular_explorer.cli health-check
 
       - name: Runpod precheck
-        run: python -m zer0pa_health.cli runpod-precheck
+        run: python -m zer0pa_biomolecular_explorer.cli runpod-precheck

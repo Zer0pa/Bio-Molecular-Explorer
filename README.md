@@ -178,3 +178,45 @@ This repository was previously named `Zer0pa/Health` (historical). Renamed to `Z
 - Upstream cardiac wedge context: Brain Phase 8 / Rosalind Bioelectric Translational Engine briefing pack.
 - Medical orchestrator: produced `PRD.md`.
 - Overnight executor: built the CPU scaffold, tests, Runpod-sim adapters, audit/KG/falsifier surface, and H100 completion artifacts.
+
+## What's Next
+
+The scaffold is complete and renamed. The next gate is the governing cardiac authority path — replacing CPU-side stubs with real GPU evidence, tying every artifact to the falsifier/audit/KG chain, and running the full falsification wave.
+
+### Immediate: WP0 — Authority Hardening (CPU, no H100 required)
+
+Six blockers must close before H100 time is spent. Wall clock: 4–8 engineering hours. Zero H100 cost.
+
+1. L6 terminal FAIL/REROUTE must block packet export — currently passes with unresolved FAIL state.
+2. `runpod-precheck` must return nonzero for invalid real-cutover states (missing GPU SKU, null endpoints, quarantined Pathway 1 claims).
+3. Audit / falsifier ledger / KG reconciliation must fail on orphan falsifier nodes and missing `HAS_FALSIFIER` edges.
+4. Morphology stubs must be source-manifested before entering governing evidence.
+5. PubMed-reader scoring must be blind scientific correctness, not packet-shape completeness.
+6. `scripts/generate_cardiac_packets.py` must use the governing assembly path or be marked non-governing.
+
+### H100 Provisioning: 120-Hour Budget
+
+Provision one H100 SXM 80 GB pod on RunPod after WP0. RunPod is hourly — stop between sessions, do not leave idle.
+
+| Phase | H100 hours | Outcome |
+| --- | ---: | --- |
+| WP1 — environment bring-up | 1–3 h | Repo cloned on H100, tests green, artifact root configured |
+| WP2 — real L1 cardiac evidence | 20–50 h | Structure/docking + OpenMM for KCNH2/SCN5A/KCNQ1/CACNA1C seed + held-out wedge |
+| WP3 — real morphology evidence | 0–6 h | PTB-XL+ extractor-backed fiducials replace locked morphology stubs |
+| WP4 — L2/L5/reasoner replacement | 4–14 h | DeepXDE dissolution, PKPD/QSP stubs, TxGemma 27B (after license check) |
+| WP5 — full governing rerun | 8–24 h | L6-governed cardiac pass, falsification wave, cutover report |
+| **Minimum governing budget** | **60–120 h** | First real authority path: seed + held-out wedge fully governed |
+
+Budget 120 hours to absorb debugging. 60 hours is the floor if everything goes right.
+
+### Pathway 1
+
+Non-governing until the cardiac authority gate passes. R&D front-end stubs remain in place.
+
+### HuggingFace Dataset Status
+
+Three private HF datasets exist under legacy names (`Architect-Prime/zer0pa-health-cardiac-packets`, `Architect-Prime/zer0pa-health-pathway1-packets`, `Architect-Prime/zer0pa-health-cardiac-v0`). HTTP 401 confirmed — private, accessible under authenticated access. These names are retained pending a separate dataset migration decision; no migration is needed for the scaffold to operate. Code references in `runs/cardiac_run.py` and `runs/pathway1_run.py` point to these IDs.
+
+### Front Door Status
+
+Repository is aligned to the Zer0pa Lab Front Door canonical spine as of 2026-05-03. Visibility: INTERNAL. This repo becomes a candidate for the Zer0pa website sync cycle when the cardiac authority gate clears and the H100 governing pass is verified.

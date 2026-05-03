@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.packets.morphology_fixtures import (
+from zer0pa_biomolecular_explorer.packets.morphology_fixtures import (
     MORPHOLOGY_FIXTURES_DIR,
     MorphologyFixtureError,
     REQUIRED_FIDUCIALS,
@@ -24,7 +24,7 @@ from zer0pa_health.packets.morphology_fixtures import (
 
 def test_all_seed_compounds_have_morphology_fixture():
     """Every cardiac compound run-cardiac knows about must have a locked morphology fixture."""
-    from zer0pa_health.runs.cardiac_run import _DEFAULT_CMAX_uM
+    from zer0pa_biomolecular_explorer.runs.cardiac_run import _DEFAULT_CMAX_uM
     for compound in _DEFAULT_CMAX_uM:
         # Will raise if missing
         fixture = load_morphology_fixture(compound)
@@ -77,7 +77,7 @@ def test_load_with_nan_hard_stops(tmp_path, monkeypatch):
     bad_path.write_text(json.dumps(bad_fixture))
 
     monkeypatch.setattr(
-        "zer0pa_health.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
+        "zer0pa_biomolecular_explorer.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
         bad_fixture_dir,
     )
     with pytest.raises(MorphologyFixtureError, match="NaN/inf is forbidden"):
@@ -109,7 +109,7 @@ def test_load_with_inf_hard_stops(tmp_path, monkeypatch):
     bad_path.write_text(json.dumps(bad_fixture))
 
     monkeypatch.setattr(
-        "zer0pa_health.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
+        "zer0pa_biomolecular_explorer.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
         bad_fixture_dir,
     )
     with pytest.raises(MorphologyFixtureError, match="NaN/inf is forbidden"):
@@ -135,7 +135,7 @@ def test_fixture_missing_extractor_provenance_rejected(tmp_path, monkeypatch):
     }
     (bad_fixture_dir / "no_provenance.json").write_text(json.dumps(bad_fixture))
     monkeypatch.setattr(
-        "zer0pa_health.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
+        "zer0pa_biomolecular_explorer.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
         bad_fixture_dir,
     )
     with pytest.raises(MorphologyFixtureError, match="extractor"):
@@ -159,7 +159,7 @@ def test_fixture_missing_required_fiducial_rejected(tmp_path, monkeypatch):
     }
     (bad_fixture_dir / "missing_fid.json").write_text(json.dumps(bad_fixture))
     monkeypatch.setattr(
-        "zer0pa_health.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
+        "zer0pa_biomolecular_explorer.packets.morphology_fixtures.MORPHOLOGY_FIXTURES_DIR",
         bad_fixture_dir,
     )
     with pytest.raises(MorphologyFixtureError, match="missing required fiducials"):

@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from zer0pa_health.orchestration import NoOpDispatcher, RunpodSimDispatcher
-from zer0pa_health.reasoner.adapter import StubReasonerBackend
-from zer0pa_health.reasoner.tuple_schema import (
+from zer0pa_biomolecular_explorer.orchestration import NoOpDispatcher, RunpodSimDispatcher
+from zer0pa_biomolecular_explorer.reasoner.adapter import StubReasonerBackend
+from zer0pa_biomolecular_explorer.reasoner.tuple_schema import (
     ReasonerInput,
     TupleConstraints,
     TupleEntities,
 )
-from zer0pa_health.runpod_sim import TxGemmaRunpodSimAdapter
+from zer0pa_biomolecular_explorer.runpod_sim import TxGemmaRunpodSimAdapter
 
 
 def _build_input(compound: str = "dofetilide") -> ReasonerInput:
@@ -40,7 +40,7 @@ def test_txgemma_runpod_sim_emits_claims_with_falsifier_refs():
 
 def test_txgemma_runpod_sim_no_clinical_overclaim_in_claims():
     """The sim must NOT emit clinical-overclaim phrases."""
-    from zer0pa_health.boundary import boundary_violations
+    from zer0pa_biomolecular_explorer.boundary import boundary_violations
 
     sim = TxGemmaRunpodSimAdapter()
     out = sim.propose(_build_input("verapamil"))

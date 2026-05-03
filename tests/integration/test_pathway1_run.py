@@ -16,11 +16,11 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.audit import AuditTable, AuditValidator
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.kg import KGStore, KGValidator
-from zer0pa_health.pathway1.contracts.p1_handoff import P1HandoffPacket
-from zer0pa_health.runs import (
+from zer0pa_biomolecular_explorer.audit import AuditTable, AuditValidator
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.kg import KGStore, KGValidator
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_handoff import P1HandoffPacket
+from zer0pa_biomolecular_explorer.runs import (
     Pathway1RunResult,
     run_pathway1_cardiac_wedge,
     run_pathway1_compound,

@@ -19,11 +19,11 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from zer0pa_health.contracts.l3 import L3ProcessInput, L3UnitOp, L3UnitOpKind
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.falsifiers.registry import FalsifierClass
-from zer0pa_health.layers.l3 import L3StubAdapter
-from zer0pa_health.layers.l3.process_graph import unit_ops_to_dot
+from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput, L3UnitOp, L3UnitOpKind
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.falsifiers.registry import FalsifierClass
+from zer0pa_biomolecular_explorer.layers.l3 import L3StubAdapter
+from zer0pa_biomolecular_explorer.layers.l3.process_graph import unit_ops_to_dot
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
@@ -160,9 +160,9 @@ def test_invalid_target_smiles_returns_fail(adapter: L3StubAdapter, envelope_sch
 def test_forced_mass_balance_failure_emits_backedge(adapter: L3StubAdapter, monkeypatch: pytest.MonkeyPatch) -> None:
     """Monkeypatch detect_mass_balance_failure to always return FAIL, simulating
     a deliberately broken stub."""
-    from zer0pa_health.envelope import EnvelopeFalsifierItem
-    from zer0pa_health.ids import falsifier_id
-    from zer0pa_health.falsifiers.registry import get_definition
+    from zer0pa_biomolecular_explorer.envelope import EnvelopeFalsifierItem
+    from zer0pa_biomolecular_explorer.ids import falsifier_id
+    from zer0pa_biomolecular_explorer.falsifiers.registry import get_definition
 
     def _fake_mass_balance(inputs_kg, outputs_kg, tolerance=1e-3) -> EnvelopeFalsifierItem:
         defn = get_definition(FalsifierClass.MASS_BALANCE_FAILURE)
@@ -174,7 +174,7 @@ def test_forced_mass_balance_failure_emits_backedge(adapter: L3StubAdapter, monk
             evidence=["forced_failure_for_test: inputs_kg != outputs_kg beyond tolerance"],
         )
 
-    import zer0pa_health.layers.l3.adapter as adapter_mod
+    import zer0pa_biomolecular_explorer.layers.l3.adapter as adapter_mod
     monkeypatch.setattr(adapter_mod, "detect_mass_balance_failure", _fake_mass_balance)
 
     inp = L3ProcessInput(
@@ -230,7 +230,7 @@ def test_process_graph_dot_has_digraph_and_edge(adapter: L3StubAdapter) -> None:
 
 def test_process_graph_unit_ops_to_dot_directly() -> None:
     """Test the standalone unit_ops_to_dot function directly."""
-    from zer0pa_health.contracts.l3 import L3MaterialFlow
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3MaterialFlow
 
     ops = [
         L3UnitOp(

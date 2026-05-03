@@ -24,9 +24,9 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.layers.l2_5 import L25StubAdapter
+from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.layers.l2_5 import L25StubAdapter
 
 # Path to the JSON schema for envelope validation
 _SCHEMA_PATH = (

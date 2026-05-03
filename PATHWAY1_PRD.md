@@ -1,4 +1,4 @@
-# Zer0pa Health — Pathway 1 (R&D / Drug Discovery) PRD
+# Zer0pa Bio-Molecular Explorer — Pathway 1 (R&D / Drug Discovery) PRD
 
 ## Boundary
 
@@ -6,7 +6,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 ## 0. Position in the System
 
-Pathway 1 is the **front-end** of the Zer0pa Health pipeline. It produces ranked drug candidates that hand off into the existing cardiac safety pipeline (L1–L6 in `src/zer0pa_health/layers/`) and, in future, into other downstream verticals.
+Pathway 1 is the **front-end** of the Zer0pa Bio-Molecular Explorer pipeline. It produces ranked drug candidates that hand off into the existing cardiac safety pipeline (L1–L6 in `src/zer0pa_biomolecular_explorer/layers/`) and, in future, into other downstream verticals.
 
 ```
 [disease + target class]
@@ -19,7 +19,7 @@ Pathway 1 is the **front-end** of the Zer0pa Health pipeline. It produces ranked
 └───────────────────────────────────────────────────────────────┘
     │  P1HandoffPacket (SMILES + target + ADMET + audit_refs)
     ▼
-[existing Health pipeline L1 cardiac wedge ... cardiac packet]
+[existing Bio-Molecular Explorer pipeline L1 cardiac wedge ... cardiac packet]
 ```
 
 Source: `briefing-pack/Pathway1_RD_DrugDiscovery_PRD_Research.md` (591 lines, dense research synthesis). This PRD is the *executable* spec derived from that input — the contracts, build sequence, falsifier extensions, and acceptance gates the overnight executor must produce.
@@ -48,7 +48,7 @@ Out of scope:
 
 ## 2. Architecture Invariant
 
-Pathway 1 inherits **every** invariant from the existing Health pipeline (`docs/CONVENTIONS.md`):
+Pathway 1 inherits **every** invariant from the existing Bio-Molecular Explorer pipeline (`docs/CONVENTIONS.md`):
 
 - Universal layer envelope `zer0pa.layer-envelope.v1` — every P1 adapter emits this shape.
 - Plug-replaceability — every P1 adapter has a primary `*StubAdapter`, a deliberately-different-valued `*ToyAdapter`, and a `*RunpodSimAdapter` (where the real adapter is GPU-bound) so the cutover invariant is testable per layer.
@@ -59,19 +59,19 @@ Pathway 1 inherits **every** invariant from the existing Health pipeline (`docs/
 
 ### Enum extensions
 
-`src/zer0pa_health/envelope.py`:
+`src/zer0pa_biomolecular_explorer/envelope.py`:
 
 - `LayerName` adds `P1_TARGET = "P1.Target"`, `P1_STRUCTURE = "P1.Structure"`, `P1_GENERATE = "P1.Generate"`, `P1_SCREEN = "P1.Screen"`, `P1_OPTIMIZE = "P1.Optimize"`, `P1_HANDOFF = "P1.Handoff"`.
 - `Backend` adds `EXTERNAL_API = "external_api"` for GPT-Rosalind, Open Targets, TTD, GWAS Catalog, PubTator, ChEMBL, etc.
 
-`src/zer0pa_health/kg/schema.py`:
+`src/zer0pa_biomolecular_explorer/kg/schema.py`:
 
 - `NodeType` adds `TARGET`, `HIT`, `LEAD`, `GENERATIVE_PROPOSAL`, `DISEASE`, `BINDING_POCKET`.
 - `EdgeType` adds `ENCODES_TARGET`, `HAS_DISEASE_ASSOCIATION`, `HAS_BINDING_POCKET`.
 
 `schemas/envelope/layer-envelope-v1.json` enum lists are extended to match.
 
-### Per-layer contracts (`src/zer0pa_health/pathway1/contracts/`)
+### Per-layer contracts (`src/zer0pa_biomolecular_explorer/pathway1/contracts/`)
 
 | Layer | Inputs | Outputs |
 |---|---|---|
@@ -189,7 +189,7 @@ The bridge enforces:
 
 ## 8. Self-Bootstrapping Reasoner
 
-Reuses the existing `ReasonerAdapter` Protocol (`src/zer0pa_health/reasoner/`). The Pathway 1 reasoner-tuple emission happens at three points:
+Reuses the existing `ReasonerAdapter` Protocol (`src/zer0pa_biomolecular_explorer/reasoner/`). The Pathway 1 reasoner-tuple emission happens at three points:
 
 - **P1.Target hypothesis synthesis**: GPT-Rosalind (or `StubReasonerBackend` on CPU) produces a tuple per disease/target class, writing `task_type=route_selection`.
 - **P1.Optimize iteration narration**: optional reasoner tuple per BoTorch acquisition step, `task_type=conflict_resolution` if multi-objective tradeoffs are surfaced.
@@ -221,7 +221,7 @@ Per-adapter cutover positioning:
 
 `runpod.config.yaml` extended with `external_api` section listing GPT-Rosalind, Open Targets, TTD, GWAS Catalog, PubTator, ChEMBL, BindingDB, ZINC-22, with `endpoint:` placeholders and `license_class` flags.
 
-`zer0pa-health cutover-dryrun --layer p1` flips the P1 GPU-bound adapters from stub to runpod_sim, validates envelope shape stable, falsifier classes preserved, and writes per-layer journal records.
+`zer0pa-biomolecular-explorer cutover-dryrun --layer p1` flips the P1 GPU-bound adapters from stub to runpod_sim, validates envelope shape stable, falsifier classes preserved, and writes per-layer journal records.
 
 Cutover acceptance gates (per layer): `GATE_P1_<LAYER>_PLUG_SWAP_PASSES_WITH_REAL_ADAPTER`.
 

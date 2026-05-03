@@ -17,12 +17,12 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from zer0pa_health.envelope import Backend, FalsifierStatus, LayerName
-from zer0pa_health.falsifiers.registry import FalsifierClass
-from zer0pa_health.pathway1.contracts.p1_optimize import P1OptimizeInput, P1TargetProductProfile
-from zer0pa_health.pathway1.contracts.p1_screen import P1ADMETPanel, P1ScreenedHit
-from zer0pa_health.pathway1.layers.optimize.adapter import P1OptimizeStubAdapter
-from zer0pa_health.pathway1.layers.optimize.toy_adapter import P1OptimizeToyAdapter
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.falsifiers.registry import FalsifierClass
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_optimize import P1OptimizeInput, P1TargetProductProfile
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_screen import P1ADMETPanel, P1ScreenedHit
+from zer0pa_biomolecular_explorer.pathway1.layers.optimize.adapter import P1OptimizeStubAdapter
+from zer0pa_biomolecular_explorer.pathway1.layers.optimize.toy_adapter import P1OptimizeToyAdapter
 
 # ---------------------------------------------------------------------------
 # Schema path

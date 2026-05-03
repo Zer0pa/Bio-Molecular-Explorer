@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zer0pa-health"
+name = "zer0pa-biomolecular-explorer"
 version = "0.1.0"
-description = "Zer0pa Health falsification-engine pipeline. Research use only."
+description = "Zer0pa Bio-Molecular Explorer — falsification-engine pipeline for molecular and biological-system exploration. Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary research use only" }
@@ -36,8 +36,8 @@ dev = [
 ]
 
 [project.scripts]
-zer0pa-health = "zer0pa_health.cli:app"
-zer0pa-l1-stub = "zer0pa_health.layers.l1.server:run"
+zer0pa-biomolecular-explorer = "zer0pa_biomolecular_explorer.cli:app"
+zer0pa-biomolecular-l1-stub = "zer0pa_biomolecular_explorer.layers.l1.server:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]

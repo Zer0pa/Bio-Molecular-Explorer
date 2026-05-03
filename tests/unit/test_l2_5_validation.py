@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from zer0pa_health.layers.l2_5.validation import validate_atom_map, validate_rxnsmiles
+from zer0pa_biomolecular_explorer.layers.l2_5.validation import validate_atom_map, validate_rxnsmiles
 
 
 # ---------------------------------------------------------------------------

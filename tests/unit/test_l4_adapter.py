@@ -16,13 +16,13 @@ from datetime import datetime, timezone
 
 import pytest
 
-from zer0pa_health.contracts.l4 import (
+from zer0pa_biomolecular_explorer.contracts.l4 import (
     L4SensorClass,
     L4SensorState,
     L4VirtualPlantInput,
 )
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.layers.l4 import EclipseDittoStub, FMUStubBus, L4StubAdapter
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.layers.l4 import EclipseDittoStub, FMUStubBus, L4StubAdapter
 
 
 # ---------------------------------------------------------------------------
@@ -355,10 +355,10 @@ class TestL4StubAdapter:
 
         # Import l4 modules
         for mod_name in [
-            "zer0pa_health.layers.l4",
-            "zer0pa_health.layers.l4.adapter",
-            "zer0pa_health.layers.l4.fmu_bus",
-            "zer0pa_health.layers.l4.ditto",
+            "zer0pa_biomolecular_explorer.layers.l4",
+            "zer0pa_biomolecular_explorer.layers.l4.adapter",
+            "zer0pa_biomolecular_explorer.layers.l4.fmu_bus",
+            "zer0pa_biomolecular_explorer.layers.l4.ditto",
         ]:
             importlib.import_module(mod_name)
 

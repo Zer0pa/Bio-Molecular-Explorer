@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.ids import falsifier_id, tuple_id, utc_now_iso
-from zer0pa_health.reasoner.queue import ReasonerQueue
-from zer0pa_health.reasoner.tuple_schema import (
+from zer0pa_biomolecular_explorer.ids import falsifier_id, tuple_id, utc_now_iso
+from zer0pa_biomolecular_explorer.reasoner.queue import ReasonerQueue
+from zer0pa_biomolecular_explorer.reasoner.tuple_schema import (
     AUTHORITY_ORDER,
     FORBIDDEN_OUTPUTS,
     REQUIRED_CAVEATS,

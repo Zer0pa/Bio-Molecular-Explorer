@@ -11,11 +11,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from zer0pa_health.packets import (
+from zer0pa_biomolecular_explorer.packets import (
     BaselineHarness,
     CardiacPacketAssembler,
 )
-from zer0pa_health.packets.assembler import AssemblerInputs
+from zer0pa_biomolecular_explorer.packets.assembler import AssemblerInputs
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

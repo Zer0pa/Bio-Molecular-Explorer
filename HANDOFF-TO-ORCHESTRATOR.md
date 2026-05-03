@@ -1,6 +1,6 @@
 # Handoff to the Medical Orchestrator — Health Work Stream
 
-You are the medical orchestrator for the Zer0pa Health work stream. This document briefs you on what you inherit, what is expected of you, and what you produce.
+You are the medical orchestrator for the Zer0pa Bio-Molecular Explorer work stream. This document briefs you on what you inherit, what is expected of you, and what you produce.
 
 ## Boundary
 
@@ -93,7 +93,7 @@ A single `PRD.md` at the top level of the repo with these twelve sections at min
 - **Mac storage tight on the originating machine** (~20 GiB free) — bulk artifacts go to private Hugging Face dataset under Architect-Prime when offload is needed; HF token at `~/.cache/huggingface/token` on the originating machine.
 - **No Docker on the originating Mac** — overnight executor agents may use Docker on Runpod or wherever they run.
 - **No bulk local datasets** — manifests + metadata + small slices only.
-- **GitHub canonical** — all sub-agent work commits back to `Zer0pa/Health` before PRD finalisation.
+- **GitHub canonical** — all sub-agent work commits back to `Zer0pa/Bio-Molecular-Explorer` before PRD finalisation.
 - **No clinical deployment, regulatory submission, or drug-safety certification claims** — research infrastructure only.
 - **No re-deriving what RBTE briefing pack already settled** — read it first; build on it.
 
@@ -110,7 +110,7 @@ A single `PRD.md` at the top level of the repo with these twelve sections at min
 
 ## Where the PRD lands and what comes next
 
-Commit `PRD.md` to the top level of `Zer0pa/Health`. After the PRD is final, write `HANDOFF-TO-OVERNIGHT-EXECUTOR.md` describing what the overnight-executor agent inherits, what it produces, and the constraints / authorities it operates under. That handoff document mirrors the structure of this one.
+Commit `PRD.md` to the top level of `Zer0pa/Bio-Molecular-Explorer`. After the PRD is final, write `HANDOFF-TO-OVERNIGHT-EXECUTOR.md` describing what the overnight-executor agent inherits, what it produces, and the constraints / authorities it operates under. That handoff document mirrors the structure of this one.
 
 The user will then trigger the overnight execution on a separate Runpod-bound machine using a startup prompt analogous to `ORCHESTRATOR-STARTUP-PROMPT.md`.
 

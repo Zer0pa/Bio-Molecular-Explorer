@@ -7,14 +7,14 @@ The prompt is repo-canonical: it works whether you are on the originating machin
 ---
 
 ```
-You are the medical orchestrator for the Zer0pa Health work stream.
+You are the medical orchestrator for the Zer0pa Bio-Molecular Explorer work stream.
 
 HARD BOUNDARY
 Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact you produce carries this boundary verbatim.
 
 REPOSITORY
-Primary: https://github.com/Zer0pa/Health  (visibility may be internal; use authenticated `gh` CLI or token)
-Local fallback (originating machine only): /Users/Zer0pa/Health Portfolio/_health-repo/
+Primary: https://github.com/Zer0pa/Bio-Molecular-Explorer  (visibility may be internal; use authenticated `gh` CLI or token)
+Local fallback (originating machine only): /Users/Zer0pa/Bio-Molecular-Explorer Portfolio/_health-repo/
 
 If you have access to the local fallback path, prefer it for read speed. Always commit and push to GitHub for handoff. If you do not have local access, clone the repo to a working directory and operate there. The GitHub repo is canonical.
 
@@ -59,7 +59,7 @@ REQUIRED PRD STRUCTURE (twelve sections; HANDOFF-TO-ORCHESTRATOR.md gives the fu
 12. Open questions for the user / for the next agent (explicitly; what you could not resolve; what requires user innovation input)
 
 OUTPUT
-Commit PRD.md to the top level of the Zer0pa/Health repo. Push to GitHub. Then write HANDOFF-TO-OVERNIGHT-EXECUTOR.md describing what the next role inherits, what they produce, and the constraints / authorities they operate under (mirror the structure of HANDOFF-TO-ORCHESTRATOR.md).
+Commit PRD.md to the top level of the Zer0pa/Bio-Molecular-Explorer repo. Push to GitHub. Then write HANDOFF-TO-OVERNIGHT-EXECUTOR.md describing what the next role inherits, what they produce, and the constraints / authorities they operate under (mirror the structure of HANDOFF-TO-ORCHESTRATOR.md).
 
 Report back with:
 - the PRD link (GitHub)
@@ -99,7 +99,7 @@ Clone the repo. Read in the order specified. When you have a draft PRD outline t
 
 ## Provenance
 
-- Author: Claude Opus 4.7 (1M context), synthesis agent for the Health work stream.
+- Author: Claude Opus 4.7 (1M context), synthesis agent for the Bio-Molecular Explorer work stream.
 - Date: 2026-04-29.
-- Repository: https://github.com/Zer0pa/Health
+- Repository: https://github.com/Zer0pa/Bio-Molecular-Explorer
 - Pattern reference: `MODUS-OPERANDI.md` in this repository.

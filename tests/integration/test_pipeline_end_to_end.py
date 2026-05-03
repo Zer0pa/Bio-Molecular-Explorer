@@ -10,25 +10,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from zer0pa_health.contracts.l1 import (
+from zer0pa_biomolecular_explorer.contracts.l1 import (
     L1ChannelGene,
     L1ChannelPanelInput,
     L1IonCurrent,
     L1MoleculeInput,
     L1TargetInput,
 )
-from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
-from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-from zer0pa_health.contracts.l3 import L3ProcessInput
-from zer0pa_health.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
-from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.layers.l1.adapter import L1StubAdapter
-from zer0pa_health.layers.l2.adapter import L2StubAdapter
-from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-from zer0pa_health.layers.l3.adapter import L3StubAdapter
-from zer0pa_health.layers.l4.adapter import L4StubAdapter
-from zer0pa_health.layers.l5.adapter import L5StubAdapter
+from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
+from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+from zer0pa_biomolecular_explorer.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
+from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
 
 
 REPO = Path(__file__).resolve().parents[2]

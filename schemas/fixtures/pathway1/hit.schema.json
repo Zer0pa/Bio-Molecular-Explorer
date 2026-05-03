@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://zer0pa.ai/schemas/fixtures/pathway1/hit.schema.json",
-  "title": "Zer0pa Health Pathway 1 Hit Fixture",
+  "title": "Zer0pa Bio-Molecular Explorer Pathway 1 Hit Fixture",
   "description": "Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.",
   "type": "object",
   "required": [

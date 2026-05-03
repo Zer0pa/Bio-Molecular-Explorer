@@ -7,7 +7,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from zer0pa_health.cli import app
+from zer0pa_biomolecular_explorer.cli import app
 
 
 def test_cli_run_pathway1_kcnh2(tmp_path):

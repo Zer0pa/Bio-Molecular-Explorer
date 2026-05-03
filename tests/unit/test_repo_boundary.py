@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.boundary import RESEARCH_BOUNDARY, boundary_violations
+from zer0pa_biomolecular_explorer.boundary import RESEARCH_BOUNDARY, boundary_violations
 
 # ──────────────────────────────────────────────────────────────────────
 # Constants
@@ -36,6 +36,7 @@ _EXCLUDE_DIRS = {
     ".pytest_cache",
     ".mypy_cache",
     "node_modules",
+    ".claude",
 }
 
 # File suffixes to walk
@@ -57,7 +58,7 @@ _BOUNDARY_REQUIRED_DIRS = {
 _OVERCLAIM_ALLOWED_FILES = {
     REPO_ROOT / "fixtures" / "negative" / "clinical_overclaim_text.json",
     # boundary.py IS the phrase registry — it must contain the phrases as string literals
-    REPO_ROOT / "src" / "zer0pa_health" / "boundary.py",
+    REPO_ROOT / "src" / "zer0pa_biomolecular_explorer" / "boundary.py",
     # PRD.md uses "regulatory-compliant" as a term describing what the system rejects
     REPO_ROOT / "PRD.md",
 }
@@ -72,7 +73,7 @@ _OVERCLAIM_ALLOWED_DIRS = {
 
 # Source modules that contain overclaim phrases as negative-test string literals
 _OVERCLAIM_ALLOWED_SOURCE_FILES = {
-    REPO_ROOT / "src" / "zer0pa_health" / "reasoner" / "adapter.py",
+    REPO_ROOT / "src" / "zer0pa_biomolecular_explorer" / "reasoner" / "adapter.py",
 }
 
 

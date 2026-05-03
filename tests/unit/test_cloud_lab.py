@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import pytest
 
-from zer0pa_health.cloud_lab import (
+from zer0pa_biomolecular_explorer.cloud_lab import (
     ArctorisStub,
     BudgetExceededError,
     CloudLabAdapter,
@@ -31,8 +31,8 @@ from zer0pa_health.cloud_lab import (
     BlockedClassError,
     default_config,
 )
-from zer0pa_health.cloud_lab.config import CloudLabConfig
-from zer0pa_health.cloud_lab.interlocks import (
+from zer0pa_biomolecular_explorer.cloud_lab.config import CloudLabConfig
+from zer0pa_biomolecular_explorer.cloud_lab.interlocks import (
     check_approval_token,
     check_blocked_class,
     check_boundary_in_protocol,
@@ -410,7 +410,7 @@ class TestInterlocks:
 
     def test_check_blocked_class_autonomous_wet_lab(self):
         """check_blocked_class with 'autonomous wet lab execution' text returns (True, ...)."""
-        from zer0pa_health.cloud_lab.config import default_config
+        from zer0pa_biomolecular_explorer.cloud_lab.config import default_config
         blocked_list = default_config().blocked_classes
         text = "autonomous wet lab execution of compound X in the target screening"
         result_blocked, result_reason = check_blocked_class(text, blocked_list)

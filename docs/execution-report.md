@@ -9,27 +9,27 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 ## Commit + Repo
 
-- **Repo**: https://github.com/Zer0pa/Health
+- **Repo**: https://github.com/Zer0pa/Bio-Molecular-Explorer
 - **Branch**: `main`
-- **Commit**: `8405c4c` ([compare against bc5fc6e](https://github.com/Zer0pa/Health/compare/bc5fc6e..8405c4c))
+- **Commit**: `8405c4c` ([compare against bc5fc6e](https://github.com/Zer0pa/Bio-Molecular-Explorer/compare/bc5fc6e..8405c4c))
 - **Implementation owner**: Claude Opus 4.7 (1M context) lead, Sonnet subagents.
 
 ## What Was Built (PRD Required-Output Coverage)
 
 | PRD Required-Output | Status | Location |
 |---|---|---|
-| Versioned layer envelope schema | ✅ | [`src/zer0pa_health/envelope.py`](https://github.com/Zer0pa/Health/blob/main/src/zer0pa_health/envelope.py), [`schemas/envelope/layer-envelope-v1.json`](https://github.com/Zer0pa/Health/blob/main/schemas/envelope/layer-envelope-v1.json) |
-| Interface contracts L1, L2, L2.5, L3, L4, L5, L6 | ✅ | [`src/zer0pa_health/contracts/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/contracts) |
-| L1 REST stubs for GPU work | ✅ | [`src/zer0pa_health/layers/l1/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/layers/l1) (FastAPI server on `127.0.0.1:8081`) |
-| CPU-validatable L2-L6 pipeline skeleton | ✅ | [`src/zer0pa_health/layers/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/layers) |
-| Append-only audit log + validator | ✅ | [`src/zer0pa_health/audit/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/audit) (12 tables, hash chain, boundary trip, PHI/secret refusal) |
-| KG schema + cardiac seed | ✅ | [`src/zer0pa_health/kg/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/kg), [`kg/cardiac_seed.jsonl`](https://github.com/Zer0pa/Health/blob/main/kg/cardiac_seed.jsonl) (33 nodes, 21 edges) |
-| Falsifier ledger + negative fixtures | ✅ | [`src/zer0pa_health/falsifiers/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/falsifiers) (16 classes, 16 detectors), [`fixtures/negative/`](https://github.com/Zer0pa/Health/tree/main/fixtures/negative) (12 fixtures) |
-| Cardiac evidence packet generator + 3 packets | ✅ | [`src/zer0pa_health/packets/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/packets), [`packets/cardiac_evidence_packet_v0_1__*.json`](https://github.com/Zer0pa/Health/tree/main/packets) |
-| Self-bootstrapping reasoner tuple queue | ✅ | [`src/zer0pa_health/reasoner/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/reasoner) (PRD section 8 schema verbatim, clinical-overclaim self-policing) |
-| Cloud-lab dry-run stubs | ✅ | [`src/zer0pa_health/cloud_lab/`](https://github.com/Zer0pa/Health/tree/main/src/zer0pa_health/cloud_lab) (Strateos/Emerald/Arctoris) + [`runtime/cloud_lab.config.yaml`](https://github.com/Zer0pa/Health/blob/main/runtime/cloud_lab.config.yaml) |
-| Runpod migration config + procedure | ✅ | [`runpod.config.yaml`](https://github.com/Zer0pa/Health/blob/main/runpod.config.yaml), [`docs/runpod-migration.md`](https://github.com/Zer0pa/Health/blob/main/docs/runpod-migration.md) |
-| Tests + falsification wave | ✅ | [`tests/`](https://github.com/Zer0pa/Health/tree/main/tests) (333 passing) |
+| Versioned layer envelope schema | ✅ | [`src/zer0pa_biomolecular_explorer/envelope.py`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/src/zer0pa_biomolecular_explorer/envelope.py), [`schemas/envelope/layer-envelope-v1.json`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/schemas/envelope/layer-envelope-v1.json) |
+| Interface contracts L1, L2, L2.5, L3, L4, L5, L6 | ✅ | [`src/zer0pa_biomolecular_explorer/contracts/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/contracts) |
+| L1 REST stubs for GPU work | ✅ | [`src/zer0pa_biomolecular_explorer/layers/l1/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/layers/l1) (FastAPI server on `127.0.0.1:8081`) |
+| CPU-validatable L2-L6 pipeline skeleton | ✅ | [`src/zer0pa_biomolecular_explorer/layers/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/layers) |
+| Append-only audit log + validator | ✅ | [`src/zer0pa_biomolecular_explorer/audit/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/audit) (12 tables, hash chain, boundary trip, PHI/secret refusal) |
+| KG schema + cardiac seed | ✅ | [`src/zer0pa_biomolecular_explorer/kg/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/kg), [`kg/cardiac_seed.jsonl`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/kg/cardiac_seed.jsonl) (33 nodes, 21 edges) |
+| Falsifier ledger + negative fixtures | ✅ | [`src/zer0pa_biomolecular_explorer/falsifiers/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/falsifiers) (16 classes, 16 detectors), [`fixtures/negative/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/fixtures/negative) (12 fixtures) |
+| Cardiac evidence packet generator + 3 packets | ✅ | [`src/zer0pa_biomolecular_explorer/packets/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/packets), [`packets/cardiac_evidence_packet_v0_1__*.json`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/packets) |
+| Self-bootstrapping reasoner tuple queue | ✅ | [`src/zer0pa_biomolecular_explorer/reasoner/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/reasoner) (PRD section 8 schema verbatim, clinical-overclaim self-policing) |
+| Cloud-lab dry-run stubs | ✅ | [`src/zer0pa_biomolecular_explorer/cloud_lab/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/src/zer0pa_biomolecular_explorer/cloud_lab) (Strateos/Emerald/Arctoris) + [`runtime/cloud_lab.config.yaml`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/runtime/cloud_lab.config.yaml) |
+| Runpod migration config + procedure | ✅ | [`runpod.config.yaml`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/runpod.config.yaml), [`docs/runpod-migration.md`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/docs/runpod-migration.md) |
+| Tests + falsification wave | ✅ | [`tests/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/tests) (333 passing) |
 | Final execution report | ✅ | this document |
 
 ## Test Results — 464 passing
@@ -60,7 +60,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 | Gate | Status | Evidence |
 |---|---|---|
-| Cardiac seed packets exist for dofetilide/verapamil/ranolazine | ✅ | [`packets/`](https://github.com/Zer0pa/Health/tree/main/packets/) |
+| Cardiac seed packets exist for dofetilide/verapamil/ranolazine | ✅ | [`packets/`](https://github.com/Zer0pa/Bio-Molecular-Explorer/tree/main/packets/) |
 | Full channel/current panel present or explicit absence recorded | ✅ | All four channels (KCNH2/SCN5A/KCNQ1/CACNA1C) appear in every packet, with `explicit_absence` notes where ic50 is absent |
 | hERG-only conclusions fail | ✅ | `detect_herg_only_overreach` blocks; verified in falsification wave |
 | Codec/replay metrics not mechanism evidence | ✅ | `detect_codec_as_mechanism` separates basis kinds; verified |
@@ -74,7 +74,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 | Gate | Status | Evidence |
 |---|---|---|
 | CPU-only build runs end-to-end | ✅ | `tests/integration/test_pipeline_end_to_end.py` exercises L1→L2.5→L2→L3→L4→L5 on CPU only |
-| L1 GPU functions are REST stubs (not absent TODOs) | ✅ | `src/zer0pa_health/layers/l1/server.py` runs on port 8081; canned dofetilide/verapamil/ranolazine outputs |
+| L1 GPU functions are REST stubs (not absent TODOs) | ✅ | `src/zer0pa_biomolecular_explorer/layers/l1/server.py` runs on port 8081; canned dofetilide/verapamil/ranolazine outputs |
 | Every layer: schema validation + fixtures + negative tests + plug-swap | ✅ | `tests/plug_swap/test_plug_replaceability.py` covers L1-L5 + L6 + cross-layer |
 | Audit hash chain validates | ✅ | `AuditValidator.validate()` runs in falsification-wave aggregate test; passes |
 | KG has no dangling refs; reconstructible | ✅ | `KGValidator` runs on `cardiac_seed.jsonl`: 33 nodes, 21 edges, no dangling |
@@ -128,7 +128,7 @@ or `license_drift` ON until backend flips), runpod_or_credential_steps, and the 
 
 1. **Python-first stack**: FastAPI + Pydantic v2 + pytest + pyyaml + jsonschema + httpx + typer + networkx. Justification: the orchestrator-PRD section 12 next-agent question #2 asked between Python-first vs split Python/TypeScript. Python lets every adapter share the same envelope/contract import path; cuts build complexity in half. Reversible.
 
-2. **`src/zer0pa_health/` package layout** (PRD section 12 next-agent question #1): contracts/, layers/{l1..l6}/, audit/, kg/, falsifiers/, packets/, reasoner/, cloud_lab/, orchestration/. Reversible.
+2. **`src/zer0pa_biomolecular_explorer/` package layout** (PRD section 12 next-agent question #1): contracts/, layers/{l1..l6}/, audit/, kg/, falsifiers/, packets/, reasoner/, cloud_lab/, orchestration/. Reversible.
 
 3. **No RDKit on the originating Mac yet** (PRD section 12 next-agent question #2 implicit): SMILES validation is regex-based; canonical-SMILES normalization is a deterministic best-effort. RDKit becomes a Runpod adapter when real molecular work begins. Justification: avoid heavy install on the originating CPU build; falsifier wave doesn't need it. Reversible (`pip install -e .[chem]` adds RDKit when wanted).
 
@@ -187,13 +187,13 @@ These map to PRD section 12 user-level innovation questions:
 
 ## How to re-run from a fresh agent
 
-1. Clone https://github.com/Zer0pa/Health and `cd Health`.
+1. Clone https://github.com/Zer0pa/Bio-Molecular-Explorer and `cd Health`.
 2. `python3.11 -m venv .venv && .venv/bin/pip install -e .[test]`.
 3. `.venv/bin/python -m pytest -q` — should report **464 passed**.
-4. `.venv/bin/python -m zer0pa_health.cli run-cardiac all+held-out --runtime .runtime` — runs the 3 seed compounds plus 6 held-out compounds end-to-end, writes audit + KG + packets + reasoner queue under `.runtime/`.
-5. `.venv/bin/python -m zer0pa_health.cli runpod-precheck` — dry-runs the cutover; expected output: 7 layers configured, 7 on stub (CPU-ready), 0 blockers, 5 parked-work items.
-6. `.venv/bin/python -m zer0pa_health.cli graph-export kg/ --out kg.dot` — exports the cardiac KG seed as Graphviz DOT.
-7. Read this report, [`docs/CONVENTIONS.md`](https://github.com/Zer0pa/Health/blob/main/docs/CONVENTIONS.md), [`docs/DECISIONS.md`](https://github.com/Zer0pa/Health/blob/main/docs/DECISIONS.md), [`PRD.md`](https://github.com/Zer0pa/Health/blob/main/PRD.md), and [`docs/runpod-migration.md`](https://github.com/Zer0pa/Health/blob/main/docs/runpod-migration.md).
+4. `.venv/bin/python -m zer0pa_biomolecular_explorer.cli run-cardiac all+held-out --runtime .runtime` — runs the 3 seed compounds plus 6 held-out compounds end-to-end, writes audit + KG + packets + reasoner queue under `.runtime/`.
+5. `.venv/bin/python -m zer0pa_biomolecular_explorer.cli runpod-precheck` — dry-runs the cutover; expected output: 7 layers configured, 7 on stub (CPU-ready), 0 blockers, 5 parked-work items.
+6. `.venv/bin/python -m zer0pa_biomolecular_explorer.cli graph-export kg/ --out kg.dot` — exports the cardiac KG seed as Graphviz DOT.
+7. Read this report, [`docs/CONVENTIONS.md`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/docs/CONVENTIONS.md), [`docs/DECISIONS.md`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/docs/DECISIONS.md), [`PRD.md`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/PRD.md), and [`docs/runpod-migration.md`](https://github.com/Zer0pa/Bio-Molecular-Explorer/blob/main/docs/runpod-migration.md).
 
 No conversation history required.
 
@@ -203,7 +203,7 @@ After the initial 333-test pass, the user asked: "is there nothing left to do CP
 
 | Addition | Tests | Notes |
 |---|---|---|
-| `cli.py` (zer0pa-health entry point) with `run-cardiac`, `validate-audit`, `validate-kg`, `validate-packet`, `runpod-precheck`, `graph-export` subcommands | +6 (CLI smoke) | The pyproject.toml declared `zer0pa-health` but the module didn't exist. Now it does. |
+| `cli.py` (zer0pa-biomolecular-explorer entry point) with `run-cardiac`, `validate-audit`, `validate-kg`, `validate-packet`, `runpod-precheck`, `graph-export` subcommands | +6 (CLI smoke) | The pyproject.toml declared `zer0pa-biomolecular-explorer` but the module didn't exist. Now it does. |
 | `runs/cardiac_run.py` — end-to-end runner that writes all 12 audit tables per compound | +13 | Previously, audit tables were declared but only `runs`, `molecules`, `model_tools`, `source_manifest`, `falsifiers` were populated by the falsification wave. Now `parameters`, `confidence`, `decisions`, `artifacts`, `replay_commands`, `offload_manifest`, `midd_assessments` all populate per layer per run. |
 | `runs/l6_orchestrated_run.py` — L6Router-driven run with per-transition decision recording | +3 | The L6 router was tested but never used to actually orchestrate the cardiac wedge. Now it does, writing 6 decisions per run to `audit/decisions.jsonl`. The `silent_falsifier_loss` filter was tightened to FAIL-only items so the router walks the full chain on clean inputs (D-015). |
 | `layers/{l1,l2,l2_5,l3,l4,l5}/toy_adapter.py` — second stub adapter per layer with deliberately different canned values | +X (held by toy subagent) | Plug-swap tests previously used two instances of the same StubAdapter class — that doesn't prove plug-replaceability. Now Stub-as-A / Toy-as-B. |
@@ -240,7 +240,7 @@ After iteration 2 closed the obvious gaps, the user asked again — "have you do
 |---|---|---|
 | L6Router backedge re-execution loop | +4 | `RouterStep.is_reexecution` flag added; per-layer budget 2 + global cap 12; orphan back-edges drained safely. The router now actually walks back when an upstream constraint is proposed. |
 | `runpod_sim/L2RunpodSimAdapter` + `L5RunpodSimAdapter` | +9 | Symmetry with L1 sim. Three layers now have a CPU-side `backend=runpod_gpu` simulation, so the cutover invariant is testable for L1, L2, and L5 independently. |
-| `zer0pa-health export-finetune-corpus` CLI | +3 | Walks reasoner_queue/runs/<rid>/tuples.jsonl across all runs, splits into PRD-section-8-eligible positives (passed + ground_truth.available OR type.human_adjudication) and negatives (failed status OR clinical_overclaim class). Stub-only runs legitimately produce empty corpora until curated ground truth arrives. |
+| `zer0pa-biomolecular-explorer export-finetune-corpus` CLI | +3 | Walks reasoner_queue/runs/<rid>/tuples.jsonl across all runs, splits into PRD-section-8-eligible positives (passed + ground_truth.available OR type.human_adjudication) and negatives (failed status OR clinical_overclaim class). Stub-only runs legitimately produce empty corpora until curated ground truth arrives. |
 
 **Iteration 4 test delta**: 477 → 493 (+16). All green in <10 s.
 
@@ -250,7 +250,7 @@ After iteration 2 closed the obvious gaps, the user asked again — "have you do
 |---|---|---|
 | `runpod_sim/TxGemmaRunpodSimAdapter` | +6 | CPU-side simulation of TxGemma 27B on Runpod. Same `ReasonerAdapter` Protocol as `StubReasonerBackend`. license_class="E" (Gemma 2 + Health AI Developer Foundations terms must be verified before commercial deployment). Self-policed: never emits clinical-overclaim phrases. |
 | `orchestration/RunpodSimDispatcher` | +5 | Parsl-shaped GPU dispatcher simulation. Same `DispatchInterface` Protocol as `NoOpDispatcher`. Implements queued → running → done state progression so tests look like real GPU dispatch. |
-| `zer0pa-health cutover-dryrun` CLI | +3 | End-to-end Runpod cutover dry-run. Flips L1/L2/L5 from Stub to RunpodSim, verifies envelope shape stable, falsifier classes preserved, backend flag flipped to runpod_gpu. Writes journal to `audit/cutover_dryrun.jsonl`. |
+| `zer0pa-biomolecular-explorer cutover-dryrun` CLI | +3 | End-to-end Runpod cutover dry-run. Flips L1/L2/L5 from Stub to RunpodSim, verifies envelope shape stable, falsifier classes preserved, backend flag flipped to runpod_gpu. Writes journal to `audit/cutover_dryrun.jsonl`. |
 
 **Iteration 5 test delta**: 493 → 507 (+14). All green in <5 s.
 
@@ -339,9 +339,9 @@ The pipeline now has both ends, fully integrated:
 - **Pathway 1 (front-end)**: target identification → structure prediction → molecule generation → in silico screening → hit-to-lead refinement → CRO-ready handoff dossier.
 - **Cardiac wedge (existing back-end)**: candidate molecule → multi-current channel panel → PKPD bridge → cardiac evidence packet → PubMed-baseline benchmark.
 
-A single command (`zer0pa-health run-pathway1 KCNH2`) walks the entire pipeline: P1.Target → P1.Structure → P1.Generate → P1.Screen → P1.Optimize → P1.Handoff → existing L1 channel-panel → CardiacEvidencePacket assembled → engine score 96.25 vs baseline 49 → packet written to disk. All 12 audit tables populate; KG combined seed validates K1-K5; reasoner tuple emitted; falsifier ledger preserved.
+A single command (`zer0pa-biomolecular-explorer run-pathway1 KCNH2`) walks the entire pipeline: P1.Target → P1.Structure → P1.Generate → P1.Screen → P1.Optimize → P1.Handoff → existing L1 channel-panel → CardiacEvidencePacket assembled → engine score 96.25 vs baseline 49 → packet written to disk. All 12 audit tables populate; KG combined seed validates K1-K5; reasoner tuple emitted; falsifier ledger preserved.
 
-**Remote-review readiness**: README, CONVENTIONS, DECISIONS, PRD.md, PATHWAY1_PRD.md, execution-report.md, runpod.config.yaml, runpod-migration.md all current and consistent. CI workflow (`.github/workflows/ci.yml`) runs the full suite on every push. Repo synced at https://github.com/Zer0pa/Health.
+**Remote-review readiness**: README, CONVENTIONS, DECISIONS, PRD.md, PATHWAY1_PRD.md, execution-report.md, runpod.config.yaml, runpod-migration.md all current and consistent. CI workflow (`.github/workflows/ci.yml`) runs the full suite on every push. Repo synced at https://github.com/Zer0pa/Bio-Molecular-Explorer.
 
 ## Iteration 8 (2026-04-30) — Authority-path defects fixed (operator brief 2026-04-30)
 
@@ -370,7 +370,7 @@ narratable-Runpod-ready. Iteration 8 closes the twelve items in that brief.
 
 ### Iteration 8 functional changes (brief summary)
 
-- **Cardiac authority gate is now the L6 router**, not the forward chain. `_run_l6_governance` builds a state graph from the L1-L5 envelopes, runs `L6Router.execute()`, and refuses packet export when `report.block_count > 0`. The `zer0pa-health run-cardiac` CLI exits 2 on a router block (existing CLI tests continue to pass; new test `test_cli_run_cardiac_exit_code_nonzero_on_l6_block` proves the FAIL path).
+- **Cardiac authority gate is now the L6 router**, not the forward chain. `_run_l6_governance` builds a state graph from the L1-L5 envelopes, runs `L6Router.execute()`, and refuses packet export when `report.block_count > 0`. The `zer0pa-biomolecular-explorer run-cardiac` CLI exits 2 on a router block (existing CLI tests continue to pass; new test `test_cli_run_cardiac_exit_code_nonzero_on_l6_block` proves the FAIL path).
 - **Cardiac packet is assembled from validated envelopes**, not from `fixture["channel_panel_canned"]`. `AssemblerInputs.l1_panel_envelope_output` is now the source of truth; `require_envelope=True` is set for production runs. Tests prove the envelope wins over the fixture (sentinel injection) and that fixtures alone are insufficient under `require_envelope=True`.
 - **`FalsifierLedger` mirror is mandatory** in cardiac and Pathway 1 runs; `reconcile_ledger_audit_kg` raises `ReconciliationError` if the audit table, the ledger, and the KG falsifier nodes diverge. The first smoke test of this caught a real defect: the ledger generated fresh `falsifier_id`s rather than reusing the envelope's. Fixed by adding `falsifier_id` keyword arg to `FalsifierLedger.emit()`.
 - **`NodeType.AUDIT_RECORD` is a real type** (not OUTPUT_ENVELOPE reuse). `KGValidator.validate_cardiac()` enforces K1-K5; cardiac runs invoke it. K2 rejects claims whose only falsifier is `codec_as_mechanism` FAIL; K4 requires L1-L6 OutputEnvelopes; K5 forbids Episode→Claim SUPPORTS edges.

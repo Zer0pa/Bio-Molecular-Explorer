@@ -15,12 +15,12 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from zer0pa_health.audit import AuditValidator
-from zer0pa_health.cli import app
-from zer0pa_health.kg import KGStore, KGValidator
-from zer0pa_health.packets import CardiacEvidencePacket
-from zer0pa_health.reasoner.queue import ReasonerQueue
-from zer0pa_health.runs import run_cardiac_compound, run_cardiac_wedge
+from zer0pa_biomolecular_explorer.audit import AuditValidator
+from zer0pa_biomolecular_explorer.cli import app
+from zer0pa_biomolecular_explorer.kg import KGStore, KGValidator
+from zer0pa_biomolecular_explorer.packets import CardiacEvidencePacket
+from zer0pa_biomolecular_explorer.reasoner.queue import ReasonerQueue
+from zer0pa_biomolecular_explorer.runs import run_cardiac_compound, run_cardiac_wedge
 
 
 def test_run_cardiac_compound_writes_all_audit_tables(tmp_path):
@@ -121,7 +121,7 @@ def test_cli_runpod_precheck():
 def test_runpod_precheck_returns_nonzero_on_runpod_endpoint_blocker(tmp_path):
     """Phase E.2: a config with backend=runpod_gpu but endpoint=null must exit 3."""
     import yaml
-    from zer0pa_health.cli import _runpod_precheck_logic
+    from zer0pa_biomolecular_explorer.cli import _runpod_precheck_logic
     bad_cfg = {
         "contract_version": "zer0pa.runpod-migration.v1",
         "layers": {
@@ -154,7 +154,7 @@ def test_runpod_precheck_returns_nonzero_on_runpod_endpoint_blocker(tmp_path):
 def test_runpod_precheck_returns_nonzero_on_structural_defect(tmp_path):
     """Phase E.2: missing acceptance_gates / parked-work / pre_cutover_state must exit 4."""
     import yaml
-    from zer0pa_health.cli import _runpod_precheck_logic
+    from zer0pa_biomolecular_explorer.cli import _runpod_precheck_logic
     bad_cfg = {
         "contract_version": "zer0pa.runpod-migration.v1",
         "layers": {
@@ -177,7 +177,7 @@ def test_runpod_precheck_returns_nonzero_on_structural_defect(tmp_path):
 
 
 def test_runpod_precheck_missing_config_returns_2(tmp_path):
-    from zer0pa_health.cli import _runpod_precheck_logic
+    from zer0pa_biomolecular_explorer.cli import _runpod_precheck_logic
     rc = _runpod_precheck_logic(tmp_path / "does_not_exist.yaml")
     assert rc == 2
 
@@ -209,7 +209,7 @@ def test_cli_graph_export(tmp_path):
     assert result.exit_code == 0, result.stdout
     assert out_dot.exists()
     content = out_dot.read_text()
-    assert "digraph zer0pa_health_kg" in content
+    assert "digraph zer0pa_biomolecular_explorer_kg" in content
     assert " -> " in content
 
 
@@ -279,9 +279,9 @@ def test_run_cardiac_l6_router_governs_normal_run(tmp_path):
 
 
 def test_cli_run_cardiac_exit_code_nonzero_on_l6_block(tmp_path, monkeypatch):
-    """When the L6 router blocks export, `zer0pa-health run-cardiac` MUST exit with non-zero."""
-    from zer0pa_health.envelope import EnvelopeFalsifierItem, FalsifierStatus
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
+    """When the L6 router blocks export, `zer0pa-biomolecular-explorer run-cardiac` MUST exit with non-zero."""
+    from zer0pa_biomolecular_explorer.envelope import EnvelopeFalsifierItem, FalsifierStatus
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
 
     real_channel_panel = L1StubAdapter.channel_panel
 
@@ -316,11 +316,11 @@ def test_l6_router_blocks_packet_export_when_envelope_fails(tmp_path, monkeypatc
     packet export. The CardiacRunResult must reflect the block, packet_path
     must be empty, and no cardiac packet file must be written.
     """
-    from zer0pa_health.envelope import (
+    from zer0pa_biomolecular_explorer.envelope import (
         EnvelopeFalsifierItem,
         FalsifierStatus,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
 
     real_channel_panel = L1StubAdapter.channel_panel
 

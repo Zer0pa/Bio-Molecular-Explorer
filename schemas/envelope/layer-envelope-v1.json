@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://zer0pa.health/schemas/envelope/layer-envelope-v1.json",
-  "title": "Zer0pa Health Universal Layer Envelope v1",
+  "title": "Zer0pa Bio-Molecular Explorer Universal Layer Envelope v1",
   "description": "Every layer (L1, L2, L2.5, L3, L4, L5, L6) MUST emit an envelope of this shape. Cross-layer code depends only on this envelope plus the per-layer output contract. PRD section 2 (Architecture Invariant).",
   "type": "object",
   "additionalProperties": false,

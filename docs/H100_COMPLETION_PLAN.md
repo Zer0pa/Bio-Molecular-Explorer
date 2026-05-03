@@ -33,10 +33,10 @@ Current HEAD at review time: `a8ea6e8`.
 Verified locally:
 
 - `pytest -q`: 768 passing.
-- `zer0pa-health health-check`: passing.
-- `zer0pa-health runpod-precheck`: 19 stub-ready layers, 0 blockers, 0 structural defects in default stub-state.
-- `zer0pa-health cutover-dryrun --layer all+p1`: passing against runpod-sim adapters.
-- `zer0pa-health run-cardiac all+held-out`: 9 compounds pass in stub-state; audit and KG validation pass.
+- `zer0pa-biomolecular-explorer health-check`: passing.
+- `zer0pa-biomolecular-explorer runpod-precheck`: 19 stub-ready layers, 0 blockers, 0 structural defects in default stub-state.
+- `zer0pa-biomolecular-explorer cutover-dryrun --layer all+p1`: passing against runpod-sim adapters.
+- `zer0pa-biomolecular-explorer run-cardiac all+held-out`: 9 compounds pass in stub-state; audit and KG validation pass.
 
 This is not sufficient for final Runpod cutover. It means the scaffold can be taken to H100 and completed.
 

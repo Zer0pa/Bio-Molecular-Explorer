@@ -11,8 +11,8 @@ within-CPU plug invariant.
 
 from __future__ import annotations
 
-from zer0pa_health.envelope import FalsifierStatus, LayerEnvelope
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerEnvelope
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
 
 
 # ──────────────────────────── helpers ────────────────────────────
@@ -46,9 +46,9 @@ def _contract_version_matches(env_a: LayerEnvelope, env_b: LayerEnvelope) -> Non
 
 
 def test_p1_target_plug_swap():
-    from zer0pa_health.pathway1.contracts.p1_target import P1TargetInput
-    from zer0pa_health.pathway1.layers.target.adapter import P1TargetStubAdapter
-    from zer0pa_health.pathway1.layers.target.toy_adapter import P1TargetToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_target import P1TargetInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.target.adapter import P1TargetStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.target.toy_adapter import P1TargetToyAdapter
 
     inp = P1TargetInput(disease_ids=["EFO:0000238"])
     env_a = P1TargetStubAdapter().process(inp)
@@ -62,9 +62,9 @@ def test_p1_target_plug_swap():
 
 
 def test_p1_structure_plug_swap():
-    from zer0pa_health.pathway1.contracts.p1_structure import P1StructureInput
-    from zer0pa_health.pathway1.layers.structure.adapter import P1StructureStubAdapter
-    from zer0pa_health.pathway1.layers.structure.toy_adapter import P1StructureToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_structure import P1StructureInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.structure.adapter import P1StructureStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.structure.toy_adapter import P1StructureToyAdapter
 
     inp = P1StructureInput(target_id="uniprot:Q12809", gene_symbol="KCNH2")
     env_a = P1StructureStubAdapter().process(inp)
@@ -78,9 +78,9 @@ def test_p1_structure_plug_swap():
 
 
 def test_p1_generate_plug_swap():
-    from zer0pa_health.pathway1.contracts.p1_generate import P1GenerateInput
-    from zer0pa_health.pathway1.layers.generate.adapter import P1GenerateStubAdapter
-    from zer0pa_health.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_generate import P1GenerateInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.generate.adapter import P1GenerateStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
 
     inp = P1GenerateInput(
         target_id="uniprot:Q12809",
@@ -98,9 +98,9 @@ def test_p1_generate_plug_swap():
 
 def test_p1_generate_values_may_differ_but_shape_must_not():
     """Toy is allowed to produce different SMILES; output shape stays identical."""
-    from zer0pa_health.pathway1.contracts.p1_generate import P1GenerateInput
-    from zer0pa_health.pathway1.layers.generate.adapter import P1GenerateStubAdapter
-    from zer0pa_health.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_generate import P1GenerateInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.generate.adapter import P1GenerateStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
 
     inp = P1GenerateInput(
         target_id="uniprot:Q12809",
@@ -122,9 +122,9 @@ def test_p1_generate_values_may_differ_but_shape_must_not():
 
 
 def test_p1_screen_plug_swap():
-    from zer0pa_health.pathway1.contracts.p1_screen import P1ScreenInput
-    from zer0pa_health.pathway1.layers.screen.adapter import P1ScreenStubAdapter
-    from zer0pa_health.pathway1.layers.screen.toy_adapter import P1ScreenToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_screen import P1ScreenInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.screen.adapter import P1ScreenStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.screen.toy_adapter import P1ScreenToyAdapter
 
     inp = P1ScreenInput(
         target_id="uniprot:Q12809",
@@ -151,12 +151,12 @@ def test_p1_screen_plug_swap():
 
 
 def test_p1_optimize_plug_swap():
-    from zer0pa_health.pathway1.contracts.p1_optimize import (
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_optimize import (
         P1OptimizeInput,
         P1TargetProductProfile,
     )
-    from zer0pa_health.pathway1.layers.optimize.adapter import P1OptimizeStubAdapter
-    from zer0pa_health.pathway1.layers.optimize.toy_adapter import P1OptimizeToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.optimize.adapter import P1OptimizeStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.optimize.toy_adapter import P1OptimizeToyAdapter
 
     fake_hits = [
         {
@@ -201,9 +201,9 @@ def test_p1_optimize_plug_swap():
 
 
 def test_p1_handoff_plug_swap_cardiac():
-    from zer0pa_health.pathway1.contracts.p1_handoff import P1HandoffInput
-    from zer0pa_health.pathway1.layers.handoff.adapter import P1HandoffStubAdapter
-    from zer0pa_health.pathway1.layers.handoff.toy_adapter import P1HandoffToyAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_handoff import P1HandoffInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.handoff.adapter import P1HandoffStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.layers.handoff.toy_adapter import P1HandoffToyAdapter
 
     fake_lead = {
         "lead_id": "P1-LEAD-PLUG-001",
@@ -253,8 +253,8 @@ def test_p1_handoff_plug_swap_cardiac():
 
 def test_all_pathway1_envelopes_share_contract_version():
     """Sanity: every P1 layer envelope declares the canonical contract_version."""
-    from zer0pa_health.pathway1.contracts.p1_target import P1TargetInput
-    from zer0pa_health.pathway1.layers.target.adapter import P1TargetStubAdapter
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_target import P1TargetInput
+    from zer0pa_biomolecular_explorer.pathway1.layers.target.adapter import P1TargetStubAdapter
 
     e = P1TargetStubAdapter().process(P1TargetInput(disease_ids=["EFO:0000238"]))
     assert e.contract_version == "zer0pa.layer-envelope.v1"

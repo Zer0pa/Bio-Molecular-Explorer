@@ -7,7 +7,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from zer0pa_health.cli import app
+from zer0pa_biomolecular_explorer.cli import app
 
 
 def test_cutover_dryrun_all_layers_pass(tmp_path):

@@ -20,9 +20,9 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from zer0pa_health.envelope import Backend, FalsifierStatus
-from zer0pa_health.pathway1.contracts.p1_structure import P1StructureInput
-from zer0pa_health.pathway1.layers.structure import P1StructureStubAdapter, P1StructureToyAdapter
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_structure import P1StructureInput
+from zer0pa_biomolecular_explorer.pathway1.layers.structure import P1StructureStubAdapter, P1StructureToyAdapter
 
 _SCHEMA_PATH = (
     Path(__file__).parent.parent.parent / "schemas" / "envelope" / "layer-envelope-v1.json"

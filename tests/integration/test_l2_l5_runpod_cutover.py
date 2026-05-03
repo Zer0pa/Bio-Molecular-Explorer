@@ -5,13 +5,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
-from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-from zer0pa_health.envelope import Backend, FalsifierStatus
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
-from zer0pa_health.layers.l2.adapter import L2StubAdapter
-from zer0pa_health.layers.l5.adapter import L5StubAdapter
-from zer0pa_health.runpod_sim import L2RunpodSimAdapter, L5RunpodSimAdapter
+from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
+from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+from zer0pa_biomolecular_explorer.runpod_sim import L2RunpodSimAdapter, L5RunpodSimAdapter
 
 
 def _envelope_keys(env) -> dict:

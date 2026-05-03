@@ -10,10 +10,10 @@ import pytest
 
 from pydantic import ValidationError
 
-from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.layers.l5.adapter import L5StubAdapter
-from zer0pa_health.layers.l5.sbml import sbml_roundtrip_ok
+from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+from zer0pa_biomolecular_explorer.layers.l5.sbml import sbml_roundtrip_ok
 
 _FIXTURES = pathlib.Path(__file__).parents[2] / "fixtures" / "compounds"
 
@@ -228,7 +228,7 @@ class TestL5AdapterNoChannelPanel:
 class TestL5AdapterSBMLRoundtrip:
     def test_sbml_roundtrip_standalone(self) -> None:
         """sbml_roundtrip_ok() must return True for a well-formed packet."""
-        from zer0pa_health.layers.l5.sbml import build_minimal_sbml_packet
+        from zer0pa_biomolecular_explorer.layers.l5.sbml import build_minimal_sbml_packet
         packet = build_minimal_sbml_packet(
             model_kind="one_compartment",
             parameters={"cl": 10.0, "vd": 70.0, "ka": 1.0, "fu": 0.5},
@@ -236,7 +236,7 @@ class TestL5AdapterSBMLRoundtrip:
         assert sbml_roundtrip_ok(packet) is True
 
     def test_sbml_packet_has_required_fields(self) -> None:
-        from zer0pa_health.layers.l5.sbml import build_minimal_sbml_packet
+        from zer0pa_biomolecular_explorer.layers.l5.sbml import build_minimal_sbml_packet
         packet = build_minimal_sbml_packet(
             model_kind="one_compartment",
             parameters={"cl": 10.0, "vd": 70.0},

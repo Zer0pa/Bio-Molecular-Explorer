@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import pytest
 
-from zer0pa_health.envelope import Backend, FalsifierStatus, LayerName
-from zer0pa_health.pathway1.contracts.p1_screen import P1ScreenInput, P1ScreenOutput
-from zer0pa_health.pathway1.layers.screen.adapter import P1ScreenStubAdapter
-from zer0pa_health.runpod_sim.p1_screen_runpod_sim import P1ScreenRunpodSimAdapter
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_screen import P1ScreenInput, P1ScreenOutput
+from zer0pa_biomolecular_explorer.pathway1.layers.screen.adapter import P1ScreenStubAdapter
+from zer0pa_biomolecular_explorer.runpod_sim.p1_screen_runpod_sim import P1ScreenRunpodSimAdapter
 
 
 # ---------------------------------------------------------------------------

@@ -7,8 +7,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from zer0pa_health.cli import app
-from zer0pa_health.runs import run_cardiac_compound
+from zer0pa_biomolecular_explorer.cli import app
+from zer0pa_biomolecular_explorer.runs import run_cardiac_compound
 
 
 def test_cli_bundle_creates_tarball(tmp_path):

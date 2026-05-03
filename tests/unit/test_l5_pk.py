@@ -6,7 +6,7 @@ import math
 
 import pytest
 
-from zer0pa_health.layers.l5.pk_models import one_compartment_pk, tmax_analytic
+from zer0pa_biomolecular_explorer.layers.l5.pk_models import one_compartment_pk, tmax_analytic
 
 
 class TestTmaxAnalytic:

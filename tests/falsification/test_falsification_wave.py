@@ -32,14 +32,14 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.audit import (
+from zer0pa_biomolecular_explorer.audit import (
     AUDIT_TABLE_FILES,
     AuditTable,
     AuditValidator,
     AuditWriter,
 )
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.falsifiers import (
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.falsifiers import (
     FalsifierClass,
     FalsifierLedger,
     detect_clinical_overclaim,
@@ -60,7 +60,7 @@ from zer0pa_health.falsifiers import (
     detect_stub_laundering,
     detect_herg_only_overreach,
 )
-from zer0pa_health.ids import run_id
+from zer0pa_biomolecular_explorer.ids import run_id
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -452,7 +452,7 @@ def test_full_wave_aggregate_audit_validates(tmp_path):
         )
         audited.append(name)
         # ROUTE: each definition has a backedge_target
-        from zer0pa_health.falsifiers.registry import REGISTRY
+        from zer0pa_biomolecular_explorer.falsifiers.registry import REGISTRY
         target = REGISTRY[fclass].backedge_target
         if target:
             routed_backedge_targets.append((name, target))

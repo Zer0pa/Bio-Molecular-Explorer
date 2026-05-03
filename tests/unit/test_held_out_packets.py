@@ -12,9 +12,9 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from zer0pa_health.boundary import RESEARCH_BOUNDARY
-from zer0pa_health.packets import CardiacPacketAssembler, PacketVerdict
-from zer0pa_health.packets.assembler import AssemblerInputs
+from zer0pa_biomolecular_explorer.boundary import RESEARCH_BOUNDARY
+from zer0pa_biomolecular_explorer.packets import CardiacPacketAssembler, PacketVerdict
+from zer0pa_biomolecular_explorer.packets.assembler import AssemblerInputs
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = REPO_ROOT / "fixtures" / "compounds"

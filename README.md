@@ -1,12 +1,12 @@
-# Zer0pa Health
+# Zer0pa Bio-Molecular Explorer
 
-> Live window into the Zer0pa lab. Health is a research-only falsification pipeline for cardiac evidence, not a medical product or safety certification.
+> Live window into the Zer0pa lab. Bio-Molecular Explorer is a research-only evidence pipeline, not a medical product or safety certification.
 
 ## What This Is
 
 Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification. Every artifact you produce carries this boundary verbatim.
 
-Zer0pa Health is an internal research workstream for building a tool-agnostic, falsifier-governed health pipeline. The first authority wedge is cardiac: dofetilide, verapamil, ranolazine, and held-out comparators through KCNH2, SCN5A, KCNQ1, and CACNA1C evidence paths under multi-current CiPA framing. FDA E14/S7B are used as regulatory-science anchors only; this repo does not claim regulatory compliance.
+Zer0pa Bio-Molecular Explorer turns molecular research inputs into auditable, falsifier-governed biological evidence packets. The first authority wedge is cardiac: dofetilide, verapamil, ranolazine, and held-out comparators through KCNH2, SCN5A, KCNQ1, and CACNA1C under multi-current CiPA framing. FDA E14/S7B are regulatory-science anchors only; this repo does not claim regulatory compliance.
 
 The repo currently exposes a CPU-first scaffold with contracts, audit trails, KG records, falsifier state, Runpod-sim adapters, Pathway 1 R&D front-end stubs, and an H100 completion plan. The live top gate is not a green test count. The top gate is an L6-governed authority path where scientific evidence, audit state, KG state, falsifier ledger state, and packet export all agree.
 
@@ -36,9 +36,9 @@ The repo currently exposes a CPU-first scaffold with contracts, audit trails, KG
 
 | Field | Value |
 | --- | --- |
-| Identifier | Health |
-| Repository | https://github.com/Zer0pa/Health |
-| Portfolio | Health / life-sciences research infrastructure |
+| Identifier | Bio-Molecular Explorer |
+| Repository | https://github.com/Zer0pa/Bio-Molecular-Explorer |
+| Portfolio | Bio-molecular research infrastructure |
 | Visibility | INTERNAL |
 | Default Branch | main |
 | Authority Source | `PRD.md`; `docs/H100_COMPLETION_PLAN.md`; this README blocker register |
@@ -69,7 +69,7 @@ The current review findings control readiness. The sovereign authority metric is
 ## What We Don't Claim
 
 - No diagnosis, treatment, cure, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.
-- No completed end-to-end health pipeline yet.
+- No completed end-to-end evidence pipeline yet.
 - No authoritative Runpod/H100 cutover yet.
 - No sovereign PubMed-reader lift until blind scientific-correctness scoring replaces packet-shape or fixture scoring.
 - No governing morphology evidence until real PTB-XL+/extractor-backed fiducial artifacts are source-manifested, audited, KG-linked, and falsified.
@@ -95,17 +95,17 @@ The current review findings control readiness. The sovereign authority metric is
 | `docs/RUNPOD_READINESS.md` | RUNPOD SCAFFOLD STATUS |
 | `docs/execution-report.md` | EXECUTION HISTORY |
 | `runpod.config.yaml` | CUTOVER CONFIG |
-| `src/zer0pa_health/` | IMPLEMENTATION SURFACE |
+| `src/zer0pa_biomolecular_explorer/` | IMPLEMENTATION SURFACE |
 
 ## Repo Shape
 
 | Field | Value |
 | --- | --- |
 | Proof Anchors | 6 display anchors |
-| Portfolio | Health / life-sciences research infrastructure |
+| Portfolio | Bio-molecular research infrastructure |
 | Authority Source | `PRD.md` plus current blocker register |
-| Python Package | `zer0pa-health` |
-| Pipeline Code | `src/zer0pa_health/` |
+| Python Package | `zer0pa-biomolecular-explorer` |
+| Pipeline Code | `src/zer0pa_biomolecular_explorer/` |
 | Test Surface | `tests/` |
 | Fixtures / Seeds | `fixtures/`; `kg/`; `schemas/` |
 | Support Sections | H100 Plan; Blocker Register; Agent Handoff; Repository Layout; Historical Notes; Provenance |
@@ -155,7 +155,7 @@ Read in this order when taking over the lane:
 | --- | --- |
 | `PRD.md` | Medical orchestrator PRD for long-horizon execution |
 | `PATHWAY1_PRD.md` | Pathway 1 R&D front-end PRD |
-| `src/zer0pa_health/` | CPU-side contracts, layers, orchestration, audit, KG, falsifiers, packets, reasoner, runpod-sim |
+| `src/zer0pa_biomolecular_explorer/` | CPU-side contracts, layers, orchestration, audit, KG, falsifiers, packets, reasoner, runpod-sim |
 | `tests/` | Unit, integration, plug-swap, falsification, packet, KG, and Runpod-sim tests |
 | `fixtures/` | Compound, negative, morphology, PubMed-baseline, route, SBML, and Pathway 1 fixtures |
 | `kg/` | Cardiac and Pathway 1 KG seed files |
@@ -168,10 +168,13 @@ Read in this order when taking over the lane:
 
 The previous implementation record reported 768 passing tests, a runpod-sim cutover surface, L1-L6 CPU contracts, Pathway 1 R&D stubs, cardiac packet generation, KG checks, and falsification-wave coverage. Treat those as scaffold evidence, not as final authority. The 2026-05-02 blocker register above controls current readiness.
 
+This repository was previously named `Zer0pa/Health` (historical). Renamed to `Zer0pa/Bio-Molecular-Explorer` on 2026-05-03 as a clean pre-public rename. No compatibility aliases remain for `zer0pa-health` or `zer0pa_health`.
+
 ## Provenance
 
 - Initial commit: 2026-04-29.
 - Front-door alignment: 2026-05-02, using the orchestration-state lane-agent guidance dated 2026-05-02.
+- Rename to Bio-Molecular Explorer: 2026-05-03.
 - Upstream cardiac wedge context: Brain Phase 8 / Rosalind Bioelectric Translational Engine briefing pack.
 - Medical orchestrator: produced `PRD.md`.
 - Overnight executor: built the CPU scaffold, tests, Runpod-sim adapters, audit/KG/falsifier surface, and H100 completion artifacts.

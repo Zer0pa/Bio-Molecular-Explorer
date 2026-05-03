@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from zer0pa_health.envelope import (
+from zer0pa_biomolecular_explorer.envelope import (
     BackEdge,
     Backend,
     ConfidenceBand,
@@ -26,9 +26,9 @@ from zer0pa_health.envelope import (
     LayerName,
     ToolAdapter,
 )
-from zer0pa_health.hashing import sha256_of_obj
-from zer0pa_health.ids import audit_id
-from zer0pa_health.orchestration import L6Router, StateGraph, StateNode, StateTransition
+from zer0pa_biomolecular_explorer.hashing import sha256_of_obj
+from zer0pa_biomolecular_explorer.ids import audit_id
+from zer0pa_biomolecular_explorer.orchestration import L6Router, StateGraph, StateNode, StateTransition
 
 
 # ----------------- helpers -----------------

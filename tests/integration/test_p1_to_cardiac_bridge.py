@@ -21,21 +21,21 @@ from __future__ import annotations
 
 import pytest
 
-from zer0pa_health.contracts.l1 import (
+from zer0pa_biomolecular_explorer.contracts.l1 import (
     L1ChannelGene,
     L1ChannelPanelInput,
     L1IonCurrent,
     L1TargetInput,
 )
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.layers.l1.adapter import L1StubAdapter
-from zer0pa_health.pathway1.contracts.p1_handoff import (
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_handoff import (
     P1HandoffInput,
     P1L1ChannelPanelInput,
     P1L1ChannelPanelTarget,
 )
-from zer0pa_health.pathway1.contracts.p1_optimize import P1ASKCOSRouteStep, P1OptimizedLead
-from zer0pa_health.pathway1.layers.handoff import P1HandoffStubAdapter
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_optimize import P1ASKCOSRouteStep, P1OptimizedLead
+from zer0pa_biomolecular_explorer.pathway1.layers.handoff import P1HandoffStubAdapter
 
 # ---------------------------------------------------------------------------
 # Constants

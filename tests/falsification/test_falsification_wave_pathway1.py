@@ -14,13 +14,13 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.audit import (
+from zer0pa_biomolecular_explorer.audit import (
     AuditTable,
     AuditValidator,
     AuditWriter,
 )
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.falsifiers import (
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.falsifiers import (
     FalsifierClass,
     FalsifierLedger,
     detect_alphafold_d_leakage,
@@ -37,8 +37,8 @@ from zer0pa_health.falsifiers import (
     detect_synthesis_route_absent,
     detect_target_validation_overreach,
 )
-from zer0pa_health.falsifiers.registry import REGISTRY
-from zer0pa_health.ids import run_id
+from zer0pa_biomolecular_explorer.falsifiers.registry import REGISTRY
+from zer0pa_biomolecular_explorer.ids import run_id
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -307,7 +307,7 @@ def test_p1_aggregate_wave_all_caught_audited_routed_preserved(tmp_path):
 
 def test_p1_wave_combined_with_existing_wave(tmp_path):
     """Combined: existing 16-class wave + P1 13-class wave run on the same audit log."""
-    from zer0pa_health.falsifiers import (
+    from zer0pa_biomolecular_explorer.falsifiers import (
         detect_invalid_smiles,
         detect_clinical_overclaim,
         detect_herg_only_overreach,

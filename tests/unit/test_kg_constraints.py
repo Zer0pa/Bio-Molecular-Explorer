@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.kg import (
+from zer0pa_biomolecular_explorer.kg import (
     EdgeType,
     KGEdge,
     KGNode,

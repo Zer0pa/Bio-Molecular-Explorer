@@ -23,14 +23,14 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.contracts.l2 import (
+from zer0pa_biomolecular_explorer.contracts.l2 import (
     L2DissolutionInput,
     L2MoleculeInput,
     L2PropertyInput,
     L2RetrosynthFeedback,
 )
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.layers.l2 import L2StubAdapter, dissolution_pinn_stub, score_property
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.layers.l2 import L2StubAdapter, dissolution_pinn_stub, score_property
 
 # Path to the JSON schema for envelope validation
 _SCHEMA_PATH = (
@@ -294,7 +294,7 @@ def test_dissolution_all_formulations_valid(formulation: str):
 
 def test_parked_runpod_raises():
     """L2DeepXDERunpodAdapter.process() must raise RuntimeError (parked)."""
-    from zer0pa_health.layers.l2 import L2DeepXDERunpodAdapter
+    from zer0pa_biomolecular_explorer.layers.l2 import L2DeepXDERunpodAdapter
 
     parked = L2DeepXDERunpodAdapter()
     inp = _make_input("CCO")

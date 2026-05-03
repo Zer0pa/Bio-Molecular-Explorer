@@ -32,8 +32,8 @@ try:
 except ImportError:
     _JSONSCHEMA_AVAILABLE = False
 
-from zer0pa_health.kg import KGStore, KGValidator
-from zer0pa_health.boundary import RESEARCH_BOUNDARY
+from zer0pa_biomolecular_explorer.kg import KGStore, KGValidator
+from zer0pa_biomolecular_explorer.boundary import RESEARCH_BOUNDARY
 
 # ──────────────────────────────────────────────────────────────────────
 # Paths
@@ -382,7 +382,7 @@ def test_kg_combined_no_dangling_refs():
         store.load_seed(KG_CARDIAC_SEED)
         store.load_seed(KG_PATHWAY1_SEED)
         # KGValidator.validate() raises KGValidationError on dangling refs
-        from zer0pa_health.kg.validator import KGValidator as V
+        from zer0pa_biomolecular_explorer.kg.validator import KGValidator as V
         try:
             result = V(store).validate()
         except Exception as exc:
@@ -394,7 +394,7 @@ def test_kg_pathway1_has_target_nodes():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import NodeType
+        from zer0pa_biomolecular_explorer.kg.schema import NodeType
         target_nodes = [
             n for n in store.iter_nodes() if n.node_type == NodeType.TARGET
         ]
@@ -412,7 +412,7 @@ def test_kg_pathway1_has_binding_pocket_nodes():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import NodeType
+        from zer0pa_biomolecular_explorer.kg.schema import NodeType
         pocket_nodes = [
             n for n in store.iter_nodes() if n.node_type == NodeType.BINDING_POCKET
         ]
@@ -426,7 +426,7 @@ def test_kg_pathway1_has_disease_nodes():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import NodeType
+        from zer0pa_biomolecular_explorer.kg.schema import NodeType
         disease_nodes = [
             n for n in store.iter_nodes() if n.node_type == NodeType.DISEASE
         ]
@@ -440,7 +440,7 @@ def test_kg_pathway1_has_source_manifest_nodes():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import NodeType
+        from zer0pa_biomolecular_explorer.kg.schema import NodeType
         source_nodes = [
             n for n in store.iter_nodes() if n.node_type == NodeType.SOURCE_MANIFEST
         ]
@@ -461,7 +461,7 @@ def test_kg_pathway1_encodes_target_edges():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import EdgeType
+        from zer0pa_biomolecular_explorer.kg.schema import EdgeType
         et_edges = [
             e for e in store.iter_edges() if e.edge_type == EdgeType.ENCODES_TARGET
         ]
@@ -476,7 +476,7 @@ def test_kg_pathway1_encodes_target_edges_source_gene_nodes():
         store = KGStore(Path(tmp))
         store.load_seed(KG_CARDIAC_SEED)
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import EdgeType
+        from zer0pa_biomolecular_explorer.kg.schema import EdgeType
         et_edges = [
             e for e in store.iter_edges() if e.edge_type == EdgeType.ENCODES_TARGET
         ]
@@ -491,7 +491,7 @@ def test_kg_pathway1_has_binding_pocket_edges():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import EdgeType
+        from zer0pa_biomolecular_explorer.kg.schema import EdgeType
         hbp_edges = [
             e for e in store.iter_edges() if e.edge_type == EdgeType.HAS_BINDING_POCKET
         ]
@@ -505,7 +505,7 @@ def test_kg_pathway1_has_disease_association_edges():
     with tempfile.TemporaryDirectory() as tmp:
         store = KGStore(Path(tmp))
         store.load_seed(KG_PATHWAY1_SEED)
-        from zer0pa_health.kg.schema import EdgeType
+        from zer0pa_biomolecular_explorer.kg.schema import EdgeType
         hda_edges = [
             e for e in store.iter_edges() if e.edge_type == EdgeType.HAS_DISEASE_ASSOCIATION
         ]

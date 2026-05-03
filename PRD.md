@@ -1,4 +1,4 @@
-# Zer0pa Health Overnight Execution PRD
+# Zer0pa Bio-Molecular Explorer Overnight Execution PRD
 
 ## Boundary
 

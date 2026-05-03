@@ -17,9 +17,9 @@ import jsonschema
 import pytest
 from fastapi.testclient import TestClient
 
-from zer0pa_health.boundary import RESEARCH_BOUNDARY
-from zer0pa_health.envelope import LayerEnvelope
-from zer0pa_health.layers.l1.server import app
+from zer0pa_biomolecular_explorer.boundary import RESEARCH_BOUNDARY
+from zer0pa_biomolecular_explorer.envelope import LayerEnvelope
+from zer0pa_biomolecular_explorer.layers.l1.server import app
 
 _SCHEMA_PATH = (
     Path(__file__).parent.parent.parent / "schemas" / "envelope" / "layer-envelope-v1.json"

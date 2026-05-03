@@ -14,17 +14,17 @@ These MUST pass for Runpod readiness to be claimed:
 
 | Subsystem | Authority responsibility |
 |---|---|
-| `src/zer0pa_health/envelope.py` | Universal envelope contract — any drift kills the cutover |
-| `src/zer0pa_health/contracts/{l1,l2,l2_5,l3,l4,l5,l6}.py` | Per-layer interface contracts |
-| `src/zer0pa_health/audit/` | Append-only JSONL + hash chain + validator |
-| `src/zer0pa_health/kg/` | Schema + store + K1-K5 validator |
-| `src/zer0pa_health/falsifiers/{registry,ledger,detectors}.py` | Falsifier registry + ledger + detector functions |
-| `src/zer0pa_health/orchestration/{state_graph,router,flow,dispatch}.py` | L6 router (the falsification engine itself) |
-| `src/zer0pa_health/layers/{l1..l5}/` | Stub adapters for L1-L5 (cardiac path) |
-| `src/zer0pa_health/runs/cardiac_run.py` + `runs/l6_orchestrated_run.py` | End-to-end run drivers |
-| `src/zer0pa_health/packets/` | CardiacPacketAssembler + morphology gate + benchmark harness |
-| `src/zer0pa_health/runpod_sim/{l1,l2,l5}_runpod_sim.py` + `reasoner_runpod_sim.py` | CPU-side simulations of the GPU-real adapters |
-| `src/zer0pa_health/cli.py` (cardiac commands) | run-cardiac, validate-audit, validate-kg, validate-packet, runpod-precheck, cutover-dryrun (without --layer p1) |
+| `src/zer0pa_biomolecular_explorer/envelope.py` | Universal envelope contract — any drift kills the cutover |
+| `src/zer0pa_biomolecular_explorer/contracts/{l1,l2,l2_5,l3,l4,l5,l6}.py` | Per-layer interface contracts |
+| `src/zer0pa_biomolecular_explorer/audit/` | Append-only JSONL + hash chain + validator |
+| `src/zer0pa_biomolecular_explorer/kg/` | Schema + store + K1-K5 validator |
+| `src/zer0pa_biomolecular_explorer/falsifiers/{registry,ledger,detectors}.py` | Falsifier registry + ledger + detector functions |
+| `src/zer0pa_biomolecular_explorer/orchestration/{state_graph,router,flow,dispatch}.py` | L6 router (the falsification engine itself) |
+| `src/zer0pa_biomolecular_explorer/layers/{l1..l5}/` | Stub adapters for L1-L5 (cardiac path) |
+| `src/zer0pa_biomolecular_explorer/runs/cardiac_run.py` + `runs/l6_orchestrated_run.py` | End-to-end run drivers |
+| `src/zer0pa_biomolecular_explorer/packets/` | CardiacPacketAssembler + morphology gate + benchmark harness |
+| `src/zer0pa_biomolecular_explorer/runpod_sim/{l1,l2,l5}_runpod_sim.py` + `reasoner_runpod_sim.py` | CPU-side simulations of the GPU-real adapters |
+| `src/zer0pa_biomolecular_explorer/cli.py` (cardiac commands) | run-cardiac, validate-audit, validate-kg, validate-packet, runpod-precheck, cutover-dryrun (without --layer p1) |
 | `tests/falsification/test_falsification_wave.py` | The 11+5 cardiac-side wave; failures block Runpod |
 
 The cardiac authority gate is the question: does the cardiac wedge produce source-grounded, falsifiable, replayable evidence packets that beat a real PubMed-reader baseline by the pre-registered margin, with falsifier state preserved through every layer transition?
@@ -35,8 +35,8 @@ These are BUILT and TESTED but **do NOT count toward Runpod readiness** until th
 
 | Subsystem | Status |
 |---|---|
-| `src/zer0pa_health/pathway1/` | Pathway 1 implementation (Target / Structure / Generate / Screen / Optimize / Handoff) |
-| `src/zer0pa_health/runpod_sim/p1_*_runpod_sim.py` | Pathway 1 GPU-bound runpod-sim adapters |
+| `src/zer0pa_biomolecular_explorer/pathway1/` | Pathway 1 implementation (Target / Structure / Generate / Screen / Optimize / Handoff) |
+| `src/zer0pa_biomolecular_explorer/runpod_sim/p1_*_runpod_sim.py` | Pathway 1 GPU-bound runpod-sim adapters |
 | `tests/falsification/test_falsification_wave_pathway1.py` | The 13 R&D-specific falsifier triggers |
 | `tests/integration/test_p1_*.py` | Pathway 1 integration tests |
 | `tests/integration/test_pathway1_*.py` | Pathway 1 end-to-end + CLI |
@@ -51,7 +51,7 @@ Why quarantined:
 
 ## Verdict logic
 
-`zer0pa-health runpod-precheck` returns:
+`zer0pa-biomolecular-explorer runpod-precheck` returns:
 
 - **0** (pass) iff every governing-subsystem stub-state acceptance gate is met AND every governing-subsystem cutover-state declaration is internally consistent.
 - **non-zero** (block) when:

@@ -26,7 +26,7 @@ import inspect
 
 import pytest
 
-from zer0pa_health.envelope import LayerEnvelope
+from zer0pa_biomolecular_explorer.envelope import LayerEnvelope
 
 
 # ---------------- helpers ----------------
@@ -149,8 +149,8 @@ def _assert_nested_shape_compatible(env_a: LayerEnvelope, env_b: LayerEnvelope, 
 
 
 def test_l1_signatures_match():
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     sigs_a = _public_methods(L1StubAdapter)
     sigs_b = _public_methods(L1ToyAdapter)
@@ -161,14 +161,14 @@ def test_l1_signatures_match():
 
 
 def test_l1_channel_panel_audit_provenance_and_falsifiers_preserved():
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelGene,
         L1ChannelPanelInput,
         L1IonCurrent,
         L1TargetInput,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1ChannelPanelInput(targets=[
         L1TargetInput(gene=L1ChannelGene.KCNH2, current=L1IonCurrent.IKr),
@@ -196,8 +196,8 @@ def test_l1_channel_panel_audit_provenance_and_falsifiers_preserved():
 
 
 def test_l2_signatures_match():
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     sigs_a = _public_methods(L2StubAdapter)
     sigs_b = _public_methods(L2ToyAdapter)
@@ -208,11 +208,11 @@ def test_l2_signatures_match():
 
 
 def test_l2_audit_provenance_present():
-    from zer0pa_health.contracts.l2 import (
+    from zer0pa_biomolecular_explorer.contracts.l2 import (
         L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback,
     )
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     inp = L2PropertyInput(
         molecule=L2MoleculeInput(smiles="CCO", inchikey="LFQSCWFLJHTTHZ-UHFFFAOYSA-N"),
@@ -236,8 +236,8 @@ def test_l2_audit_provenance_present():
 
 
 def test_l25_signatures_match():
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     sigs_a = _public_methods(L25StubAdapter)
     sigs_b = _public_methods(L25ToyAdapter)
@@ -248,9 +248,9 @@ def test_l25_signatures_match():
 
 
 def test_l25_audit_provenance_present():
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.STUB)
     env_a = L25StubAdapter().process(inp)
@@ -263,8 +263,8 @@ def test_l25_audit_provenance_present():
 
 
 def test_l3_signatures_match():
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     sigs_a = _public_methods(L3StubAdapter)
     sigs_b = _public_methods(L3ToyAdapter)
@@ -275,9 +275,9 @@ def test_l3_signatures_match():
 
 
 def test_l3_audit_provenance_present():
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     inp = L3ProcessInput(
         target_canonical_smiles="CCO",
@@ -294,8 +294,8 @@ def test_l3_audit_provenance_present():
 
 
 def test_l4_signatures_match():
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     sigs_a = _public_methods(L4StubAdapter)
     sigs_b = _public_methods(L4ToyAdapter)
@@ -306,11 +306,11 @@ def test_l4_signatures_match():
 
 
 def test_l4_audit_provenance_present():
-    from zer0pa_health.contracts.l4 import (
+    from zer0pa_biomolecular_explorer.contracts.l4 import (
         L4SensorClass, L4SensorState, L4VirtualPlantInput,
     )
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     inp = L4VirtualPlantInput(
         process_graph_unit_ops=["reaction_1"],
@@ -331,8 +331,8 @@ def test_l4_audit_provenance_present():
 
 
 def test_l5_signatures_match():
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     sigs_a = _public_methods(L5StubAdapter)
     sigs_b = _public_methods(L5ToyAdapter)
@@ -343,9 +343,9 @@ def test_l5_signatures_match():
 
 
 def test_l5_audit_provenance_present():
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CCO",

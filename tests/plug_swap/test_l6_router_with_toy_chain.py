@@ -13,27 +13,27 @@ from typing import Any
 
 import pytest
 
-from zer0pa_health.contracts.l1 import (
+from zer0pa_biomolecular_explorer.contracts.l1 import (
     L1ChannelGene,
     L1ChannelPanelInput,
     L1IonCurrent,
     L1MoleculeInput,
     L1TargetInput,
 )
-from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
-from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-from zer0pa_health.contracts.l3 import L3ProcessInput
-from zer0pa_health.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
-from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-from zer0pa_health.envelope import FalsifierStatus, LayerEnvelope
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
-from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
-from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
-from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
-from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
-from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
-from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
-from zer0pa_health.orchestration import L6Router, StateGraph, StateNode, StateTransition
+from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
+from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+from zer0pa_biomolecular_explorer.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
+from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerEnvelope
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
+from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
+from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
+from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
+from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
+from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
+from zer0pa_biomolecular_explorer.orchestration import L6Router, StateGraph, StateNode, StateTransition
 
 _COMPOUND_SMILES = "CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1"
 _COMPOUND_INCHIKEY = "IXTMWRCNAAVVAI-UHFFFAOYSA-N"
@@ -271,7 +271,7 @@ def test_l6_router_toy_chain_no_block():
 
 def test_l6_router_toy_chain_schema_matches_stub_chain():
     """Toy chain envelope output shapes match the stub chain at each layer."""
-    from zer0pa_health.runs.l6_orchestrated_run import _build_l6_state_graph
+    from zer0pa_biomolecular_explorer.runs.l6_orchestrated_run import _build_l6_state_graph
 
     # Run toy chain
     toy_graph = _build_toy_state_graph()

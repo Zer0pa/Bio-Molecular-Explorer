@@ -16,10 +16,10 @@ import json
 
 import pytest
 
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.pathway1.contracts.p1_screen import P1ScreenInput, P1ScreenOutput
-from zer0pa_health.pathway1.layers.screen.adapter import P1ScreenStubAdapter
-from zer0pa_health.pathway1.layers.screen.toy_adapter import P1ScreenToyAdapter
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_screen import P1ScreenInput, P1ScreenOutput
+from zer0pa_biomolecular_explorer.pathway1.layers.screen.adapter import P1ScreenStubAdapter
+from zer0pa_biomolecular_explorer.pathway1.layers.screen.toy_adapter import P1ScreenToyAdapter
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +262,7 @@ def test_json_schema_round_trip():
     assert "hits" in data["output"]
 
     # Round-trip through Pydantic
-    from zer0pa_health.envelope import LayerEnvelope
+    from zer0pa_biomolecular_explorer.envelope import LayerEnvelope
     restored = LayerEnvelope.model_validate(data)
     assert restored.layer == env.layer
 

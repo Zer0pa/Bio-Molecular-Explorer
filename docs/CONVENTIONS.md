@@ -1,4 +1,4 @@
-# Zer0pa Health Pipeline — Conventions
+# Zer0pa Bio-Molecular Explorer Pipeline — Conventions
 
 Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.
 
@@ -8,7 +8,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 ```
 Health. Pipeline/
-├── src/zer0pa_health/         # Main Python package (see §3)
+├── src/zer0pa_biomolecular_explorer/         # Main Python package (see §3)
 ├── tests/
 │   ├── unit/                  # Unit tests per module
 │   ├── integration/           # End-to-end pipeline tests
@@ -50,7 +50,7 @@ Test: `.venv/bin/python -m pytest -q`  (target: all tests green in < 2 s on CPU)
 ## 3. Package Layout
 
 ```
-src/zer0pa_health/
+src/zer0pa_biomolecular_explorer/
 ├── boundary.py          # RESEARCH_BOUNDARY const + CLINICAL_OVERCLAIM_PHRASES + detectors
 ├── envelope.py          # LayerEnvelope (PRD §2 universal envelope)
 ├── ids.py               # ID generation: run_id, audit_id, packet_id, …
@@ -121,7 +121,7 @@ Validator: `KGValidator(store).validate()` in `kg/validator.py`. Run on any KG m
 Hash chain per table per run:
 ```
 record_hash = sha256(prev_record_hash || canonical_json(payload_excluding_record_hash))
-Genesis prev_record_hash = sha256("GENESIS:zer0pa_health_audit_v1")
+Genesis prev_record_hash = sha256("GENESIS:zer0pa_biomolecular_explorer_audit_v1")
 ```
 
 Rules:
@@ -179,7 +179,7 @@ The repo contains only:
 - KG seed JSONL (< 50 KB)
 - Schemas and source-manifest metadata
 
-Bulk data (`.parquet`, `.hdf5`, raw ECG) must be offloaded to the private HF dataset (`Architect-Prime/zer0pa-health-cardiac-v0`) and referenced by `offload_ref` in the artifacts audit table. The `.gitignore` blocks `*.parquet`, `*.h5`, and `data/raw/`.
+Bulk data (`.parquet`, `.hdf5`, raw ECG) must be offloaded to the private HF dataset (`Architect-Prime/zer0pa-biomolecular-explorer-cardiac-v0`) and referenced by `offload_ref` in the artifacts audit table. The `.gitignore` blocks `*.parquet`, `*.h5`, and `data/raw/`.
 
 ---
 
@@ -213,13 +213,13 @@ IC50 values in stub fixtures are literature estimates, not assay results. All mu
 
 ## 15. Pathway 1 Conventions (R&D / Drug Discovery front-end)
 
-Pathway 1 is the upstream front-end of the Health pipeline. It produces ranked drug candidates that hand off into the existing cardiac wedge.
+Pathway 1 is the upstream front-end of the Bio-Molecular Explorer pipeline. It produces ranked drug candidates that hand off into the existing cardiac wedge.
 
 ### Naming and namespace
 
 Semantic layer names: `P1.Target`, `P1.Structure`, `P1.Generate`, `P1.Screen`, `P1.Optimize`, `P1.Handoff` (D-020). Numeric (`P1.L1`, etc.) would collide with the existing pipeline's L1-L6 cardiac semantics. The values are added to the `LayerName` enum in `envelope.py`.
 
-Directory: `src/zer0pa_health/pathway1/` with `contracts/` and `layers/{target,structure,generate,screen,optimize,handoff}/`. Each layer has `adapter.py` (StubAdapter) + `toy_adapter.py` (ToyAdapter for plug-swap). GPU-bound layers (Structure, Generate, Screen) additionally have a runpod_sim adapter for cutover acceptance.
+Directory: `src/zer0pa_biomolecular_explorer/pathway1/` with `contracts/` and `layers/{target,structure,generate,screen,optimize,handoff}/`. Each layer has `adapter.py` (StubAdapter) + `toy_adapter.py` (ToyAdapter for plug-swap). GPU-bound layers (Structure, Generate, Screen) additionally have a runpod_sim adapter for cutover acceptance.
 
 ### Backend.EXTERNAL_API
 
@@ -255,9 +255,9 @@ Each Pathway 1 run emits one `ReasonerTuple` per leading P1 packet to `reasoner_
 
 ### Pathway 1 CLI
 
-- `zer0pa-health run-pathway1 [target|all]` — end-to-end Pathway 1 run.
-- `zer0pa-health cutover-dryrun --layer p1` — exercises P1.Structure / P1.Generate / P1.Screen Stub→RunpodSim flips.
-- `zer0pa-health cutover-dryrun --layer all+p1` — exercises both halves of the pipeline at once.
+- `zer0pa-biomolecular-explorer run-pathway1 [target|all]` — end-to-end Pathway 1 run.
+- `zer0pa-biomolecular-explorer cutover-dryrun --layer p1` — exercises P1.Structure / P1.Generate / P1.Screen Stub→RunpodSim flips.
+- `zer0pa-biomolecular-explorer cutover-dryrun --layer all+p1` — exercises both halves of the pipeline at once.
 
 ---
 
@@ -274,7 +274,7 @@ The Runpod-readiness verdict is gated on the cardiac authority path — NOT on P
 
 Rationale: Pathway 1 candidates flow INTO the cardiac wedge via `P1HandoffPacket → L1ChannelPanelInput`. If the cardiac wedge is defective, Pathway 1's apparent passes mask the defect. Authority is earned at the back-end before front-end claims count.
 
-`zer0pa-health runpod-precheck` rejects P1 layer cutover claims when the cardiac authority gate is not yet satisfied. See `docs/RUNPOD_READINESS.md` for the seven gates that must pass before quarantine can be lifted (D-028).
+`zer0pa-biomolecular-explorer runpod-precheck` rejects P1 layer cutover claims when the cardiac authority gate is not yet satisfied. See `docs/RUNPOD_READINESS.md` for the seven gates that must pass before quarantine can be lifted (D-028).
 
 ### Sign convention for `multi_current_balance_score`
 

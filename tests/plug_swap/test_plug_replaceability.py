@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.envelope import (
+from zer0pa_biomolecular_explorer.envelope import (
     Backend,
     BackEdge,
     ConfidenceBand,
@@ -33,9 +33,9 @@ from zer0pa_health.envelope import (
     LayerName,
     ToolAdapter,
 )
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
-from zer0pa_health.hashing import sha256_of_obj
-from zer0pa_health.ids import audit_id, run_id
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.hashing import sha256_of_obj
+from zer0pa_biomolecular_explorer.ids import audit_id, run_id
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -109,9 +109,9 @@ def _make_envelope(layer: LayerName, output: dict, engine: str) -> LayerEnvelope
 
 def test_l1_channel_panel_plug_swap():
     """L1StubAdapter vs L1ToyAdapter must produce identical-shape channel-panel envelopes."""
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelPanelInput, L1TargetInput, L1ChannelGene, L1IonCurrent,
     )
 
@@ -137,9 +137,9 @@ def test_l1_channel_panel_plug_swap():
 
 def test_l1_channel_panel_values_may_differ():
     """Toy adapter is allowed to produce different VALUES for the panel IC50s."""
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelPanelInput, L1TargetInput, L1ChannelGene, L1IonCurrent,
     )
 
@@ -166,9 +166,9 @@ def test_l1_channel_panel_values_may_differ():
 
 def test_l1_dock_plug_swap():
     """L1StubAdapter.dock vs L1ToyAdapter.dock: same schema."""
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1DockingInput, L1MoleculeInput, L1TargetInput, L1ChannelGene, L1IonCurrent,
     )
 
@@ -187,8 +187,8 @@ def test_l1_dock_plug_swap():
 
 def test_l1_to_l1_runpod_stub_swap_interface_compatible():
     """OpenFERunpodAdapter must construct without raising and expose the same method names."""
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.openfe_runpod_stub import OpenFERunpodAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.openfe_runpod_stub import OpenFERunpodAdapter
 
     a = L1StubAdapter()
     b = OpenFERunpodAdapter()
@@ -208,9 +208,9 @@ def test_l1_to_l1_runpod_stub_swap_interface_compatible():
 
 def test_l2_plug_swap():
     """L2StubAdapter vs L2ToyAdapter must produce identical-shape envelopes."""
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     inp = L2PropertyInput(molecule=L2MoleculeInput(smiles="CCO"))
     env_a = L2StubAdapter().process(inp)
@@ -230,9 +230,9 @@ def test_l2_plug_swap():
 
 def test_l2_toy_reward_modifier_differs():
     """Toy reward_modifier uses different formula (base 0.6 + aromatic-c bonus)."""
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     # Aromatic SMILES — will trigger toy's aromatic-c bonus
     inp = L2PropertyInput(molecule=L2MoleculeInput(smiles="c1ccccc1"))
@@ -253,9 +253,9 @@ def test_l2_toy_reward_modifier_differs():
 
 def test_l2_stub_and_toy_same_keys():
     """Output keys must be exactly the same for stub and toy."""
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     inp = L2PropertyInput(molecule=L2MoleculeInput(smiles="CCO"))
     env_stub = L2StubAdapter().process(inp)
@@ -271,9 +271,9 @@ def test_l2_stub_and_toy_same_keys():
 
 def test_l25_plug_swap():
     """L25StubAdapter vs L25ToyAdapter must produce identical-shape envelopes."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     env_a = L25StubAdapter().process(inp)
@@ -287,9 +287,9 @@ def test_l25_plug_swap():
 
 def test_l25_back_edge_both_target_l2():
     """Both stub and toy L2.5 adapters must back-edge to L2."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     env_stub = L25StubAdapter().process(inp)
@@ -304,9 +304,9 @@ def test_l25_back_edge_both_target_l2():
 
 def test_l25_feedback_to_l2_same_keys():
     """Both adapters must produce feedback_to_l2 with the same keys."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     env_stub = L25StubAdapter().process(inp)
@@ -319,9 +319,9 @@ def test_l25_feedback_to_l2_same_keys():
 
 def test_l25_toy_route_score_differs():
     """Toy route_score formula yields different values than stub."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     env_stub = L25StubAdapter().process(inp)
@@ -345,9 +345,9 @@ def test_l25_toy_route_score_differs():
 
 def test_l3_plug_swap():
     """L3StubAdapter vs L3ToyAdapter must produce identical-shape envelopes."""
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     inp = L3ProcessInput(
         target_canonical_smiles="CCO",
@@ -364,9 +364,9 @@ def test_l3_plug_swap():
 
 def test_l3_unit_op_kinds_differ():
     """Toy uses BLENDING (not CRYSTALLIZATION/FILTRATION) — values differ, schema same."""
-    from zer0pa_health.contracts.l3 import L3ProcessInput, L3UnitOpKind
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput, L3UnitOpKind
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     inp = L3ProcessInput(
         target_canonical_smiles="CCO",
@@ -395,9 +395,9 @@ def test_l3_unit_op_kinds_differ():
 
 def test_l3_mass_balance_both_ok():
     """Both adapters must pass the mass-balance falsifier with the same input."""
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     inp = L3ProcessInput(
         target_canonical_smiles="CCO",
@@ -418,9 +418,9 @@ def test_l3_mass_balance_both_ok():
 
 def test_l4_plug_swap():
     """L4StubAdapter vs L4ToyAdapter must produce identical-shape envelopes."""
-    from zer0pa_health.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     sensors = [
         L4SensorState(
@@ -449,9 +449,9 @@ def test_l4_plug_swap():
 
 def test_l4_fmu_sim_time_differs():
     """Toy uses dt=0.5s so FMU sim_time_s differs from stub (dt=1.0s)."""
-    from zer0pa_health.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     sensors = [
         L4SensorState(
@@ -494,9 +494,9 @@ def test_l4_fmu_sim_time_differs():
 
 def test_l5_plug_swap():
     """L5StubAdapter vs L5ToyAdapter must produce identical-shape envelopes."""
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",
@@ -519,9 +519,9 @@ def test_l5_plug_swap():
 
 def test_l5_cardiac_bridge_values_differ():
     """Toy uses 1.5× IC50 — fractional block values differ from stub."""
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",
@@ -563,9 +563,9 @@ def test_l5_cardiac_bridge_values_differ():
 
 def test_l5_sbml_packet_shape_same():
     """Both adapters must produce the same SBML packet schema."""
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CCO",
@@ -596,7 +596,7 @@ def test_l5_sbml_packet_shape_same():
 
 def test_l6_router_envelope_shape_invariant():
     """L6Router.make_l6_self_envelope must produce a stable shape across two distinct calls."""
-    from zer0pa_health.orchestration.router import L6Router
+    from zer0pa_biomolecular_explorer.orchestration.router import L6Router
 
     rid = "run:plugswap-l6"
     env_a = L6Router.make_l6_self_envelope(rid, [{"layer": "L1", "decision": "promote"}])
@@ -613,12 +613,12 @@ def test_l6_router_envelope_shape_invariant():
 
 def test_all_envelopes_share_contract_version():
     """Any layer envelope must declare contract_version == zer0pa.layer-envelope.v1."""
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
-    from zer0pa_health.contracts.l1 import L1MoleculeInput
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import L1MoleculeInput
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
 
     e1_stub = L1StubAdapter().ligand(L1MoleculeInput(smiles="CCO"))
     e1_toy = L1ToyAdapter().ligand(L1MoleculeInput(smiles="CCO"))

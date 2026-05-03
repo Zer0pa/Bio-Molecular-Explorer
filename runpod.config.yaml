@@ -307,7 +307,7 @@ what_stays_parked_until_runpod:
       - solve Fick's PDE on dissolution data
     acceptance_gate: GATE_PLUG_SWAP_TEST_PASSES_WITH_REAL_ADAPTER
   - id: parked_reasoner_txgemma_27b
-    contract_id: src.zer0pa_health.reasoner.adapter.ReasonerAdapter
+    contract_id: src.zer0pa_biomolecular_explorer.reasoner.adapter.ReasonerAdapter
     fixture: fixtures/canned/reasoner/seed_reasoner_input.json
     audit_shape: model_tools.jsonl with adapter_id=adapter:reasoner:txgemma_27b
     falsifier: license_drift PENDING until Gemma 2 / HAI-DF terms checked

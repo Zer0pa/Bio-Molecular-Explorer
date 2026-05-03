@@ -11,11 +11,11 @@ import json
 
 import pytest
 
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.falsifiers.registry import FalsifierClass
-from zer0pa_health.pathway1.contracts.p1_generate import P1GenerateInput
-from zer0pa_health.pathway1.layers.generate.adapter import P1GenerateStubAdapter
-from zer0pa_health.runpod_sim.p1_generate_runpod_sim import P1GenerateRunpodSimAdapter
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.falsifiers.registry import FalsifierClass
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_generate import P1GenerateInput
+from zer0pa_biomolecular_explorer.pathway1.layers.generate.adapter import P1GenerateStubAdapter
+from zer0pa_biomolecular_explorer.runpod_sim.p1_generate_runpod_sim import P1GenerateRunpodSimAdapter
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────

@@ -7,8 +7,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from zer0pa_health.cli import app
-from zer0pa_health.runs import run_cardiac_compound
+from zer0pa_biomolecular_explorer.cli import app
+from zer0pa_biomolecular_explorer.runs import run_cardiac_compound
 
 
 def test_export_finetune_corpus_writes_jsonl(tmp_path):

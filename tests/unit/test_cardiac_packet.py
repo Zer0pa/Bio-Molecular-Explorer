@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.packets import (
+from zer0pa_biomolecular_explorer.packets import (
     BaselineHarness,
     CardiacPacketAssembler,
     PacketVerdict,
@@ -15,8 +15,8 @@ from zer0pa_health.packets import (
     score_baseline_for_compound,
     score_packet,
 )
-from zer0pa_health.packets.assembler import AssemblerInputs
-from zer0pa_health.packets.morphology_gate import MorphologyResult
+from zer0pa_biomolecular_explorer.packets.assembler import AssemblerInputs
+from zer0pa_biomolecular_explorer.packets.morphology_gate import MorphologyResult
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -174,7 +174,7 @@ def test_baseline_harness_returns_one_row_per_packet():
 
 def test_packet_clinical_overclaim_blocks_export():
     """Construct a malformed claim text with a banned phrase; Pydantic must reject it."""
-    from zer0pa_health.packets.schema import PacketClaim
+    from zer0pa_biomolecular_explorer.packets.schema import PacketClaim
 
     with pytest.raises(ValueError):
         PacketClaim(
@@ -307,13 +307,13 @@ def test_pubmed_baseline_per_compound_calibration():
 
 
 def test_pubmed_baseline_missing_fixture_raises():
-    from zer0pa_health.packets.pubmed_baseline import PubMedBaselineFixtureError
+    from zer0pa_biomolecular_explorer.packets.pubmed_baseline import PubMedBaselineFixtureError
     with pytest.raises(PubMedBaselineFixtureError, match="missing"):
         score_baseline_for_compound("not_a_real_compound_zz")
 
 
 def test_baseline_harness_evaluate_with_holdout_partitions_seed_vs_held_out():
-    from zer0pa_health.packets.pubmed_baseline import BaselineHarness
+    from zer0pa_biomolecular_explorer.packets.pubmed_baseline import BaselineHarness
     asm = CardiacPacketAssembler()
     packets = []
     for c in ("dofetilide", "verapamil", "ranolazine"):

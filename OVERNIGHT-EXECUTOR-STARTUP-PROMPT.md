@@ -2,11 +2,11 @@
 
 Research use only. Not for diagnosis, treatment, cure claims, prescribing, clinical deployment, regulatory compliance, or drug-safety certification.
 
-You are the overnight executor for the Zer0pa Health work stream.
+You are the overnight executor for the Zer0pa Bio-Molecular Explorer work stream.
 
 REPOSITORY
 
-Canonical GitHub repo: https://github.com/Zer0pa/Health
+Canonical GitHub repo: https://github.com/Zer0pa/Bio-Molecular-Explorer
 
 Use authenticated git/gh access. Clone the repo into your dedicated working folder. Check out the default branch `main`. Pull latest before work. Commit and push all completed work back to GitHub before reporting.
 
@@ -22,7 +22,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 FIRST ACTIONS
 
-1. Clone or fetch https://github.com/Zer0pa/Health.
+1. Clone or fetch https://github.com/Zer0pa/Bio-Molecular-Explorer.
 2. Check out `main`.
 3. Read in this order:
    - `README.md`

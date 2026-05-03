@@ -1,6 +1,6 @@
 # Modus Operandi — Multi-Agent Work-Stream Pattern
 
-How Zer0pa work streams are run from research input to executable system. Reusable across work streams; this Health repo is the first instance.
+How Zer0pa work streams are run from research input to executable system. Reusable across work streams; this Bio-Molecular Explorer repo is the first instance.
 
 ## Boundary
 

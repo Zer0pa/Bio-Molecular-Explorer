@@ -23,10 +23,10 @@ import jsonschema
 import pytest
 from pydantic import ValidationError
 
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.pathway1.contracts.p1_handoff import P1HandoffInput, P1HandoffPacket
-from zer0pa_health.pathway1.contracts.p1_optimize import P1ASKCOSRouteStep, P1OptimizedLead
-from zer0pa_health.pathway1.layers.handoff import P1HandoffStubAdapter, P1HandoffToyAdapter
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_handoff import P1HandoffInput, P1HandoffPacket
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_optimize import P1ASKCOSRouteStep, P1OptimizedLead
+from zer0pa_biomolecular_explorer.pathway1.layers.handoff import P1HandoffStubAdapter, P1HandoffToyAdapter
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -237,8 +237,8 @@ def test_synthesis_route_absent_blocks(stub_adapter: P1HandoffStubAdapter) -> No
 
 def test_herg_only_overreach_hold(stub_adapter: P1HandoffStubAdapter) -> None:
     """When cardiac panel has only KCNH2 (no SCN5A/KCNQ1/CACNA1C), verdict=hold."""
-    import zer0pa_health.pathway1.layers.handoff.adapter as adapter_module
-    from zer0pa_health.pathway1.contracts.p1_handoff import (
+    import zer0pa_biomolecular_explorer.pathway1.layers.handoff.adapter as adapter_module
+    from zer0pa_biomolecular_explorer.pathway1.contracts.p1_handoff import (
         P1L1ChannelPanelInput,
         P1L1ChannelPanelTarget,
     )

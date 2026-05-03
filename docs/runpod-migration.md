@@ -15,7 +15,7 @@ backend flags and parked-work manifest.
 ## Pre-cutover acceptance (already met on the CPU build)
 
 - L2-L6 run locally with fixtures (✅ — see `tests/`).
-- L1 exposes REST stubs with the canonical contracts (✅ — `src/zer0pa_health/layers/l1/server.py`).
+- L1 exposes REST stubs with the canonical contracts (✅ — `src/zer0pa_biomolecular_explorer/layers/l1/server.py`).
 - KG, audit, falsifier ledger, contracts, packets, orchestration exist (✅).
 - Falsification wave catches deliberate failures (✅ — `tests/falsification/`).
 - No bulk dataset is required locally (✅ — manifests + small slices only).

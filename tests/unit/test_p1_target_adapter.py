@@ -17,9 +17,9 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from zer0pa_health.envelope import FalsifierStatus
-from zer0pa_health.pathway1.contracts.p1_target import P1TargetInput
-from zer0pa_health.pathway1.layers.target import P1TargetStubAdapter, P1TargetToyAdapter
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_target import P1TargetInput
+from zer0pa_biomolecular_explorer.pathway1.layers.target import P1TargetStubAdapter, P1TargetToyAdapter
 
 # ---------------------------------------------------------------------------
 # Fixtures and helpers

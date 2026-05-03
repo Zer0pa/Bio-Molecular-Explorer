@@ -12,11 +12,11 @@ does NOT break the downstream pipeline:
 
 from __future__ import annotations
 
-from zer0pa_health.envelope import Backend, FalsifierStatus
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
-from zer0pa_health.pathway1.contracts.p1_structure import P1StructureInput
-from zer0pa_health.pathway1.layers.structure import P1StructureStubAdapter
-from zer0pa_health.runpod_sim.p1_structure_runpod_sim import P1StructureRunpodSimAdapter
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_structure import P1StructureInput
+from zer0pa_biomolecular_explorer.pathway1.layers.structure import P1StructureStubAdapter
+from zer0pa_biomolecular_explorer.runpod_sim.p1_structure_runpod_sim import P1StructureRunpodSimAdapter
 
 _TARGET_ID = "uniprot:Q12809"
 _GENE = "KCNH2"

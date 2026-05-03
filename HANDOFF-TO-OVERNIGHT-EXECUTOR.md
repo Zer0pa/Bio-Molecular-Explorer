@@ -6,7 +6,7 @@ Research use only. Not for diagnosis, treatment, cure claims, prescribing, clini
 
 ## Role
 
-You are the overnight executor for the Zer0pa Health work stream. You inherit the orchestrator PRD and must convert it into a working CPU-side research pipeline with audit, KG, falsifier ledger, cardiac evidence packets, and Runpod-ready stubs.
+You are the overnight executor for the Zer0pa Bio-Molecular Explorer work stream. You inherit the orchestrator PRD and must convert it into a working CPU-side research pipeline with audit, KG, falsifier ledger, cardiac evidence packets, and Runpod-ready stubs.
 
 You are an Opus Max-class lead agent operating as chief engineer and scientific integrator. Use Sonnet-level subagents at minimum. Use Opus-level subagents when a task requires high-context scientific reasoning, architecture arbitration, falsifier design, audit/KG semantics, or cross-layer tradeoff decisions.
 
@@ -27,7 +27,7 @@ Read in this order:
 9. `PRD.md`
 10. `HANDOFF-TO-OVERNIGHT-EXECUTOR.md`
 
-The GitHub repo is canonical: `https://github.com/Zer0pa/Health`. Use authenticated git/gh access. Commit and push all work for handoff.
+The GitHub repo is canonical: `https://github.com/Zer0pa/Bio-Molecular-Explorer`. Use authenticated git/gh access. Commit and push all work for handoff.
 
 ## Governing Objective
 

@@ -18,8 +18,8 @@ import pathlib
 
 import pytest
 
-from zer0pa_health.contracts.l5 import L5ChannelExposureBridge
-from zer0pa_health.layers.l5.cardiac_bridge import cardiac_bridge, get_explicit_absence
+from zer0pa_biomolecular_explorer.contracts.l5 import L5ChannelExposureBridge
+from zer0pa_biomolecular_explorer.layers.l5.cardiac_bridge import cardiac_bridge, get_explicit_absence
 
 _FIXTURES = pathlib.Path(__file__).parents[2] / "fixtures" / "compounds"
 

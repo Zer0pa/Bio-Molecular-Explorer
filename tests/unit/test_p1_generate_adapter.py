@@ -15,14 +15,14 @@ import json
 
 import pytest
 
-from zer0pa_health.envelope import FalsifierStatus, LayerName
-from zer0pa_health.falsifiers.registry import FalsifierClass
-from zer0pa_health.pathway1.contracts.p1_generate import P1GenerateInput
-from zer0pa_health.pathway1.layers.generate.adapter import (
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerName
+from zer0pa_biomolecular_explorer.falsifiers.registry import FalsifierClass
+from zer0pa_biomolecular_explorer.pathway1.contracts.p1_generate import P1GenerateInput
+from zer0pa_biomolecular_explorer.pathway1.layers.generate.adapter import (
     P1GenerateStubAdapter,
     _SMILES_POOL,
 )
-from zer0pa_health.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
+from zer0pa_biomolecular_explorer.pathway1.layers.generate.toy_adapter import P1GenerateToyAdapter
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────

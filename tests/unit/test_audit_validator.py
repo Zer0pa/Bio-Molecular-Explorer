@@ -14,15 +14,15 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.audit import (
+from zer0pa_biomolecular_explorer.audit import (
     AuditValidationError,
     AuditValidator,
     AuditWriter,
     AuditTable,
 )
-from zer0pa_health.boundary import RESEARCH_BOUNDARY
-from zer0pa_health.hashing import GENESIS_HASH, canonical_json, hash_chain_link
-from zer0pa_health.ids import audit_id, run_id
+from zer0pa_biomolecular_explorer.boundary import RESEARCH_BOUNDARY
+from zer0pa_biomolecular_explorer.hashing import GENESIS_HASH, canonical_json, hash_chain_link
+from zer0pa_biomolecular_explorer.ids import audit_id, run_id
 
 
 # ──────────────────────────────────────────────────────────────────────

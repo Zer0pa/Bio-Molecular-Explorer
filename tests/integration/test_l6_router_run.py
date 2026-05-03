@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from zer0pa_health.runs import run_cardiac_via_l6_router
+from zer0pa_biomolecular_explorer.runs import run_cardiac_via_l6_router
 
 
 _DOFETILIDE_SMILES = "CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1"
@@ -71,7 +71,7 @@ def test_l6_router_promotes_on_clean_run(tmp_path):
     # We expect at least 1 promote on a clean dofetilide-ish run
     assert res.promote_count >= 1
     # Audit-validate the run
-    from zer0pa_health.audit import AuditValidator
+    from zer0pa_biomolecular_explorer.audit import AuditValidator
 
     counts = AuditValidator(tmp_path / "audit", res.run_id).validate()
     assert counts["runs"] == 1

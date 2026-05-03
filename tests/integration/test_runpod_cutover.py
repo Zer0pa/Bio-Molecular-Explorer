@@ -19,19 +19,19 @@ from pathlib import Path
 
 import pytest
 
-from zer0pa_health.contracts.l1 import (
+from zer0pa_biomolecular_explorer.contracts.l1 import (
     L1ChannelGene,
     L1ChannelPanelInput,
     L1IonCurrent,
     L1MoleculeInput,
     L1TargetInput,
 )
-from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-from zer0pa_health.envelope import Backend, FalsifierStatus
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
-from zer0pa_health.layers.l1.adapter import L1StubAdapter
-from zer0pa_health.layers.l5.adapter import L5StubAdapter
-from zer0pa_health.runpod_sim import L1RunpodSimAdapter
+from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+from zer0pa_biomolecular_explorer.envelope import Backend, FalsifierStatus
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+from zer0pa_biomolecular_explorer.runpod_sim import L1RunpodSimAdapter
 
 
 def _envelope_keys(env) -> dict:
@@ -87,7 +87,7 @@ def test_l1_runpod_sim_clears_stub_laundering_falsifier():
 
 def test_l1_runpod_sim_dock_method_compatibility():
     """The sim adapter exposes the same dock() interface."""
-    from zer0pa_health.contracts.l1 import L1DockingInput
+    from zer0pa_biomolecular_explorer.contracts.l1 import L1DockingInput
 
     sim = L1RunpodSimAdapter()
     inp = L1DockingInput(

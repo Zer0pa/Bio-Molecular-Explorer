@@ -22,8 +22,8 @@ from __future__ import annotations
 
 import pytest
 
-from zer0pa_health.envelope import FalsifierStatus, LayerEnvelope
-from zer0pa_health.falsifiers.detectors import detect_plug_replaceability_regression
+from zer0pa_biomolecular_explorer.envelope import FalsifierStatus, LayerEnvelope
+from zer0pa_biomolecular_explorer.falsifiers.detectors import detect_plug_replaceability_regression
 
 
 def _keys(env: LayerEnvelope) -> dict:
@@ -46,9 +46,9 @@ def _assert_pluggable(env_a: LayerEnvelope, env_b: LayerEnvelope, label: str) ->
 
 
 def test_l1_ligand_real_swap():
-    from zer0pa_health.contracts.l1 import L1MoleculeInput
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import L1MoleculeInput
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1MoleculeInput(smiles="CCO", inchikey="LFQSCWFLJHTTHZ-UHFFFAOYSA-N", name="ethanol")
     env_stub = L1StubAdapter().ligand(inp)
@@ -57,9 +57,9 @@ def test_l1_ligand_real_swap():
 
 
 def test_l1_target_real_swap():
-    from zer0pa_health.contracts.l1 import L1ChannelGene, L1IonCurrent, L1TargetInput
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l1 import L1ChannelGene, L1IonCurrent, L1TargetInput
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1TargetInput(gene=L1ChannelGene.KCNH2, current=L1IonCurrent.IKr)
     env_stub = L1StubAdapter().target(inp)
@@ -68,11 +68,11 @@ def test_l1_target_real_swap():
 
 
 def test_l1_dock_real_swap():
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelGene, L1DockingInput, L1IonCurrent, L1MoleculeInput, L1TargetInput,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1DockingInput(
         molecule=L1MoleculeInput(smiles="CCO", inchikey="LFQSCWFLJHTTHZ-UHFFFAOYSA-N"),
@@ -85,11 +85,11 @@ def test_l1_dock_real_swap():
 
 
 def test_l1_md_real_swap():
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelGene, L1IonCurrent, L1MDInput, L1MoleculeInput, L1TargetInput,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1MDInput(
         molecule=L1MoleculeInput(smiles="CCO"),
@@ -103,11 +103,11 @@ def test_l1_md_real_swap():
 
 
 def test_l1_fep_real_swap():
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelGene, L1FEPInput, L1IonCurrent, L1MoleculeInput, L1TargetInput,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     inp = L1FEPInput(
         ligand_a=L1MoleculeInput(smiles="CCO"),
@@ -121,11 +121,11 @@ def test_l1_fep_real_swap():
 
 
 def test_l1_channel_panel_real_swap():
-    from zer0pa_health.contracts.l1 import (
+    from zer0pa_biomolecular_explorer.contracts.l1 import (
         L1ChannelGene, L1ChannelPanelInput, L1IonCurrent, L1TargetInput,
     )
-    from zer0pa_health.layers.l1.adapter import L1StubAdapter
-    from zer0pa_health.layers.l1.toy_adapter import L1ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.adapter import L1StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l1.toy_adapter import L1ToyAdapter
 
     panel_input = L1ChannelPanelInput(
         targets=[
@@ -146,9 +146,9 @@ def test_l1_channel_panel_real_swap():
 
 
 def test_l2_real_swap_plain():
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     inp = L2PropertyInput(molecule=L2MoleculeInput(smiles="c1ccccc1"))
     env_stub = L2StubAdapter().process(inp)
@@ -158,9 +158,9 @@ def test_l2_real_swap_plain():
 
 def test_l2_real_swap_with_retrosynth_feedback():
     """L2 with retrosynth_feedback from L2.5 — downstream parses both stub and toy."""
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     feedback = L2RetrosynthFeedback(
         smiles="c1ccccc1",
@@ -185,11 +185,11 @@ def test_l2_real_swap_with_retrosynth_feedback():
 
 def test_l25_stub_output_feeds_l2_stub_and_toy():
     """L2.5 stub output can be parsed by both L2 stub and toy adapters."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     # Run L2.5 stub
     l25_inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
@@ -217,11 +217,11 @@ def test_l25_stub_output_feeds_l2_stub_and_toy():
 
 def test_l25_toy_output_feeds_l2_stub_and_toy():
     """L2.5 toy output can be parsed by both L2 stub and toy adapters."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
-    from zer0pa_health.layers.l2.adapter import L2StubAdapter
-    from zer0pa_health.layers.l2.toy_adapter import L2ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.contracts.l2 import L2MoleculeInput, L2PropertyInput, L2RetrosynthFeedback
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.adapter import L2StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2.toy_adapter import L2ToyAdapter
 
     l25_inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     l25_env = L25ToyAdapter().process(l25_inp)
@@ -250,9 +250,9 @@ def test_l25_toy_output_feeds_l2_stub_and_toy():
 
 
 def test_l25_real_swap():
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
 
     inp = L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
     env_stub = L25StubAdapter().process(inp)
@@ -266,9 +266,9 @@ def test_l25_real_swap():
 
 
 def test_l3_real_swap():
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     inp = L3ProcessInput(
         target_canonical_smiles="CCO",
@@ -282,11 +282,11 @@ def test_l3_real_swap():
 
 def test_l25_stub_route_feeds_l3_stub_and_toy():
     """L2.5 stub route SMILES can feed both L3 adapters (downstream unchanged)."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l2_5.adapter import L25StubAdapter
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l2_5.adapter import L25StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     l25_env = L25StubAdapter().process(
         L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
@@ -310,11 +310,11 @@ def test_l25_stub_route_feeds_l3_stub_and_toy():
 
 def test_l25_toy_route_feeds_l3_stub_and_toy():
     """L2.5 toy route SMILES can feed both L3 adapters."""
-    from zer0pa_health.contracts.l2_5 import L25Input, L25Policy
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.layers.l2_5.toy_adapter import L25ToyAdapter
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l2_5 import L25Input, L25Policy
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.layers.l2_5.toy_adapter import L25ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
 
     l25_env = L25ToyAdapter().process(
         L25Input(canonical_smiles="CCO", policy=L25Policy.AIZYNTHFINDER_DEFAULT)
@@ -342,9 +342,9 @@ def test_l25_toy_route_feeds_l3_stub_and_toy():
 
 
 def test_l4_real_swap():
-    from zer0pa_health.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l4 import L4SensorClass, L4SensorState, L4VirtualPlantInput
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     sensors = [
         L4SensorState(
@@ -368,11 +368,11 @@ def test_l4_real_swap():
 
 def test_l3_stub_unit_ops_feed_l4_stub_and_toy():
     """L3 stub unit op names feed both L4 adapters (downstream unchanged)."""
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.contracts.l4 import L4VirtualPlantInput
-    from zer0pa_health.layers.l3.adapter import L3StubAdapter
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.contracts.l4 import L4VirtualPlantInput
+    from zer0pa_biomolecular_explorer.layers.l3.adapter import L3StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     l3_env = L3StubAdapter().process(
         L3ProcessInput(
@@ -397,11 +397,11 @@ def test_l3_stub_unit_ops_feed_l4_stub_and_toy():
 
 def test_l3_toy_unit_ops_feed_l4_stub_and_toy():
     """L3 toy unit op names feed both L4 adapters."""
-    from zer0pa_health.contracts.l3 import L3ProcessInput
-    from zer0pa_health.contracts.l4 import L4VirtualPlantInput
-    from zer0pa_health.layers.l3.toy_adapter import L3ToyAdapter
-    from zer0pa_health.layers.l4.adapter import L4StubAdapter
-    from zer0pa_health.layers.l4.toy_adapter import L4ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l3 import L3ProcessInput
+    from zer0pa_biomolecular_explorer.contracts.l4 import L4VirtualPlantInput
+    from zer0pa_biomolecular_explorer.layers.l3.toy_adapter import L3ToyAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.adapter import L4StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l4.toy_adapter import L4ToyAdapter
 
     l3_env = L3ToyAdapter().process(
         L3ProcessInput(
@@ -430,9 +430,9 @@ def test_l3_toy_unit_ops_feed_l4_stub_and_toy():
 
 
 def test_l5_real_swap():
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CCO",
@@ -450,9 +450,9 @@ def test_l5_real_swap():
 
 def test_l5_real_swap_with_dofetilide():
     """Both adapters handle a known fixture compound (dofetilide) successfully."""
-    from zer0pa_health.contracts.l5 import L5PKModelKind, L5PKPDInput
-    from zer0pa_health.layers.l5.adapter import L5StubAdapter
-    from zer0pa_health.layers.l5.toy_adapter import L5ToyAdapter
+    from zer0pa_biomolecular_explorer.contracts.l5 import L5PKModelKind, L5PKPDInput
+    from zer0pa_biomolecular_explorer.layers.l5.adapter import L5StubAdapter
+    from zer0pa_biomolecular_explorer.layers.l5.toy_adapter import L5ToyAdapter
 
     inp = L5PKPDInput(
         canonical_smiles="CN(C)S(=O)(=O)c1ccc(NCCOc2ccc(CCN(C)S(=O)(=O)C)cc2)cc1",

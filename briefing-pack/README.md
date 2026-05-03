@@ -1,6 +1,6 @@
 # Health Portfolio — Briefing Pack for a Science / Medical Thinking Agent
 
-This pack briefs a thinking agent acting as a science / medical lens on the Zer0pa Health Portfolio. It is high-level: scientific framing, what is on the table, what was inherited from the parent ("Brain") project, and the current operator's read on it. It is not infrastructure documentation.
+This pack briefs a thinking agent acting as a science / medical lens on the Zer0pa Bio-Molecular Explorer Portfolio. It is high-level: scientific framing, what is on the table, what was inherited from the parent ("Brain") project, and the current operator's read on it. It is not infrastructure documentation.
 
 ## Hard Boundary
 

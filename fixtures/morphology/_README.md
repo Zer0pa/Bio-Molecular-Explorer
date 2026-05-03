@@ -16,7 +16,7 @@ with the following invariants:
    relative to a reference extractor. Required keys: `QT`, `QRS`, `PR`,
    `ST`, `T_amplitude`. Each list MUST contain only finite values; NaN/inf
    in any array hard-stops the run via
-   `zer0pa_health.packets.morphology_fixtures.load_morphology_fixture`.
+   `zer0pa_biomolecular_explorer.packets.morphology_fixtures.load_morphology_fixture`.
 5. `provenance` — generated_at timestamp + free-text note documenting that
    the values are locked stub data; mechanism escalation requires the
    Runpod-real PTB-XL+ extractor.

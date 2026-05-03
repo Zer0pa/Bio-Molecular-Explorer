@@ -16,7 +16,7 @@ from typing import cast
 
 import pytest
 
-from zer0pa_health.reasoner import (
+from zer0pa_biomolecular_explorer.reasoner import (
     ReasonerAdapter,
     ReasonerInput,
     ReasonerOutput,
@@ -24,13 +24,13 @@ from zer0pa_health.reasoner import (
     ReasonerTuple,
     StubReasonerBackend,
 )
-from zer0pa_health.reasoner.adapter import (
+from zer0pa_biomolecular_explorer.reasoner.adapter import (
     _has_cardiac_context,
     _needs_panel_refresh,
     _sanitize_or_abstain,
 )
-from zer0pa_health.reasoner.day_one_flow import run_reasoner_step, assemble_context_pack
-from zer0pa_health.reasoner.tuple_schema import (
+from zer0pa_biomolecular_explorer.reasoner.day_one_flow import run_reasoner_step, assemble_context_pack
+from zer0pa_biomolecular_explorer.reasoner.tuple_schema import (
     AUTHORITY_ORDER,
     FORBIDDEN_OUTPUTS,
     REQUIRED_CAVEATS,
@@ -186,8 +186,8 @@ class TestClinicalOverclaimSelfPolicing:
         for testing).  We use model_construct to bypass validation here to prove the
         sanitize function itself works.
         """
-        from zer0pa_health.reasoner.tuple_schema import TupleClaim, TupleAbstention, TupleFalsifier
-        from zer0pa_health.ids import claim_id, falsifier_id
+        from zer0pa_biomolecular_explorer.reasoner.tuple_schema import TupleClaim, TupleAbstention, TupleFalsifier
+        from zer0pa_biomolecular_explorer.ids import claim_id, falsifier_id
 
         # Use model_construct to skip validators — simulates an externally-sourced
         # claim object that somehow carries an overclaim phrase.
@@ -211,7 +211,7 @@ class TestClinicalOverclaimSelfPolicing:
 
     def test_stub_own_templates_pass_boundary(self):
         """The stub's own claim templates must not trigger boundary violations."""
-        from zer0pa_health.boundary import boundary_violations
+        from zer0pa_biomolecular_explorer.boundary import boundary_violations
         backend = StubReasonerBackend()
         inp = _cardiac_input(
             compounds=_CARDIAC_COMPOUNDS,
@@ -226,14 +226,14 @@ class TestClinicalOverclaimSelfPolicing:
 
     def test_run_reasoner_step_fails_on_overclaim_adapter(self, tmp_path):
         """An adapter that returns an overclaim phrase results in a FAILED clinical_overclaim tuple."""
-        from zer0pa_health.ids import claim_id, falsifier_id
+        from zer0pa_biomolecular_explorer.ids import claim_id, falsifier_id
 
         class OverclaimAdapter:
             model_id = "overclaim-mock-0.1"
             license_class = "A"
 
             def propose(self, input_block: ReasonerInput) -> ReasonerOutput:
-                from zer0pa_health.reasoner.tuple_schema import (
+                from zer0pa_biomolecular_explorer.reasoner.tuple_schema import (
                     TupleClaim, ReasonerOutput
                 )
                 cid = claim_id()
@@ -270,7 +270,7 @@ class TestClinicalOverclaimSelfPolicing:
 
     def test_stub_backend_produces_no_overclaim_phrases_at_all(self):
         """End-to-end: StubReasonerBackend with all 3 seed compounds + 4 genes."""
-        from zer0pa_health.boundary import boundary_violations
+        from zer0pa_biomolecular_explorer.boundary import boundary_violations
         backend = StubReasonerBackend()
         inp = _cardiac_input(
             compounds=["dofetilide", "verapamil", "ranolazine"],

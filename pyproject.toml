@@ -18,11 +18,6 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Bio-Informatics",
   "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
-
-[project.urls]
-Homepage = "https://github.com/Zer0pa/Bio-Molecular-Explorer"
-Source = "https://github.com/Zer0pa/Bio-Molecular-Explorer"
-
 dependencies = [
   "pydantic>=2.5",
   "jsonschema>=4.20",
@@ -50,6 +45,10 @@ dev = [
 [project.scripts]
 zer0pa-biomolecular-explorer = "zer0pa_biomolecular_explorer.cli:app"
 zer0pa-biomolecular-l1-stub = "zer0pa_biomolecular_explorer.layers.l1.server:run"
+
+[project.urls]
+Homepage = "https://github.com/Zer0pa/Bio-Molecular-Explorer"
+Source = "https://github.com/Zer0pa/Bio-Molecular-Explorer"
 
 [tool.setuptools.packages.find]
 where = ["src"]

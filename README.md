@@ -39,10 +39,10 @@ The repo currently exposes a CPU-first scaffold with contracts, audit trails, KG
 | Identifier | Bio-Molecular Explorer |
 | Repository | https://github.com/Zer0pa/Bio-Molecular-Explorer |
 | Portfolio | Bio-molecular research infrastructure |
-| Visibility | INTERNAL |
+| Visibility | Public-ready research surface; internal authority status: scaffold, H100 gate pending |
 | Default Branch | main |
-| Authority Source | `PRD.md`; `docs/H100_COMPLETION_PLAN.md`; this README blocker register |
-| License | No public license file in this snapshot |
+| Authority Source | `PRD.md`; `docs/H100_COMPLETION_PLAN.md`; `docs/DECISIONS.md`; this README blocker register (no `.gpd/STATE.md`; phase state lives in these docs) |
+| License | SAL v7.1 — `LICENSE` and `NOTICE.md` present; canonical endpoint recorded in `NOTICE.md` |
 
 ## Readiness
 
@@ -81,7 +81,7 @@ The current review findings control readiness. The sovereign authority metric is
 | --- | --- | --- |
 | V_01 | Canonical live-lab README spine applied with `Pipeline Mechanics` as Zone 02 | PASS |
 | V_02 | Research/medical boundary preserved verbatim | PASS |
-| V_03 | Visibility unchanged; repo remains INTERNAL | PASS |
+| V_03 | GitHub visibility public; internal authority status: scaffold per blocker register | PASS |
 | V_04 | CPU scaffold verification recorded at 768 tests before this README-only alignment | PASS |
 | V_05 | Authority-path blocker remains the governing front-door gate | BLOCKED |
 | V_06 | Authoritative H100 cutover remains gated until completion evidence exists | BLOCKED |
@@ -219,4 +219,4 @@ Three private HF datasets exist under legacy names (`Architect-Prime/zer0pa-heal
 
 ### Front Door Status
 
-Repository is aligned to the Zer0pa Lab Front Door canonical spine as of 2026-05-03. Visibility: INTERNAL. This repo becomes a candidate for the Zer0pa website sync cycle when the cardiac authority gate clears and the H100 governing pass is verified.
+Repository is aligned to the Zer0pa Lab Front Door canonical spine as of 2026-05-03. Visibility: public research repository; internal authority status: scaffold, H100 gate pending. Package live on PyPI as `zer0pa-biomolecular-explorer` v0.1.0. This repo becomes a candidate for the Zer0pa website sync cycle when the cardiac authority gate clears and the H100 governing pass is verified.
